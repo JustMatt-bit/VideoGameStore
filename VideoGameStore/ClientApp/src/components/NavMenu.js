@@ -40,7 +40,10 @@ export class NavMenu extends Component {
               </NavItem> 
               <NavItem>
               <NavLink tag={Link} className="text-dark" to="/product-control">Produktų kontrolė</NavLink>
-               </NavItem> 
+               </NavItem>
+              <NavItem>
+                 <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart"/></NavLink>
+              </NavItem>
             </ul>
           </Collapse>
         </Navbar>

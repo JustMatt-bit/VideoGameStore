@@ -2,6 +2,8 @@ import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import { FetchProducts } from "./components/FetchProducts";
+import { FetchFeedback } from "./components/FetchFeedback";
+import { Cart } from "./components/Cart";
 import { RecommendationList } from "./components/RecommendationList";
 import { Product } from "./components/Product";
 import { ProductControl } from "./components/ProductControl";
@@ -26,6 +28,14 @@ const AppRoutes = [
         element: <FetchProducts />
     },
     {
+        path: '/cart',
+        element: <Cart />
+    },
+    {
+        path: '/fetch-feedback',
+        element: <FetchFeedback />
+    },
+    {
         path: '/recommendation-list',
         element: <RecommendationList />
     },
@@ -45,6 +55,7 @@ const AppRoutes = [
         path: 'product-edit',
         element: <ProductEdit />
     }
+
 ];
 
 export default AppRoutes;
