@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
@@ -33,11 +33,14 @@ export class NavMenu extends Component {
                 <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/fetch-products">Product Page</NavLink>
+                <NavLink tag={Link} className="text-dark" to="/fetch-products">Produktai</NavLink>
               </NavItem>
               <NavItem>
-               <NavLink tag={Link} className="text-dark" to="/recommendation-list">Recommendation</NavLink>
-              </NavItem>
+               <NavLink tag={Link} className="text-dark" to="/recommendation-list">Rekomendacijos</NavLink>
+              </NavItem> 
+              <NavItem>
+              <NavLink tag={Link} className="text-dark" to="/product-control">Produktų kontrolė</NavLink>
+               </NavItem> 
             </ul>
           </Collapse>
         </Navbar>
