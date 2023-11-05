@@ -2,6 +2,7 @@ import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import { FetchProducts } from "./components/FetchProducts";
+import { FetchFeedback } from "./components/FetchFeedback";
 
 const AppRoutes = [
   {
@@ -19,6 +20,10 @@ const AppRoutes = [
   {
     path: '/fetch-products',
     element: <FetchProducts />
+  },
+  {
+    path: '/fetch-feedback',
+    element: <FetchFeedback />
   }
 ];
 
