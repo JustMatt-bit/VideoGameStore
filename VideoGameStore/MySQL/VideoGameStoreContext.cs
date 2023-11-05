@@ -96,22 +96,22 @@ namespace VideoGameStore.Models
                 return types;
             }
         }
-        public List<Feedback> GetFeedbacksForProduct(int productId)
+        public List<Feedback> GetFeedbackForProduct(int productId)
         {
-            List<Feedback> feedbacks = new List<Feedback>();
+            List<Feedback> feedback = new List<Feedback>();
             using (MySqlConnection connection = GetConnection())
             {
                 connection.Open();
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product" +
+                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product " +
                     "FROM feedback f LEFT JOIN products p ON p.product_id=f.fk_product WHERE f.fk_product=@productId", connection);
                 cmd.Parameters.AddWithValue("@productId", productId);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        feedbacks.Add(new Feedback()
+                        feedback.Add(new Feedback()
                         {
                             id = reader.GetInt32("feedback_id"),
                             date = reader.GetDateTime("date"),
@@ -119,13 +119,13 @@ namespace VideoGameStore.Models
                             rating = reader.GetFloat("rating"),
                             rating_count = reader.GetInt32("rating_count"),
                             is_flagged = reader.GetBoolean("flagged"),
-                            account_name = reader.GetString("account_name"),
+                            account_name = reader.GetString("fk_account"),
                             fk_product = reader.GetInt32("fk_product")
                         });
                     }
                 }
             }
-            return feedbacks;
+            return feedback;
         }
     }
 }
