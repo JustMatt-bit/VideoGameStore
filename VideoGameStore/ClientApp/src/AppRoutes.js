@@ -3,6 +3,7 @@ import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import { FetchProducts } from "./components/FetchProducts";
 import { FetchFeedback } from "./components/FetchFeedback";
+import { Cart } from "./components/Cart";
 
 const AppRoutes = [
   {
@@ -20,6 +21,10 @@ const AppRoutes = [
   {
     path: '/fetch-products',
     element: <FetchProducts />
+  },
+  {
+    path: '/cart',
+    element: <Cart />
   },
   {
     path: '/fetch-feedback',
