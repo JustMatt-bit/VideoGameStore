@@ -9,6 +9,7 @@ import { Product } from "./components/Product";
 import { ProductControl } from "./components/ProductControl";
 import { ProductCreate } from "./components/ProductCreate";
 import { ProductEdit } from "./components/ProductEdit";
+import { Checkout } from "./components/Checkout";
 
 const AppRoutes = [
     {
@@ -34,6 +35,10 @@ const AppRoutes = [
     {
         path: '/fetch-feedback',
         element: <FetchFeedback />
+    },
+    {
+        path: '/checkout',
+        element: <Checkout />
     },
     {
         path: '/recommendation-list',

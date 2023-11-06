@@ -6,7 +6,7 @@ import { FetchFeedback } from './FetchFeedback';
 function ToCart() {
     const navigate = useNavigate();
     const navigateToCart = () => {
-        navigate('/shopping-cart');
+        navigate('/cart');
     };
     return (
         <div>
