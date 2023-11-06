@@ -44,6 +44,12 @@ export class NavMenu extends Component {
               <NavItem>
                  <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart"/></NavLink>
               </NavItem>
+              <NavItem>
+                  <NavLink tag={Link} className="text-dark" to="/fetch-account">Account Page</NavLink>
+              </NavItem>
+              <NavItem>
+                  <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty Program Progress</NavLink>
+              </NavItem>
             </ul>
           </Collapse>
         </Navbar>
