@@ -30,8 +30,18 @@ export class FetchAccount extends Component {
                     <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                         <ul className="navbar-nav flex-grow">
                             <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/edit-account">Edit account</NavLink>
+                            </NavItem>  
+                            <NavItem>
                                 <NavLink tag={Link} className="text-dark" to="/fetch-leaderboard">Leaderboard</NavLink>
-                            </NavItem>   
+                            </NavItem>
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/fetch-order-history">Order history</NavLink>
+                            </NavItem>  
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/activate-discount">Activate discounts</NavLink>
+                            </NavItem>  
+                           
                         </ul>
                     </Collapse>
                 </Navbar>

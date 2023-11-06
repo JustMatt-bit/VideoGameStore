@@ -3,6 +3,11 @@ import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
 import { FetchProducts } from "./components/FetchProducts";
 import { FetchAccount } from "./components/FetchAccount";
+import { FetchLeaderboard } from "./components/FetchLeaderboard";
+import { FetchOrderHistory } from "./components/FetchOrderHistory";
+import { EditAccount } from "./components/EditAccount";
+import { ActivateDiscount } from "./components/ActivateDiscount";
+import { Register } from "./components/Register";
 import { FetchFeedback } from "./components/FetchFeedback";
 import { Cart } from "./components/Cart";
 import { RecommendationList } from "./components/RecommendationList";
@@ -11,6 +16,8 @@ import { ProductControl } from "./components/ProductControl";
 import { ProductCreate } from "./components/ProductCreate";
 import { ProductEdit } from "./components/ProductEdit";
 import { Checkout } from "./components/Checkout";
+
+
 
 const AppRoutes = [
   {
@@ -32,7 +39,23 @@ const AppRoutes = [
   {
       path: '/fetch-account',
       element: <FetchAccount />
-  },
+    },
+    {
+        path: '/fetch-leaderboard',
+        element: <FetchLeaderboard />
+    },
+    {
+        path: '/fetch-order-history',
+        element: <FetchOrderHistory />
+    },
+    {
+        path: '/edit-account',
+        element: <EditAccount />
+    },
+    {
+        path: '/activate-discount',
+        element: <ActivateDiscount />
+    },
     {
         path: '/cart',
         element: <Cart />
@@ -40,6 +63,10 @@ const AppRoutes = [
     {
         path: '/fetch-feedback',
         element: <FetchFeedback />
+    },
+    {
+        path: '/register',
+        element: <Register />
     },
     {
         path: '/checkout',
