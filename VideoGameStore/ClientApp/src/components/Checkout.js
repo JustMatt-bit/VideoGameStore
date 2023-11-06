@@ -81,11 +81,46 @@ export class Checkout extends Component {
                 <h1>Atsiskaitymas:</h1>
 
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
                         <table border="1" style={{ borderWidth: 2 }}>{cart}</table>
+                        <br></br>
+                        <input type="text"></input>
+                        <button
+                            style={{
+                                backgroundColor: 'antiquewhite', // Green background
+                                color: 'black', // White text
+                                padding: '5px 10px', // Padding around the text
+                                margin: '10px', // Margin around the button
+                                border: 'none', // No border
+                                borderRadius: '5px', // Slightly rounded corners
+                                cursor: 'pointer', // Cursor pointer
+                                fontSize: '16px', // Font size
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = 'whitesmoke'} // Darker green on hover
+                            onMouseOut={(e) => e.target.style.backgroundColor = 'antiquewhite'} // Original color when not hovered
+                        >
+                            Pritakyti
+                        </button>
                     </div>
                     <div style={{ flex: 2 }}>
                         {contents}
+                        <a href="/shipping"> <button
+                            style={{
+                                textAlign: 'center',
+                                backgroundColor: '#4CAF50', // Green background
+                                color: 'white', // White text
+                                padding: '5px 10px', // Padding around the text
+                                margin: '10px', // Margin around the button
+                                border: 'none', // No border
+                                borderRadius: '5px', // Slightly rounded corners
+                                cursor: 'pointer', // Cursor pointer
+                                fontSize: '16px', // Font size
+                            }}
+                            onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'} // Darker green on hover
+                            onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'} // Original color when not hovered
+                        >
+                            Tęsti
+                        </button></a>
                     </div>
                 </div>
             </div>

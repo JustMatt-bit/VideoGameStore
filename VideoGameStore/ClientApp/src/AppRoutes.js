@@ -16,6 +16,7 @@ import { ProductControl } from "./components/ProductControl";
 import { ProductCreate } from "./components/ProductCreate";
 import { ProductEdit } from "./components/ProductEdit";
 import { Checkout } from "./components/Checkout";
+import { Shipping } from "./components/Shipping";
 
 
 
@@ -35,6 +36,10 @@ const AppRoutes = [
   {
     path: '/fetch-products',
     element: <FetchProducts />
+  },
+  {
+    path: '/shipping',
+    element: <Shipping />
   },
   {
       path: '/fetch-account',
