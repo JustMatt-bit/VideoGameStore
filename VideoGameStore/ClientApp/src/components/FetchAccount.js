@@ -38,9 +38,6 @@ export class FetchAccount extends Component {
                             <NavItem>
                                 <NavLink tag={Link} className="text-dark" to="/fetch-order-history">Order history</NavLink>
                             </NavItem>  
-                            <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/activate-discount">Activate discounts</NavLink>
-                            </NavItem>  
                            
                         </ul>
                     </Collapse>

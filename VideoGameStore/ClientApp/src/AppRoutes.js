@@ -6,7 +6,7 @@ import { FetchAccount } from "./components/FetchAccount";
 import { FetchLeaderboard } from "./components/FetchLeaderboard";
 import { FetchOrderHistory } from "./components/FetchOrderHistory";
 import { EditAccount } from "./components/EditAccount";
-import { ActivateDiscount } from "./components/ActivateDiscount";
+import { FetchOrder } from "./components/FetchOrder";
 import { Register } from "./components/Register";
 import { FetchFeedback } from "./components/FetchFeedback";
 import { Cart } from "./components/Cart";
@@ -53,8 +53,8 @@ const AppRoutes = [
         element: <EditAccount />
     },
     {
-        path: '/activate-discount',
-        element: <ActivateDiscount />
+        path: '/fetch-order',
+        element: <FetchOrder />
     },
     {
         path: '/cart',
