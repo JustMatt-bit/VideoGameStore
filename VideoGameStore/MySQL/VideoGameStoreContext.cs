@@ -18,6 +18,61 @@ namespace VideoGameStore.Models
             return new MySqlConnection(ConnectionString);
         }
 
+        public User GetUserByUsername(string username)
+        {
+            User user = new User();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM accounts WHERE username=@user", connection);
+                cmd.Parameters.AddWithValue("@user", username);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while(reader.Read()) 
+                    {
+                        user.name = reader.GetString("name");
+                        user.surname = reader.GetString("surname");
+                        user.email = reader.GetString("email");
+                        user.phone = reader.GetString("phone");
+                        user.referal_code = reader.IsDBNull(reader.GetOrdinal("referal_code"))
+                                            ? (string?)null
+                                            : reader.GetString("referal_code");
+                        user.creation_date = reader.GetDateTime("creation_date");
+                        user.fk_user_type = reader.GetInt32("fk_user_type");
+                        user.fk_loyalty_tier = reader.GetInt32("fk_loyalty_tier");
+                    }
+                }
+                return user;
+            }
+        }
+        public User GetAdressesByUsername(string username)
+        {
+            User user = new User();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM addresses WHERE username=@user", connection);
+                cmd.Parameters.AddWithValue("@user", username);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        user.name = reader.GetString("name");
+                        user.surname = reader.GetString("surname");
+                        user.email = reader.GetString("email");
+                        user.phone = reader.GetString("phone");
+                        user.referal_code = reader.IsDBNull(reader.GetOrdinal("referal_code"))
+                                            ? (string?)null
+                                            : reader.GetString("referal_code");
+                        user.creation_date = reader.GetDateTime("creation_date");
+                        user.fk_user_type = reader.GetInt32("fk_user_type");
+                        user.fk_loyalty_tier = reader.GetInt32("fk_loyalty_tier");
+                    }
+                }
+                return user;
+            }
+        }
+
         public List<Developer> GetAllDevelopers()
         {
             List<Developer> developers = new List<Developer>();
@@ -109,7 +164,7 @@ namespace VideoGameStore.Models
             {
                 connection.Open();
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account FROM products p LEFT JOIN developers d ON d.developer_id = p.fk_developer LEFT JOIN game_types gt ON gt.game_type_id = p.fk_game_type JOIN carts c ON c.fk_product = p.product_id WHERE c.fk_order = @orderID;", connection);
+                    "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account, c.stock AS units_in_cart FROM products p LEFT JOIN developers d ON d.developer_id = p.fk_developer LEFT JOIN game_types gt ON gt.game_type_id = p.fk_game_type JOIN carts c ON c.fk_product = p.product_id WHERE c.fk_order = @orderID;", connection);
                 cmd.Parameters.AddWithValue("@orderID", orderBeingBuilt.id);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
@@ -128,11 +183,26 @@ namespace VideoGameStore.Models
                             game_type_name = reader.GetString("game_type"),
                             fk_developer = reader.GetInt32("fk_developer"),
                             developer_name = reader.GetString("developer"),
-                            fk_account = reader.GetString("fk_account")
+                            fk_account = reader.GetString("fk_account"),
+                            units_in_cart = reader.GetInt32("units_in_cart"),
                         });
                     }
                 }
                 return cart_items;
+            }
+        }
+        public void UpdateCartStock(int orderID, int productID, int newValue)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE carts SET stock =@newVal WHERE fk_order=@orderID AND fk_product=@productID;", connection);
+                cmd.Parameters.AddWithValue("@newVal", newValue);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+                cmd.Parameters.AddWithValue("@productID", productID);
+
+                cmd.ExecuteNonQuery();
             }
         }
         public List<Product> GetAllProducts()
