@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import gameImage from "../assets/liesofp.png";
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import { FetchFeedback } from './FetchFeedback';
 
 function ToCart() {
     const navigate = useNavigate();
@@ -29,7 +30,7 @@ export class Product extends Component {
                     {/*<ToCart/>*/}
                     <button>Pridėti į krepšelį</button>
                 </div>
-                
+                <FetchFeedback />
             </div>
 
         );

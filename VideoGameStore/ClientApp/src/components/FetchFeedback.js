@@ -69,8 +69,9 @@ export class FetchFeedback extends Component {
 
         return (
             <div>
-                <h1 id="tabelLabel" >Feedback: </h1>
-                <p>Product's feedback: </p>
+                {/*<h1 id="tabelLabel" >Feedback</h1>*/}
+                {/*<p>Product's feedback: </p>*/}
+                <br></br>
                 {contents}
             </div>
         );
