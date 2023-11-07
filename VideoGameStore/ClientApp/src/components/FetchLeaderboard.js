@@ -11,6 +11,9 @@ export class FetchLeaderboard extends Component {
         return (
 
             < div >
+                <div>
+                    <h2>Leaderboard</h2>
+                  </div>
 
                 < h2 >
                     This is the leaderboard

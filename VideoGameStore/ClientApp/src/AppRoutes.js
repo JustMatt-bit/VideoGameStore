@@ -17,6 +17,7 @@ import { ProductCreate } from "./components/ProductCreate";
 import { ProductEdit } from "./components/ProductEdit";
 import { Checkout } from "./components/Checkout";
 import { Shipping } from "./components/Shipping";
+import { LoyaltyProgram } from "./components/LoyaltyProgram";
 
 
 
@@ -96,6 +97,10 @@ const AppRoutes = [
     {
         path: 'product-edit',
         element: <ProductEdit />
+    },
+    {
+        path: 'fetch-loyalty',
+        element: <LoyaltyProgram />
     }
 ];
 
