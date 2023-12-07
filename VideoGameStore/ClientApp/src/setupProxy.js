@@ -9,7 +9,9 @@ const context =  [
   "/api/products",
   "/api/cart",
   "/api/checkout",
-  "/api/feedback"
+    "/api/feedback",
+    "/api/user",
+    "/api/user/login"
 ];
 
 module.exports = function(app) {

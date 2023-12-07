@@ -15,7 +15,7 @@ export class Register extends Component {
             surname: '',
             email: '',
             phone: '',
-            referal: '',
+            referal_code: '',
             date: new Date().toLocaleDateString()
         };
     }
@@ -23,11 +23,39 @@ export class Register extends Component {
     handleInputChange = (event) => {
         const { name, value } = event.target;
         this.setState({ [name]: value });
-    }
+    };
 
     handleSubmit = (event) => {
         event.preventDefault();
-    }
+        console.log(this.state)
+        // Send registration data to the server
+        fetch('api/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.state)
+        })
+            .then((response) => {
+                // Log the response status
+                console.log('Response Status:', response.status);
+
+                // Check if the response status is OK (200)
+                if (response.ok) {
+                     return response.json(); // Parse JSON if the response is OK
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            })
+            .then((data) => {
+                console.log('Registration response:', data);
+                // Handle success or failure
+            })
+            .catch((error) => {
+                console.error('Registration failed:', error);
+            });
+    };
+    
 
     render() {
         return (
@@ -57,8 +85,8 @@ export class Register extends Component {
                         <div>
                             <label>Name:</label><br />
                             <input
-                                type="name"
-                                name="text"
+                                type="text"
+                                name="name"
                                 value={this.state.name}
                                 onChange={this.handleInputChange}
                             />
@@ -67,8 +95,8 @@ export class Register extends Component {
                         <div>
                             <label>Surname:</label><br />
                             <input
-                                type="surname"
-                                name="text"
+                                type="text"
+                                name="surname"
                                 value={this.state.surname}
                                 onChange={this.handleInputChange}
                             />
@@ -87,8 +115,8 @@ export class Register extends Component {
                         <div>
                             <label>Phone number:</label><br />
                             <input
-                                type="phone"
-                                name="tel"
+                                type="tel"
+                                name="phone"
                                 value={this.state.phone}
                                 onChange={this.handleInputChange}
                             />
@@ -98,7 +126,7 @@ export class Register extends Component {
                             <label>Referral code:</label><br />
                             <input
                                 type="text"
-                                name="referal"
+                                name="referal_code"
                                 value={this.state.referal}
                                 onChange={this.handleInputChange}
                             />
@@ -112,3 +140,4 @@ export class Register extends Component {
         );
     }
 }
+export default Register;

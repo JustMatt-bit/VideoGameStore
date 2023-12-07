@@ -1,6 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
+using System.Security.Cryptography;
+
 
 namespace VideoGameStore.Models
 {
@@ -32,6 +32,7 @@ namespace VideoGameStore.Models
                     {
                         user.name = reader.GetString("name");
                         user.surname = reader.GetString("surname");
+                        user.password = reader.GetString("password");
                         user.email = reader.GetString("email");
                         user.phone = reader.GetString("phone");
                         user.referal_code = reader.IsDBNull(reader.GetOrdinal("referal_code"))
@@ -236,6 +237,90 @@ namespace VideoGameStore.Models
                     }
                 }
                 return types;
+            }
+        }
+        public bool RegisterUser(string username, string password, string name, string surname, string email, string phone, string refferal)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                string hashedPassword = HashPassword(password);
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO accounts (username, password, name, surname, email, referal_code, phone, fk_user_type, fk_loyalty_tier) " +
+                    "VALUES (@username, @password, @name, @surname, @email,@referal, @phone, 1, 1)",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.Parameters.AddWithValue("@password", hashedPassword);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@surname", surname);
+                cmd.Parameters.AddWithValue("@email", email);
+                cmd.Parameters.AddWithValue("@referal", refferal);
+                cmd.Parameters.AddWithValue("@phone", phone);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                return rowsAffected > 0;
+            }
+        }
+        
+        private bool ValidatePassword(string enteredPassword, string storedPasswordHash)
+        {
+            
+            string entryHash = HashPassword(enteredPassword);
+       
+                // Compare the stored hash with the hash of the entered password
+            return entryHash.Equals(storedPasswordHash);
+   
+        }
+
+        public bool Login(HttpContext httpContext, string username, string password)
+        {
+            // Get the user by username
+            User user = GetUserByUsername(username);
+
+            if (user != null)
+            {
+                // Validate the password
+                if (ValidatePassword(password, user.password))
+                {
+                    // Password is valid
+                    var token = $"YourSecretKey{username}";
+
+                    // Set the authentication cookie using the provided HttpContext
+                    SetAuthenticationCookie(httpContext, username, token); // Pass username and token
+
+                    return true;
+                }
+            }
+
+            // Authentication failed
+            return false;
+        }
+
+        private void SetAuthenticationCookie(HttpContext httpContext, string username, string token)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddHours(1),
+                Path = "/",
+                HttpOnly = true,
+                Secure = true, // Requires HTTPS
+                SameSite = SameSiteMode.Lax
+            };
+            string cookieName = "AuthCookie"; // Include the username in the cookie name
+            httpContext.Response.Cookies.Append(cookieName, token, cookieOptions);
+        }
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                // ComputeHash - returns byte array
+                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                string hash = BitConverter.ToString(bytes).Replace("-", "").ToLower();
+                // Convert byte array to a string
+                return hash.Substring(0, 32);
             }
         }
         public List<Feedback> GetFeedbackForProduct(int productId)
