@@ -3,15 +3,23 @@ import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from '
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
 
+function clearAllCookies() {
+    const cookies = document.cookie.split('; ');
+
+    for (const cookie of cookies) {
+        const [name, _] = cookie.split('=');
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+}
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
 
   constructor (props) {
     super(props);
-
+    
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
-      collapsed: true
+        collapsed: true,
     };
   }
 
@@ -21,6 +29,31 @@ export class NavMenu extends Component {
     });
   }
 
+    componentDidMount() {
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+            // Update the state with user information
+            this.setState({ isLoggedIn: true,  username });
+        } else {
+            // Authentication cookie not present
+            this.setState({ isLoggedIn: false });
+        }
+    }
+    handleLogout() {
+        // Clear authentication-related information
+        clearAllCookies()
+
+        // Update state to indicate logged out
+        this.setState({ isLoggedIn: false });
+
+   
+        window.location.reload(true);
+    }
   render() {
     return (
       <header>
@@ -43,11 +76,18 @@ export class NavMenu extends Component {
               </NavItem>
               <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/fetch-account">Account Page</NavLink>
-              </NavItem>
-              <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
-                 </NavItem>
-              <NavItem>
+                        </NavItem>
+                     
+                        {this.state.isLoggedIn ? (
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" onClick={this.handleLogout}>Logout</NavLink>
+                            </NavItem>
+                        ) : (
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
+                            </NavItem>
+                        )}
+              <NavItem> 
                   <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty Program Progress</NavLink>
               </NavItem>
               <NavItem>

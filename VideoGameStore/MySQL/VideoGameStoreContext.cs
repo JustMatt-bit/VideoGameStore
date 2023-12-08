@@ -1,6 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Security.Cryptography;
-
+using System.Text;
 
 namespace VideoGameStore.Models
 {
@@ -355,6 +355,124 @@ namespace VideoGameStore.Models
                 }
             }
             return feedback;
+        }
+
+        public bool UpdateUser(User updatedUser)
+        {
+            try
+            {
+                using (MySqlConnection connection = GetConnection())
+                {
+                    connection.Open();
+
+                    StringBuilder sqlCommandBuilder = new StringBuilder("UPDATE accounts SET ");
+
+                    // Check and add parameters only if the values are not null
+                    if (!string.IsNullOrEmpty(updatedUser.name))
+                    {
+                        sqlCommandBuilder.Append("name=@name, ");
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.surname))
+                    {
+                        sqlCommandBuilder.Append("surname=@surname, ");
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.email))
+                    {
+                        sqlCommandBuilder.Append("email=@email, ");
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.phone))
+                    {
+                        sqlCommandBuilder.Append("phone=@phone, ");
+                    }
+                   
+                        sqlCommandBuilder.Append("referal_code=@referal, ");
+                    
+                    if (!string.IsNullOrEmpty(updatedUser.password))
+                    {
+                        sqlCommandBuilder.Append("password=@password, ");
+                    }
+
+                    // Remove the trailing comma and space
+                    sqlCommandBuilder.Length -= 2;
+
+                    sqlCommandBuilder.Append(" WHERE username=@username");
+
+                    MySqlCommand cmd = new MySqlCommand(sqlCommandBuilder.ToString(), connection);
+
+                    // Add parameters based on the non-null values
+                    if (!string.IsNullOrEmpty(updatedUser.name))
+                    {
+                        cmd.Parameters.AddWithValue("@name", updatedUser.name);
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.surname))
+                    {
+                        cmd.Parameters.AddWithValue("@surname", updatedUser.surname);
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.email))
+                    {
+                        cmd.Parameters.AddWithValue("@email", updatedUser.email);
+                    }
+                    if (!string.IsNullOrEmpty(updatedUser.phone))
+                    {
+                        cmd.Parameters.AddWithValue("@phone", updatedUser.phone);
+                    }
+             
+                        cmd.Parameters.AddWithValue("@referal", updatedUser.referal_code);
+                    
+                    if (!string.IsNullOrEmpty(updatedUser.password))
+                    {
+                        // Hash the new password before updating
+                        cmd.Parameters.AddWithValue("@password", HashPassword(updatedUser.password));
+                    }
+
+                    cmd.Parameters.AddWithValue("@username", updatedUser.username);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions appropriately (log, throw, etc.)
+                return false;
+            }
+        }
+
+        public List<Order> GetOrderHistoryByUsername(string username)
+        {
+            List<Order> orderHistory = new List<Order>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM orders WHERE fk_account = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        orderHistory.Add(new Order()
+                        {
+                            id = reader.GetInt32("order_id"),
+                            creation_date = reader.GetDateTime("creation_date"),
+                            completion_date = reader.GetDateTime("completion_date"),
+                            price = reader.GetFloat("price"),
+                            comment = reader.GetString("comment"),
+                            parcel_price = reader.GetFloat("parcel_price"),
+                            fk_account = reader.GetString("fk_account"),
+                            fk_address = reader.IsDBNull(reader.GetOrdinal("fk_address"))
+                                         ? (int?)null
+                                         : reader.GetInt32("fk_address"),
+                            fk_status = reader.GetInt32("fk_status"),
+                            fk_discount = reader.IsDBNull(reader.GetOrdinal("fk_discount"))
+                                          ? (int?)null
+                                          : reader.GetInt32("fk_discount")
+                        });
+                    }
+                }
+                return orderHistory;
+            }
         }
     }
 }

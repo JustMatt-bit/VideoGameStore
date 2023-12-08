@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
-
 export class FetchAccount extends Component {
     static displayName = FetchAccount.name;
 
@@ -17,6 +16,8 @@ export class FetchAccount extends Component {
             isLoading: true,
             username: '',
             password: '',
+            user: null, // Add user state
+            error: null,
         };
     }
 
@@ -28,11 +29,22 @@ export class FetchAccount extends Component {
         if (authCookie) {
             const authCookieValue = authCookie.split('=')[1];
             const username = authCookieValue;
-            // Update the state with user information
-            this.setState({ isLoggedIn: true, isLoading: false, username});
+
+            // Make API call to fetch user details
+            fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the state with user information
+                    this.setState({ isLoggedIn: true, isLoading: false, username, user: data, error: null });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                    // Handle error, e.g., redirect to login page
+                    this.setState({ isLoggedIn: false, isLoading: false, error: 'Error fetching user details.' });
+                });
         } else {
             // Authentication cookie not present
-            this.setState({ isLoggedIn: false });
+            this.setState({ isLoggedIn: false, isLoading: false });
         }
     }
 
@@ -47,20 +59,20 @@ export class FetchAccount extends Component {
         this.setState({ [name]: value });
     }
 
-    // Inside your class
     handleLogin(event) {
         event.preventDefault();
 
         const { username, password } = this.state;
 
-        // Perform the login action with extracted username and password
-        if (username && password) {
-            // Send a request to the server to validate credentials
-            this.loginUser(username, password);
-        } else {
+        // Perform basic validation
+        if (!username || !password) {
             // Update the state to indicate a failed login
-            this.setState({ isLoggedIn: false, isLoading: false });
+            this.setState({ isLoggedIn: false, isLoading: false, error: 'Username and password are required.' });
+            return;
         }
+
+        // Send a request to the server to validate credentials
+        this.loginUser(username, password);
     }
 
     loginUser(username, password) {
@@ -79,19 +91,20 @@ export class FetchAccount extends Component {
                 return response.json();
             })
             .then(data => {
-                this.setState({ isLoggedIn: true, isLoading: false });
+                this.setState({ isLoggedIn: true, isLoading: false, error: null });
+                window.location.reload();
             })
             .catch(error => {
                 // Log the error details
                 console.error('Login failed:', error);
 
                 // Update the state to indicate a failed login
-                this.setState({ isLoggedIn: false, isLoading: false });
+                this.setState({ isLoggedIn: false, isLoading: false, error: 'Invalid username or password.' });
             });
     }
 
     render() {
-        const { isLoggedIn, isLoading, username} = this.state;
+        const { isLoggedIn, isLoading, username, user, error } = this.state;
 
         if (isLoading) {
             // Render a loading indicator or fallback while checking authentication status
@@ -118,24 +131,41 @@ export class FetchAccount extends Component {
                         </ul>
                     </Collapse>
                 </Navbar>
-                <div>Welcome, {username}!</div>
+                <div>
+                    <p></p>
+                    {/* Render user information */}
+                    {user && (
+                        
+                        <div>
+                            <p><h3>Welcome, {user.name}!</h3> <h4><br /> Your data:</h4></p>
+                            <p>Name: {user.name}</p>
+                            <p>Surname: {user.surname}</p>
+                            <p>Email: {user.email}</p>
+                            <p>Phone: {user.phone}</p>
+                            <p>Referral Code: {user.referal_code}</p>
+                            {/* Add more user information as needed */}
+                        </div>
+                    )}
+                </div>
             </header>
         ) : (
             // Render Login component when not logged in
             <div>
                 <h2>Login</h2>
+                <br />
+                {error && <div style={{ color: 'red' }}>{error}</div>}
                 {/* Display the login form directly */}
                 <form onSubmit={this.handleLogin}>
                     <label>
-                        Username:
+                        Username:<br />
                         <input type="text" name="username" value={this.state.username} onChange={this.handleInputChange} />
                     </label>
                     <br />
                     <label>
-                        Password:
+                        Password:<br />
                         <input type="password" name="password" value={this.state.password} onChange={this.handleInputChange} />
                     </label>
-                    <br />
+                    <br /><br />
                     <button type="submit">Login</button>
                 </form>
             </div>

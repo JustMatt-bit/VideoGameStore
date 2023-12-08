@@ -1,7 +1,6 @@
 ﻿import React, { Component } from 'react';
 import './NavMenu.css';
 
-
 export class Register extends Component {
     static displayName = Register.name;
 
@@ -16,54 +15,70 @@ export class Register extends Component {
             email: '',
             phone: '',
             referal_code: '',
-            date: new Date().toLocaleDateString()
+            date: new Date().toLocaleDateString(),
+            error: null,
+            registrationStatus: null,
         };
     }
-
+    updateLoginStatus = (isLoggedIn, username) => {
+        this.setState({ isLoggedIn, username });
+    };
     handleInputChange = (event) => {
         const { name, value } = event.target;
-        this.setState({ [name]: value });
+        this.setState({ [name]: value, error: null });
     };
 
     handleSubmit = (event) => {
         event.preventDefault();
-        console.log(this.state)
+
+        // Perform basic validation
+        const { username, password, name, surname, email, phone } = this.state;
+        if (!username || !password || !name || !surname || !email || !phone) {
+            this.setState({ error: 'All fields are required.', registrationStatus: null });
+            return;
+        }
+
         // Send registration data to the server
-        fetch('api/user', {
+        fetch('api/user/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(this.state)
+            body: JSON.stringify(this.state),
         })
             .then((response) => {
-                // Log the response status
                 console.log('Response Status:', response.status);
-
-                // Check if the response status is OK (200)
                 if (response.ok) {
-                     return response.json(); // Parse JSON if the response is OK
+                    return response.json();
                 } else {
                     throw new Error('Network response was not ok.');
                 }
+                
             })
             .then((data) => {
                 console.log('Registration response:', data);
-                // Handle success or failure
+                this.setState({ registrationStatus: 'Registration successful!', error: null });
+                setTimeout(() => {
+                    window.location.href = '/fetch-account';
+                }, 3);
             })
             .catch((error) => {
                 console.error('Registration failed:', error);
+                this.setState({ registrationStatus: null, error: 'Registration failed. Please try again.' });
             });
     };
-    
 
     render() {
+        const { error, registrationStatus } = this.state;
+
         return (
             <div>
                 <h2>Registration</h2>
+                {error && <div style={{ color: 'red' }}>{error}</div>}
+                {registrationStatus && <div style={{ color: 'green' }}>{registrationStatus}</div>}
                 <form onSubmit={this.handleSubmit}>
                         <div>
-                            <label>Username:</label><br />
+                        <label><subscript>*</subscript>Username:</label><br />
                             <input
                                 type="text"
                                 name="username"
@@ -73,7 +88,7 @@ export class Register extends Component {
                         </div><br />
 
                         <div>
-                            <label>Password:</label><br />
+                        <label><subscript>*</subscript>Password:</label><br />
                             <input
                                 type="password"
                                 name="password"
@@ -83,7 +98,7 @@ export class Register extends Component {
                         </div><br />
 
                         <div>
-                            <label>Name:</label><br />
+                        <label><subscript>*</subscript>Name:</label><br />
                             <input
                                 type="text"
                                 name="name"
@@ -93,7 +108,7 @@ export class Register extends Component {
                         </div><br />
 
                         <div>
-                            <label>Surname:</label><br />
+                        <label><subscript>*</subscript>Surname:</label><br />
                             <input
                                 type="text"
                                 name="surname"
@@ -103,7 +118,7 @@ export class Register extends Component {
                         </div><br />
 
                         <div>
-                            <label>Email:</label><br />
+                        <label><subscript>*</subscript>Email:</label><br />
                             <input
                                 type="email"
                                 name="email"
@@ -113,7 +128,7 @@ export class Register extends Component {
                         </div><br />
 
                         <div>
-                            <label>Phone number:</label><br />
+                        <label><subscript>*</subscript>Phone number:</label><br />
                             <input
                                 type="tel"
                                 name="phone"
@@ -140,4 +155,3 @@ export class Register extends Component {
         );
     }
 }
-export default Register;

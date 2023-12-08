@@ -17,6 +17,33 @@ namespace VideoGameStore.Controllers
             _logger = logger;
         }
 
+        [HttpGet("GetOrderHistory/{username}")]
+        public ActionResult<List<Order>> GetOrderHistory(string username)
+        {
+            try
+            {
+                // Make a call to your VideoGameStoreContext or any service to get order history
+                List<Order>orderHistory = _context.GetOrderHistoryByUsername(username);
+
+                if (orderHistory != null)
+                {
+                    // Return order history if found
+                    return Ok(orderHistory);
+                }
+                else
+                {
+                    // No orders found for the user
+                    return NotFound(new { Message = "No order history found for the user" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                _logger.LogError(ex, "Error during fetching order history");
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
+
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest model)
         {
@@ -49,12 +76,12 @@ namespace VideoGameStore.Controllers
         }
 
         public class LoginRequest
-    {
-        public string username { get; set; }
-        public string password { get; set; }
-    }
+        {
+            public string username { get; set; }
+            public string password { get; set; }
+        }
 
-    [HttpPost()]
+        [HttpPost("register")]
         public ActionResult Register([FromBody] User registrationData)
         {
             try
@@ -81,6 +108,67 @@ namespace VideoGameStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during user registration");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+        [HttpGet("GetUserDetails/{username}")]
+        public ActionResult<User> GetUserDetails(string username)
+        {
+            try
+            {
+                // Make a call to your VideoGameStoreContext or any service to get user details
+                User user = _context.GetUserByUsername(username);
+
+                if (user != null)
+                {
+                    // Return user details if found
+                    return Ok(user);
+                }
+                else
+                {
+                    // User not found
+                    return NotFound(new { Message = "User not found" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
+
+        [HttpPut("edit")]
+        public ActionResult Edit([FromBody] User updatedUserData)
+        {
+            try
+            {
+                // Get the current user from the database
+                User existingUser = _context.GetUserByUsername(updatedUserData.username);
+
+                if (existingUser == null)
+                {
+                    // User not found
+                    return NotFound(new { Message = "no user found" });
+                }
+
+                // Update user information
+               
+
+                // Save changes to the database
+                bool updateSuccessful = _context.UpdateUser(updatedUserData);
+
+                if (updateSuccessful)
+                {
+                    return Ok(new { Message = updateSuccessful });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, error = "Failed to update user information" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during user information update");
                 return StatusCode(500, "Internal server error");
             }
         }
