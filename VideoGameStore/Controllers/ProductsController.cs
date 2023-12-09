@@ -17,12 +17,27 @@ namespace VideoGameStore.Controllers
         }
 
         // api/products
-        [HttpGet]
+        [HttpGet("get")]
         public ActionResult<IEnumerable<Product>> Get()
         {
             try
             {
-                var products = _context.GetAllProducts();
+                var products = _context.GetSellableProducts();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("GetUserProducts/{username}")]
+        public ActionResult<IEnumerable<Product>> GetUserProducts(string username)
+        {
+            try
+            {
+                var products = _context.GetUserProducts(username);
                 return Ok(products);
             }
             catch (Exception ex)

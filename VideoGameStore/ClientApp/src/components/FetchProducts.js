@@ -57,7 +57,9 @@ export class FetchProducts extends Component {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
             : FetchProducts.renderProductTable(this.state.products);
-
+        if (this.state.products.length == 0) {
+            contents = <p style={{ textAlign: 'center', lineHeight: '100px' }}>Nėra produktų</p>;
+        }
         return (
             <div>
                 <h1 id="tabelLabel" >Produktai</h1>
@@ -68,7 +70,7 @@ export class FetchProducts extends Component {
     }
 
     async populateVideoGameData() {
-        const response = await fetch('api/products');
+        const response = await fetch('api/products/get');
         const data = await response.json();
         this.setState({ products: data, loading: false });
     }

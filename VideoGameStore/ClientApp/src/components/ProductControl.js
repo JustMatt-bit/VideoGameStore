@@ -53,6 +53,8 @@ export class ProductControl extends Component {
                         <th>Veiksmai</th>
                     </tr>
                 </thead>
+
+
                 <tbody>
 
                     {products.map(product =>
@@ -78,11 +80,20 @@ export class ProductControl extends Component {
         );
     }
 
+    static renderEmptyProductTable() {
+        return (
+            <p>Nėra produktų</p>
+        );
+}
+
     render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
             : ProductControl.renderProductTable(this.state.products);
-
+        console.log(this.state.products);
+        if (this.state.products.length == 0) {
+            contents = <p style={{ textAlign: 'center', lineHeight: '100px'}}>Nėra produktų</p>;
+        }
         return (
             <div>
                 <h1 id="tabelLabel" >Produktai</h1>
@@ -95,8 +106,18 @@ export class ProductControl extends Component {
     }
 
     async populateVideoGameData() {
-        const response = await fetch('api/products');
-        const data = await response.json();
-        this.setState({ products: data, loading: false });
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+        
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+            const response = await fetch(`/api/products/GetUserProducts/${username}`);
+            const data = await response.json();
+            console.log(response);
+            this.setState({ products: data, loading: false });
+        }
+        
     }
 }
