@@ -61,8 +61,8 @@ function ToDeleteGenres() {
     );
 }
 
-export class ProductControl extends Component {
-    static displayName = ProductControl.name;
+export class GenresDelete extends Component {
+    static displayName = GenresDelete.name;
 
     constructor(props) {
         super(props);
@@ -127,7 +127,7 @@ export class ProductControl extends Component {
         return (
             <p>Nėra produktų</p>
         );
-}
+    }
 
     render() {
         let contents;
@@ -137,19 +137,7 @@ export class ProductControl extends Component {
             <ToCreateGenre />
             <ToDeleteGenres />
         </>;
-        if (this.state.products.length == 0) {
-            contents = this.state.loading
-                ? <p><em>Loading...</em></p>
-                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>Nėra produktų</p>;
-        } else { 
-            contents = this.state.loading
-                ? <p style={{ textAlign: 'center', lineHeight: '100px' }}><em>Loading...</em></p>
-                : ProductControl.renderProductTable(this.state.products);
-        }
-        contents = <>
-            {startingContent }
-            {contents}
-        </>;
+        
         const authCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('AuthCookie'));
@@ -159,9 +147,9 @@ export class ProductControl extends Component {
         }
         return (
             <div>
+
                 
-                {contents}
-                
+
             </div>
         );
     }
@@ -170,15 +158,15 @@ export class ProductControl extends Component {
         const authCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('AuthCookie'));
-        
+
         if (authCookie) {
             const authCookieValue = authCookie.split('=')[1];
             const username = authCookieValue;
             const response = await fetch(`/api/products/GetUserProducts/${username}`);
             const data = await response.json();
-            
+
             this.setState({ products: data, loading: false });
         }
-        
+
     }
 }

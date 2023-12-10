@@ -275,6 +275,43 @@ namespace VideoGameStore.Models
             }
         }
 
+
+        public bool GenreExists(string name)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT COUNT(*) as count FROM genres WHERE name=\"" + name + "\"", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    return reader.GetInt32("count") != 0;
+                    
+                }
+            }
+        }
+
+        public bool CreateGenre(string name, string description)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO genres (name, description) " +
+                    "VALUES (@name, @description)",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@description", description);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                return rowsAffected > 0;
+            }
+        }
+
         public List<Product> GetUserProducts(string name)
         {
             List<Product> types = new List<Product>();
@@ -308,6 +345,12 @@ namespace VideoGameStore.Models
                 }
                 return types;
             }
+        }
+
+        public List<Genre> GetGenres()
+        {
+            return null;
+
         }
 
         public Product GetProduct(int id)

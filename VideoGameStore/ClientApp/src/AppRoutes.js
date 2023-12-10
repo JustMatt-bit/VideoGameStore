@@ -15,6 +15,8 @@ import { Product } from "./components/Product";
 import { ProductControl } from "./components/ProductControl";
 import { ProductCreate } from "./components/ProductCreate";
 import { ProductEdit } from "./components/ProductEdit";
+import { GenreCreate } from "./components/GenreCreate";
+import { GenresDelete } from "./components/GenresDelete";
 import { Checkout } from "./components/Checkout";
 import { Shipping } from "./components/Shipping";
 import { LoyaltyProgram } from "./components/LoyaltyProgram";
@@ -93,6 +95,14 @@ const AppRoutes = [
     {
         path: 'product-create',
         element: <ProductCreate />
+    },
+    {
+        path: 'genre-create',
+        element: <GenreCreate />
+    },
+    {
+        path: 'genres-delete',
+        element: <GenresDelete />
     },
     {
         path: 'product-edit',
