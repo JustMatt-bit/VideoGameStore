@@ -9,6 +9,7 @@ const context = [
     "/api/weatherforecast",
     "/api/products/get",
     "/api/products/GetUserProducts",
+    "/api/products/GetProduct",
     "/api/cart",
     "/api/checkout",
     "/api/feedback",

@@ -14,6 +14,8 @@
         public int fk_developer { get; set; } // Gražins tik fk int'ą
         public string? developer_name { get; set; } // Optional variable, kuriame galima saugoti pilną pavadinimą (frontendo reikmėms)
         public string fk_account { get; set; }
+
+        public string image { get; set; }
         public int? units_in_cart { get; set; }
     }
 }

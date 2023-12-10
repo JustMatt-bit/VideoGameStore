@@ -46,6 +46,21 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpGet("GetProduct/{id}")]
+        public ActionResult<Product> GetProduct(int id)
+        {
+            try
+            {
+                var product = _context.GetProduct(id);
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 
 }

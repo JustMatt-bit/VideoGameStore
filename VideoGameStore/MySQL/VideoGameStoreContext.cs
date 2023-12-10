@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Linq;
 
 namespace VideoGameStore.Models
 {
@@ -28,7 +29,7 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@user", username);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
-                    while(reader.Read()) 
+                    while (reader.Read())
                     {
                         user.name = reader.GetString("name");
                         user.surname = reader.GetString("surname");
@@ -281,8 +282,8 @@ namespace VideoGameStore.Models
             {
                 connection.Open();
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account " +
-                    "FROM products p LEFT JOIN developers d ON  d.developer_id=p.fk_developer LEFT JOIN game_types gt ON  gt.game_type_id=p.fk_game_type WHERE p.fk_account=\""+name+"\"", connection);
+                    "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account, p.image " +
+                    "FROM products p LEFT JOIN developers d ON  d.developer_id=p.fk_developer LEFT JOIN game_types gt ON  gt.game_type_id=p.fk_game_type WHERE p.fk_account=\"" + name + "\"", connection);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -300,13 +301,49 @@ namespace VideoGameStore.Models
                             game_type_name = reader.GetString("game_type"),
                             fk_developer = reader.GetInt32("fk_developer"),
                             developer_name = reader.GetString("developer"),
-                            fk_account = reader.GetString("fk_account")
+                            fk_account = reader.GetString("fk_account"),
+                            image = reader.GetString("image")
                         });
                     }
                 }
                 return types;
             }
         }
+
+        public Product GetProduct(int id)
+        {
+            Product product = new Product();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account, p.image " +
+                    "FROM products p LEFT JOIN developers d ON  d.developer_id=p.fk_developer LEFT JOIN game_types gt ON  gt.game_type_id=p.fk_game_type WHERE p.product_id=\"" + id + "\"", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    product = new Product()
+                    {
+                        id = reader.GetInt32("product_id"),
+                        name = reader.GetString("name"),
+                        price = reader.GetFloat("price"),
+                        stock = reader.GetInt32("stock"),
+                        description = reader.GetString("description"),
+                        release_date = reader.GetDateTime("release_date"),
+                        being_sold = reader.GetBoolean("being_sold"),
+                        fk_game_type = reader.GetInt32("fk_game_type"),
+                        game_type_name = reader.GetString("game_type"),
+                        fk_developer = reader.GetInt32("fk_developer"),
+                        developer_name = reader.GetString("developer"),
+                        fk_account = reader.GetString("fk_account"),
+                        image = reader.GetString("image")
+                    };
+
+                }
+            }
+            return product;
+        }
+
 
         public bool RegisterUser(string username, string password, string name, string surname, string email, string phone, string refferal)
         {
@@ -333,15 +370,15 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
-        
+
         private bool ValidatePassword(string enteredPassword, string storedPasswordHash)
         {
-            
+
             string entryHash = HashPassword(enteredPassword);
-       
-                // Compare the stored hash with the hash of the entered password
+
+            // Compare the stored hash with the hash of the entered password
             return entryHash.Equals(storedPasswordHash);
-   
+
         }
 
         public bool Login(HttpContext httpContext, string username, string password)
@@ -453,9 +490,9 @@ namespace VideoGameStore.Models
                     {
                         sqlCommandBuilder.Append("phone=@phone, ");
                     }
-                   
-                        sqlCommandBuilder.Append("referal_code=@referal, ");
-                    
+
+                    sqlCommandBuilder.Append("referal_code=@referal, ");
+
                     if (!string.IsNullOrEmpty(updatedUser.password))
                     {
                         sqlCommandBuilder.Append("password=@password, ");
@@ -485,9 +522,9 @@ namespace VideoGameStore.Models
                     {
                         cmd.Parameters.AddWithValue("@phone", updatedUser.phone);
                     }
-             
-                        cmd.Parameters.AddWithValue("@referal", updatedUser.referal_code);
-                    
+
+                    cmd.Parameters.AddWithValue("@referal", updatedUser.referal_code);
+
                     if (!string.IsNullOrEmpty(updatedUser.password))
                     {
                         // Hash the new password before updating

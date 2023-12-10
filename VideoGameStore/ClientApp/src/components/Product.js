@@ -1,6 +1,5 @@
 ﻿import React, { Component } from 'react';
-import gameImage from "../assets/liesofp.png";
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { FetchFeedback } from './FetchFeedback';
 
 function ToCart() {
@@ -16,23 +15,72 @@ function ToCart() {
 }
 export class Product extends Component {
     static displayName = Product.name;
-    render() {
+    constructor(props) {
+        super(props);
 
+        
+        this.state = {
+            loading: true,
+            data: null,
+            hasID: false
+        };
+    }
+
+    componentDidMount() {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.has('id')) {
+
+            const id = searchParams.get('id');
+            this.getData(id);
+        } else {
+            this.setState({ loading: false, data: null, hasID: false });
+        }
+    }
+
+    static productRender(product) {
         return (
-
-            <div>
-                <img style={{ float: 'left', margin: '0 40px 0 40px' }} src={gameImage} />
+            <>
+                <img style={{ float: 'left', margin: '0 40px 0 40px', width: '30%', height: '30%' }} src={`/images/${product.image}`} />
                 <div style={{ margin: '0 40px 0 40px' }}>
-                    <h2>Lies of P</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eros urna, blandit et neque id, elementum egestas justo. Curabitur commodo, tellus eu imperdiet suscipit, ligula nisi lacinia libero, id pretium erat tortor sit amet odio. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque ullamcorper dignissim ante ut vestibulum. Fusce consequat arcu in lacus consequat pretium. Sed sagittis interdum molestie. Integer ornare urna in congue tristique. Fusce dolor lacus, porta sed ligula ut, rhoncus iaculis elit. Curabitur sollicitudin sodales turpis sollicitudin volutpat. In vel diam venenatis, accumsan lorem eget, rutrum enim. Proin urna velit, faucibus eget scelerisque non, cursus sed sapien. Donec sit amet consequat lectus. Morbi placerat sagittis nibh sit amet blandit.
+                    
+                    <h2>{product.name}</h2>
+                    <p>{product.description}
                     </p>
-                    <h4>Kaina: 60eur</h4>
+                    <h4>Kaina: {product.price} €</h4>
                     {/*<ToCart/>*/}
                     <button>Pridėti į krepšelį</button>
                 </div>
                 <FetchFeedback />
+            </>
+        );
+    }
+
+    render() {
+        const { data, loading} = this.state;
+        
+        if (data == null && !loading) {
+            window.location.href = '/fetch-products';
+            return null;
+        }
+        let contents = loading
+            ? <p><em>Loading...</em></p>
+            : Product.productRender(data);
+        return (
+            <div>
+                {contents}
             </div>
 
         );
+    }
+
+    async getData(id) {
+        try {
+            const response = await fetch(`api/products/GetProduct/${id}`);
+            const prodData = await response.json();
+            this.setState({ loading: false, data: prodData, hasID: true });
+        }
+        catch (error) {
+            this.setState({ loading: false, data: null, hasID: false });
+        }
     }
 }

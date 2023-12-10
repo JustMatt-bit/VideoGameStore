@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate, Link, createSearchParams } from 'react-router-dom';
 
 function ToCreate() {
     const navigate = useNavigate();
@@ -12,6 +12,19 @@ function ToCreate() {
         </div>
     );
 }
+
+function ToProducts() {
+    const navigate = useNavigate();
+    const navigateToProduct = () => {
+        navigate('/product');
+    };
+    return (
+        <div>
+            navigateToProduct
+        </div>
+    );
+}
+
 function ToEdit() {
     const navigate = useNavigate();
     const navigateToProductEdit = () => {
@@ -60,8 +73,14 @@ export class ProductControl extends Component {
                     {products.map(product =>
 
                         <tr key={product.id}>
-
-                            <td><a style={{ color: 'black', textDecoration: 'none' }} href="/product">{product.name}</a></td>
+                            <td><Link style={{ color: 'black', textDecoration: 'none' }} to={{
+                                pathname: "/product",
+                                search: `?${createSearchParams({
+                                    id: product.id
+                                })}`
+                            }}>
+                                {product.name}
+                            </Link></td>
                             <td>{product.description}</td>
                             <td>{product.release_date.split("T")[0]}</td>
                             <td>{product.developer_name}</td>
@@ -87,18 +106,34 @@ export class ProductControl extends Component {
 }
 
     render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : ProductControl.renderProductTable(this.state.products);
-        console.log(this.state.products);
+        let contents;
+        let startingContent = <>
+            <h1 id="tabelLabel" >Produktų kontrolė</h1>
+            <ToCreate />
+        </>;
         if (this.state.products.length == 0) {
-            contents = <p style={{ textAlign: 'center', lineHeight: '100px'}}>Nėra produktų</p>;
+            contents = this.state.loading
+                ? <p><em>Loading...</em></p>
+                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>Nėra produktų</p>;
+        } else { 
+            contents = this.state.loading
+                ? <p style={{ textAlign: 'center', lineHeight: '100px' }}><em>Loading...</em></p>
+                : ProductControl.renderProductTable(this.state.products);
+        }
+        contents = <>
+            {startingContent }
+            {contents}
+        </>;
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (!authCookie) {
+            contents = <Navigate to="/fetch-products" replace={true} />
         }
         return (
             <div>
-                <h1 id="tabelLabel" >Produktai</h1>
-                <p>Komponentas (puslapis), rodantis MySQL integraciją.</p>
-                <ToCreate />
+                
                 {contents}
                 
             </div>
@@ -115,7 +150,7 @@ export class ProductControl extends Component {
             const username = authCookieValue;
             const response = await fetch(`/api/products/GetUserProducts/${username}`);
             const data = await response.json();
-            console.log(response);
+            
             this.setState({ products: data, loading: false });
         }
         
