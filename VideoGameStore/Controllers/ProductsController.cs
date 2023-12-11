@@ -62,7 +62,7 @@ namespace VideoGameStore.Controllers
             }
         }
 
-        [HttpGet("GetGenres")]
+        [HttpPost("GetGenres")]
         public ActionResult<IEnumerable<Genre>> GetGenres()
         {
             try
@@ -110,6 +110,20 @@ namespace VideoGameStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking if genre exists");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+        [HttpPost("DeleteGenres")]
+        public ActionResult<bool> DeleteGenres([FromBody] List<Genre> genres)
+        {
+            try
+            {
+                var deleteGenres = _context.DeleteGenres(genres);
+                return Ok(genres);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting genres");
                 return StatusCode(500, "Internal server error");
             }
         }

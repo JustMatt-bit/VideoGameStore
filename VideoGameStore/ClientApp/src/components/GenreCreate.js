@@ -72,7 +72,6 @@ export class GenreCreate extends Component {
                 body: JSON.stringify({ name, description }),
             });
             const data = await response.json();
-            console.log(JSON.stringify({ name, description }));
             if (response.ok) {
                 window.alert("Sėkmingai sukūrėte žanrą");
                 window.location.href = '/product-control';
@@ -120,21 +119,5 @@ export class GenreCreate extends Component {
 
             </div>
         );
-    }
-
-    async populateGenreData() {
-        const authCookie = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('AuthCookie'));
-
-        if (authCookie) {
-            const authCookieValue = authCookie.split('=')[1];
-            const username = authCookieValue;
-            const response = await fetch(`/api/products/GetUserProducts/${username}`);
-            const data = await response.json();
-
-            this.setState({ products: data, loading: false });
-        }
-
     }
 }

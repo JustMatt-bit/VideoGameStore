@@ -349,10 +349,51 @@ namespace VideoGameStore.Models
 
         public List<Genre> GetGenres()
         {
-            return null;
+            List<Genre> genres = new List<Genre>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM genres", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        genres.Add(new Genre()
+                        {
+                            id = reader.GetInt32("genre_id"),
+                            name = reader.GetString("name"),
+                            description = reader.GetString("description")
+                        }
+                        );
+                    }
+                }
+            }
+            return genres;
 
         }
+        public bool DeleteGenres(List<Genre> genres)
+        {
+            bool deleted = false;
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                foreach (Genre genre in genres) {
+                    MySqlCommand cmd = new MySqlCommand(
+                        "DELETE FROM genres WHERE genre_id=\"" + genre.id + "\"", connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            deleted = true;
+                        }
+                    }
+                }
+                
+            }
+            return deleted;
 
+        }
         public Product GetProduct(int id)
         {
             Product product = new Product();
