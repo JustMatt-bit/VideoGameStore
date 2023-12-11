@@ -20,7 +20,8 @@ const context = [
     "/api/user/register",
     "/api/user/login",
     "/api/user/edit",
-    "/api/user/GetOrderHistory"
+    "/api/user/GetOrderHistory",
+    "/api/leaderboard/GetTopUsers"
 ];
 
 module.exports = function(app) {
