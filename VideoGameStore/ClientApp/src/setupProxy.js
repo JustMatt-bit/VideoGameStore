@@ -20,6 +20,7 @@ const context = [
     "/api/user/register",
     "/api/user/login",
     "/api/user/edit",
+    "/api/user/GetCurrentUser",
     "/api/user/GetOrderHistory",
     "/api/leaderboard/GetTopUsers",
     "/api/leaderboard/GetUserPosition"
