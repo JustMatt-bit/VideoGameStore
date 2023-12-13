@@ -21,7 +21,8 @@ const context = [
     "/api/user/login",
     "/api/user/edit",
     "/api/user/GetOrderHistory",
-    "/api/leaderboard/GetTopUsers"
+    "/api/leaderboard/GetTopUsers",
+    "/api/leaderboard/GetUserPosition"
 ];
 
 module.exports = function(app) {

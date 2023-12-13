@@ -172,5 +172,27 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpGet("GetCurrentUser")]
+        public ActionResult<User> GetCurrentUser()
+        {
+            var username = HttpContext.Request.Cookies["AuthCookie"];
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
+
+            try
+            {
+                User user = _context.GetUserByUsername(username);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting current user");
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
+
     }
 }

@@ -11,44 +11,24 @@ export class FetchLeaderboard extends Component {
             isLoggedIn: true,
             isLoading: true,
             users: [],
-            username: ''
+            originalUsers: [],
+            username: '',
+            userPosition: null,
+            showingUserPosition: false,
         };
     }
 
     componentDidMount() {
         const authCookie = document.cookie
             .split('; ')
-            .find(row => row.startsWith('AuthCookie'));
+            .find(row => row.startsWith('AuthCookie_Petriukas'));
 
         if (authCookie) {
-            const authCookieValue = authCookie.split('=')[1];
-            this.setState({ username: authCookieValue });
+            const username = authCookie.split('=')[1];
+            this.setState({ username });
 
-            fetch(`/api/user/GetUserDetails/${authCookieValue}`)
-                .then(response => response.json())
-                .then(data => {
-                    this.setState({
-                        isLoggedIn: true,
-                        isLoading: false,
-                        username: data.username,
-                        name: data.name,
-                        surname: data.surname,
-                        email: data.email,
-                        phone: data.phone,
-                        referal_code: data.referal_code,
-                        date: new Date().toLocaleDateString(),
-                        loyalty_progress: data.loyalty_progress,
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching user details:', error);
-                    this.setState({ isLoggedIn: false });
-                });
-
-            // Fetch the leaderboard data
             this.fetchLeaderboardData();
         } else {
-            // Authentication cookie not present
             this.setState({ isLoggedIn: false });
         }
     }
@@ -57,8 +37,7 @@ export class FetchLeaderboard extends Component {
         fetch('api/leaderboard/GetTopUsers')
             .then(response => response.json())
             .then(data => {
-                console.log("Fetched data:", data); // Debugging log
-                this.setState({ users: data, isLoading: false });
+                this.setState({ originalUsers: data, users: data, isLoading: false });
             })
             .catch(error => {
                 console.error('Error fetching leaderboard data:', error);
@@ -67,18 +46,20 @@ export class FetchLeaderboard extends Component {
     }
 
 
-    static renderLeaderboardTable(users) {
+    static renderLeaderboardTable(users, userPosition) {
         return (
             <table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
+                        <th>Position</th>
                         <th>Username</th>
                         <th>Loyalty Progress</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map(user =>
-                        <tr key={user.id}>
+                    {users.map((user, index) =>
+                        <tr key={user.username}>
+                            <td>{userPosition || (index + 1)}</td>
                             <td>{user.username}</td>
                             <td>{user.loyalty_progress}</td>
                         </tr>
@@ -88,8 +69,9 @@ export class FetchLeaderboard extends Component {
         );
     }
 
+
     render() {
-        const { isLoggedIn, isLoading, users } = this.state;
+        const { isLoggedIn, isLoading, users, userPosition, showingUserPosition } = this.state;
 
         // Redirect to /fetch-account if the user is not logged in
         if (!isLoggedIn) {
@@ -99,13 +81,40 @@ export class FetchLeaderboard extends Component {
 
         let leaderboardContents = isLoading
             ? <p><em>Loading leaderboard...</em></p>
-            : FetchLeaderboard.renderLeaderboardTable(users);
+            : FetchLeaderboard.renderLeaderboardTable(users, showingUserPosition ? userPosition : null);
+
+        let userPositionDisplay = showingUserPosition && userPosition ? (
+            <div>
+                <p>Your Position: {userPosition}</p>
+            </div>
+        ) : null;
 
         return (
             <div>
                 <h2>Leaderboard</h2>
+                <button onClick={this.findUserPosition} className="leaderboard-button">
+                    {showingUserPosition ? "Back" : "Show My Position"}
+                </button>
+                {userPositionDisplay}
                 {leaderboardContents}
             </div>
         );
+
+    }
+
+    findUserPosition = () => {
+        const { showingUserPosition, originalUsers, username } = this.state;
+
+        if (!showingUserPosition) {
+            const position = originalUsers.findIndex(user => user.username === username) + 1;
+            const filteredUser = originalUsers.find(user => user.username === username);
+            this.setState({
+                userPosition: position,
+                users: filteredUser ? [filteredUser] : [],
+                showingUserPosition: true
+            });
+        } else {
+            this.setState({ users: originalUsers, showingUserPosition: false, userPosition: null });
+        }
     }
 }

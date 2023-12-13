@@ -701,6 +701,23 @@ namespace VideoGameStore.Models
             return topUsers;
         }
 
+        public int GetUserPositionByUsername(string username)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) + 1 as position FROM accounts WHERE loyalty_progress > (SELECT loyalty_progress FROM accounts WHERE username = @username)", connection);
+                cmd.Parameters.AddWithValue("@username", username);
 
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetInt32("position");
+                    }
+                    return -1;
+                }
+            }
+        }
     }
 }
