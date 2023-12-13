@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Xml.Linq;
 
@@ -40,6 +41,7 @@ namespace VideoGameStore.Models
                                             ? (string?)null
                                             : reader.GetString("referal_code");
                         user.creation_date = reader.GetDateTime("creation_date");
+                        user.loyalty_progress = reader.GetInt32("loyalty_progress");
                         user.fk_user_type = reader.GetInt32("fk_user_type");
                         user.fk_loyalty_tier = reader.GetInt32("fk_loyalty_tier");
                     }
@@ -662,6 +664,59 @@ namespace VideoGameStore.Models
                     }
                 }
                 return orderHistory;
+            }
+        }
+
+        public List<User> GetTopUsersByLoyaltyProgress()
+        {
+            List<User> topUsers = new List<User>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM accounts ORDER BY loyalty_progress DESC LIMIT 10", connection);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topUsers.Add(new User
+                        {
+                            username = reader.GetString("username"),
+                            name = reader.GetString("name"),
+                            surname = reader.GetString("surname"),
+                            password = reader.GetString("password"),
+                            email = reader.GetString("email"),
+                            phone = reader.GetString("phone"),
+                            referal_code = reader.IsDBNull(reader.GetOrdinal("referal_code"))
+                                                ? (string?)null
+                                                : reader.GetString("referal_code"),
+                            creation_date = reader.GetDateTime("creation_date"),
+                            loyalty_progress = reader.GetInt32("loyalty_progress"),
+                            fk_user_type = reader.GetInt32("fk_user_type"),
+                            fk_loyalty_tier = reader.GetInt32("fk_loyalty_tier")
+                        });
+                    }
+                }
+            }
+            return topUsers;
+        }
+
+        public int GetUserPositionByUsername(string username)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) + 1 as position FROM accounts WHERE loyalty_progress > (SELECT loyalty_progress FROM accounts WHERE username = @username)", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader.GetInt32("position");
+                    }
+                    return -1;
+                }
             }
         }
     }

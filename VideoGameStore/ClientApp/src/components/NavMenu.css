@@ -16,3 +16,18 @@ html {
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
+
+.leaderboard-button {
+    background-color: #bababa;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.leaderboard-button:hover {
+    background-color: #9e9e9e;
+}
+

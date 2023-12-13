@@ -1,5 +1,4 @@
 ﻿import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
 import './NavMenu.css';
 
 export class FetchLeaderboard extends Component {
@@ -10,47 +9,69 @@ export class FetchLeaderboard extends Component {
 
         this.state = {
             isLoggedIn: true,
+            isLoading: true,
+            users: [],
+            originalUsers: [],
+            username: '',
+            userPosition: null,
+            showingUserPosition: false,
         };
     }
 
     componentDidMount() {
         const authCookie = document.cookie
             .split('; ')
-            .find(row => row.startsWith('AuthCookie'));
+            .find(row => row.startsWith('AuthCookie_Petriukas'));
 
         if (authCookie) {
-            const authCookieValue = authCookie.split('=')[1];
-            this.state.username = authCookieValue;
+            const username = authCookie.split('=')[1];
+            this.setState({ username });
 
-            // Make API call to fetch user details
-            fetch(`/api/user/GetUserDetails/${authCookieValue}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Update the state with user information
-                    this.setState({
-                        isLoggedIn: true,
-                        isLoading: false,
-                        name: data.name,
-                        surname: data.surname,
-                        email: data.email,
-                        phone: data.phone,
-                        referal_code: data.referal_code,
-                        date: new Date().toLocaleDateString(),
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching user details:', error);
-                    // Handle error, e.g., redirect to login page
-                    this.setState({ isLoggedIn: false });
-                });
+            this.fetchLeaderboardData();
         } else {
-            // Authentication cookie not present
             this.setState({ isLoggedIn: false });
         }
     }
 
+    fetchLeaderboardData() {
+        fetch('api/leaderboard/GetTopUsers')
+            .then(response => response.json())
+            .then(data => {
+                this.setState({ originalUsers: data, users: data, isLoading: false });
+            })
+            .catch(error => {
+                console.error('Error fetching leaderboard data:', error);
+                this.setState({ isLoading: false });
+            });
+    }
+
+
+    static renderLeaderboardTable(users, userPosition) {
+        return (
+            <table className='table table-striped' aria-labelledby="tabelLabel">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Username</th>
+                        <th>Loyalty Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {users.map((user, index) =>
+                        <tr key={user.username}>
+                            <td>{userPosition || (index + 1)}</td>
+                            <td>{user.username}</td>
+                            <td>{user.loyalty_progress}</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        );
+    }
+
+
     render() {
-        const { isLoggedIn } = this.state;
+        const { isLoggedIn, isLoading, users, userPosition, showingUserPosition } = this.state;
 
         // Redirect to /fetch-account if the user is not logged in
         if (!isLoggedIn) {
@@ -58,14 +79,42 @@ export class FetchLeaderboard extends Component {
             return null; // This is important to prevent the component from rendering
         }
 
+        let leaderboardContents = isLoading
+            ? <p><em>Loading leaderboard...</em></p>
+            : FetchLeaderboard.renderLeaderboardTable(users, showingUserPosition ? userPosition : null);
+
+        let userPositionDisplay = showingUserPosition && userPosition ? (
+            <div>
+                <p>Your Position: {userPosition}</p>
+            </div>
+        ) : null;
+
         return (
             <div>
-                <div>
-                    <h2>Leaderboard</h2>
-                </div>
-
-                <h2>This is the leaderboard</h2>
+                <h2>Leaderboard</h2>
+                <button onClick={this.findUserPosition} className="leaderboard-button">
+                    {showingUserPosition ? "Back" : "Show My Position"}
+                </button>
+                {userPositionDisplay}
+                {leaderboardContents}
             </div>
         );
+
+    }
+
+    findUserPosition = () => {
+        const { showingUserPosition, originalUsers, username } = this.state;
+
+        if (!showingUserPosition) {
+            const position = originalUsers.findIndex(user => user.username === username) + 1;
+            const filteredUser = originalUsers.find(user => user.username === username);
+            this.setState({
+                userPosition: position,
+                users: filteredUser ? [filteredUser] : [],
+                showingUserPosition: true
+            });
+        } else {
+            this.setState({ users: originalUsers, showingUserPosition: false, userPosition: null });
+        }
     }
 }

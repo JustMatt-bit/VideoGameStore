@@ -10,6 +10,7 @@
         public string phone { get; set; }
         public string? referal_code { get; set; }
         public DateTime creation_date { get; set; }
+        public int loyalty_progress { get; set; } 
         public int fk_user_type { get; set; }
         public int fk_loyalty_tier { get; set; }
     }

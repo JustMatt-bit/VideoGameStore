@@ -36,6 +36,7 @@ CREATE TABLE `accounts` (
   `phone` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `referal_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `loyalty_progress` int NOT NULL DEFAULT 0,
   `fk_user_type` int NOT NULL,
   `fk_loyalty_tier` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -45,7 +46,7 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `fk_user_type`, `fk_loyalty_tier`) VALUES
-('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 1, 1);
+('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1);
 
 -- --------------------------------------------------------
 

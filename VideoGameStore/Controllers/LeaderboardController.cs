@@ -1,12 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VideoGameStore.Models;
 
-namespace VideoGameStore.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class LeaderboardController : ControllerBase
 {
-    public class LeaderboardController : Controller
+    private readonly VideoGameStoreContext _context;
+
+    public LeaderboardController(VideoGameStoreContext context)
     {
-        public IActionResult Index()
+        _context = context;
+    }
+
+    [HttpGet("GetTopUsers")]
+    public ActionResult<IEnumerable<User>> GetTopUsers()
+    {
+        try
         {
-            return View();
+            var topUsers = _context.GetTopUsersByLoyaltyProgress();
+            return Ok(topUsers);
+        }
+        catch (Exception ex)
+        {
+            // Log error here
+            return StatusCode(500, "Internal server error uwu");
         }
     }
 }
