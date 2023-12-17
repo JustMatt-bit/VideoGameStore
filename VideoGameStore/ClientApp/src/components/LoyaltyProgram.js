@@ -56,7 +56,7 @@ export class LoyaltyProgram extends Component {
                 <div>
                     <h3>Your current loyalty tier: {loyaltyTier.name}</h3>
                     <p>{loyaltyTier.description}</p>
-                    <p>Discount coefficient: {loyaltyTier.discountCoefficient}</p>
+                    <p>Discount coefficient: {loyaltyTier.discountCoefficient.toFixed(2)}</p>
                     <p>You have accumulated {userProgress} loyalty points.</p>
                     {nextTier ? (
                         <p>You are {loyaltyTier.pointsTo - userProgress} points away from {nextTier.name}.</p>

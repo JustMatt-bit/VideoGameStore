@@ -590,8 +590,8 @@ namespace VideoGameStore.Models
                 string hashedPassword = HashPassword(password);
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "INSERT INTO accounts (username, password, name, surname, email, referal_code, phone, fk_user_type, fk_loyalty_tier) " +
-                    "VALUES (@username, @password, @name, @surname, @email,@referal, @phone, 1, 1)",
+                    "INSERT INTO accounts (username, password, name, surname, email, phone, fk_user_type, fk_loyalty_tier) " +
+                    "VALUES (@username, @password, @name, @surname, @email, @phone, 1, 1)",
                     connection);
 
                 cmd.Parameters.AddWithValue("@username", username);
@@ -599,12 +599,37 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@name", name);
                 cmd.Parameters.AddWithValue("@surname", surname);
                 cmd.Parameters.AddWithValue("@email", email);
-                cmd.Parameters.AddWithValue("@referal", refferal);
                 cmd.Parameters.AddWithValue("@phone", phone);
 
                 int rowsAffected = cmd.ExecuteNonQuery();
 
+                if (rowsAffected > 0 && CheckReferralCodeExists(refferal))
+                {
+                    // User registered successfully and a referral code was used
+                    CreateDiscountForUser(username);
+                }
+
                 return rowsAffected > 0;
+            }
+        }
+
+        private void CreateDiscountForUser(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO discounts (valid_from, valid_to, percent, fk_account) " +
+                    "VALUES (@validFrom, @validTo, @percent, (SELECT username FROM accounts WHERE username = @username))",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@validFrom", DateTime.UtcNow);
+                cmd.Parameters.AddWithValue("@validTo", DateTime.UtcNow.AddMonths(1));
+                cmd.Parameters.AddWithValue("@percent", 10.0); // 10 percent discount
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -930,5 +955,43 @@ namespace VideoGameStore.Models
 
             return nextTier;
         }
+
+        public bool CheckReferralCodeExists(string referralCode)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var cmd = new MySqlCommand("SELECT COUNT(*) FROM accounts WHERE referal_code = @referralCode", connection);
+                cmd.Parameters.AddWithValue("@referralCode", referralCode);
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
+            }
+        }
+
+        public string GenerateReferralCode(string username)
+        {
+            var referralCode = GenerateUniqueCode();
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var cmd = new MySqlCommand("UPDATE accounts SET referal_code = @referralCode WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@referralCode", referralCode);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.ExecuteNonQuery();
+            }
+            return referralCode;
+        }
+
+        private string GenerateUniqueCode()
+        {
+            // Simple example of generating a 10-character alphanumeric string
+            var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var uniqueCode = new string(Enumerable.Repeat(characters, 10)
+                                        .Select(s => s[random.Next(s.Length)]).ToArray());
+            return uniqueCode;
+        }
+
     }
 }

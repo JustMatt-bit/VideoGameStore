@@ -30,7 +30,9 @@ const context = [
     "/api/user/GetOrderHistory",
     "/api/leaderboard/GetTopUsers",
     "/api/leaderboard/GetUserPosition",
-    "/api/loyalty/GetUserTierDetails"
+    "/api/loyalty/GetUserTierDetails",
+    "/api/referral/CheckReferralCode",
+    "/api/referral/GenerateReferralCode",
 ];
 
 module.exports = function(app) {
