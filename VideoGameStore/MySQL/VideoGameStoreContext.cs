@@ -1,4 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Tls;
+using System.Diagnostics.Metrics;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
@@ -349,6 +351,102 @@ namespace VideoGameStore.Models
             }
         }
 
+
+        public List<GameType> GetGameTypes()
+        {
+            List<GameType> gameTypes = new List<GameType>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM game_types", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        gameTypes.Add(new GameType()
+                        {
+                            id = reader.GetInt32("game_type_id"),
+                            name = reader.GetString("name")
+                        }
+                        );
+                    }
+                }
+            }
+            return gameTypes;
+        }
+
+        public bool GenresProductConnection(int id, List<Genre> genres)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                int rowsAffected = 0;
+                connection.Open();
+                foreach (Genre genre in genres)
+                {
+                    MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO product_genres (fk_genre, fk_product) " +
+                    "VALUES (@genre, @id)",
+                    connection);
+
+                    cmd.Parameters.AddWithValue("@genre", genre.id);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                
+                return rowsAffected > 0;
+            }
+        }
+
+        public int CreateDeveloper(string name, string country)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO developers (name, country) " +
+                    "VALUES (@name, @country)",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@country", country);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                cmd = new MySqlCommand(
+                    "SELECT LAST_INSERT_ID()",
+                    connection);
+                int id = Convert.ToInt32(cmd.ExecuteScalar());
+                return id;
+            }
+        }
+
+        public List<Developer> GetDevelopers()
+        {
+            List<Developer> developers = new List<Developer>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM developers", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        developers.Add(new Developer()
+                        {
+                            id = reader.GetInt32("developer_id"),
+                            name = reader.GetString("name"),
+                            country = reader.GetString("country")
+                        }
+                        );
+                    }
+                }
+            }
+            return developers;
+        }
+
+
         public List<Genre> GetGenres()
         {
             List<Genre> genres = new List<Genre>();
@@ -396,6 +494,58 @@ namespace VideoGameStore.Models
             return deleted;
 
         }
+
+        public bool ChangeProductImage(int id, string name)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE products SET image=@image WHERE product_id=@id",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@image", name);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
+        public int CreateProduct(Product product)
+        {
+
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO products (name, price, stock, description, release_date, being_sold, fk_game_type, fk_developer, fk_account, image) " +
+                    "VALUES (@name, @price, @stock, @description, @release_date, @being_sold, @fk_game_type, @fk_developer, @fk_account, @image)",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@name", product.name);
+                cmd.Parameters.AddWithValue("@price", product.price);
+                cmd.Parameters.AddWithValue("@stock", product.stock);
+                cmd.Parameters.AddWithValue("@description", product.description);
+                cmd.Parameters.AddWithValue("@release_date", product.release_date);
+                cmd.Parameters.AddWithValue("@being_sold", product.being_sold);
+                cmd.Parameters.AddWithValue("@fk_game_type", product.fk_game_type);
+                cmd.Parameters.AddWithValue("@fk_developer", product.fk_developer);
+                cmd.Parameters.AddWithValue("@fk_account", product.fk_account);
+                cmd.Parameters.AddWithValue("@image", product.image);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                cmd = new MySqlCommand(
+                    "SELECT LAST_INSERT_ID()",
+                    connection);
+                int id = Convert.ToInt32(cmd.ExecuteScalar());
+                return id;
+            }
+        }
+
+
         public Product GetProduct(int id)
         {
             Product product = new Product();
@@ -429,6 +579,7 @@ namespace VideoGameStore.Models
             }
             return product;
         }
+
 
 
         public bool RegisterUser(string username, string password, string name, string surname, string email, string phone, string refferal)

@@ -49,10 +49,11 @@ export class GenresDelete extends Component {
             },
             body: JSON.stringify(genres),
         });
-        const data = await response.json();
         if (response.ok) {
-            window.alert("Sėkmingai ištrynėte");
+            window.alert("Deletion succeded");
             window.location.href = '/product-control';
+        } else {
+            window.alert("One or more genres in use, can't be deleted");
         }
 
     }
@@ -71,9 +72,6 @@ export class GenresDelete extends Component {
 
     render() {
         let contents;
-        let startingContent = <>
-            <h1 id="tabelLabel" >Produktų kontrolė</h1>
-        </>;
 
         const authCookie = document.cookie
             .split('; ')
@@ -85,7 +83,7 @@ export class GenresDelete extends Component {
         return (
             <div>
                 {contents }
-                <h2>Pasirinkite, kuriuos žanrus norite trinti</h2>
+                <h2>Select which genres to delete</h2>
                 <Multiselect
                     options={this.state.genres}
                     displayValue="name"
@@ -95,7 +93,7 @@ export class GenresDelete extends Component {
                     avoidHighlightFirstOption
                 />
                 <form onSubmit={this.handleSubmit}>
-                    <input type="submit" value="Trinti" />
+                    <input type="submit" value="Delete" />
                 </form>
             </div>
         );

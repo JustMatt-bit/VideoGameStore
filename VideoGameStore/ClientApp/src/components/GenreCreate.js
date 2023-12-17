@@ -38,9 +38,9 @@ export class GenreCreate extends Component {
         let errors = [];
         //Perform validation
         if (!genreName) {
-            errors.push("*Įveskite žanro pavadinimą");
+            errors.push("*Type genre name");
         } else if (genreName.length > 30) {
-            errors.push("*Žanro pavadinimas negali viršyti 30 simbolių");
+            errors.push("*Genre name can't have more than 30 symbols");
         } else {
             const response = await fetch('api/products/GenreExists', {
                 method: 'POST',
@@ -51,15 +51,15 @@ export class GenreCreate extends Component {
             });
             const data = await response.json();
             if (data) {
-                errors.push("*Žanras jau egzistuoja");
+                errors.push("*Genre already exists");
             } else {
                 errors.push("");
             }
         }
         if (!genreDescription) {
-            errors.push("*Įveskite žanro aprašą");
+            errors.push("*Type genre description");
         } else if (genreDescription.length > 1000) {
-            errors.push("*Žanro pavadinimas negali viršyti 1000 simbolių");
+            errors.push("*Genre description can't be longer than 1000 symbols");
         }
         if (errors.filter(n => n != '').length == 0) {
             let name = genreName;
@@ -96,9 +96,10 @@ export class GenreCreate extends Component {
                 {contents }
                 <form onSubmit={this.handleSubmit}>
                     <div>
+                    <h2>Create genre</h2>
                         <div>
                             <label>
-                                Žanras:
+                                Genre:
                                 <input type="text" name="genreName" value={this.state.genreName} onChange={this.handleChange} />
                             </label>
                             {error[0] && <div style={{ color: 'red' }}>{error[0]}</div>}
@@ -106,13 +107,13 @@ export class GenreCreate extends Component {
                         <br />
                         <div>
                             <label>
-                                Aprašas:
+                                Description:
                                 <textarea name="genreDescription" value={this.state.genreDescription} onChange={this.handleChange} />
                             </label>
                             {error[1] && <div style={{ color: 'red' }}>{error[1]}</div>}
                         </div>
                         <br />
-                        <input type="submit" value="Kurti" />
+                        <input type="submit" value="Create" />
 
                     </div>
                 </form>

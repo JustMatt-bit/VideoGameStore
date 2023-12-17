@@ -37,7 +37,6 @@ export class Register extends Component {
             this.setState({ error: 'All fields are required.', registrationStatus: null });
             return;
         }
-
         // Send registration data to the server
         fetch('api/user/register', {
             method: 'POST',

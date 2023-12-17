@@ -8,7 +8,7 @@ function ToCreate() {
     };
     return (
         <div>
-            <button onClick={navigateToProductCreate}>Sukurti</button>
+            <button onClick={navigateToProductCreate}>Create product</button>
         </div>
     );
 }
@@ -32,7 +32,7 @@ function ToEdit() {
     };
     return (
         <div>
-            <button onClick={navigateToProductEdit}>Pakeisti</button>
+            <button onClick={navigateToProductEdit}>Change</button>
         </div>
     );
 }
@@ -44,7 +44,7 @@ function ToCreateGenre() {
     };
     return (
         <div>
-            <button onClick={navigateToGenreCreate}>Kurti žanrą</button>
+            <button onClick={navigateToGenreCreate}>Create genre</button>
         </div>
     );
 }
@@ -56,7 +56,7 @@ function ToDeleteGenres() {
     };
     return (
         <div>
-            <button onClick={navigateToGenresDelete}>Trinti žanrus</button>
+            <button onClick={navigateToGenresDelete}>Delete genres</button>
         </div>
     );
 }
@@ -78,16 +78,16 @@ export class ProductControl extends Component {
             <table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
-                        <th>Pavadinimas</th>
-                        <th>Aprašymas</th>
-                        <th>Išleidimo data</th>
-                        <th>Kūrėjas</th>
-                        <th>Pardavėjas</th>
-                        <th>Likutis</th>
-                        <th>Kaina</th>
-                        <th>Parduodamas</th>
-                        <th>Tipas</th>
-                        <th>Veiksmai</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Creation date</th>
+                        <th>Developer</th>
+                        <th>Seller</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Sellable</th>
+                        <th>Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -113,7 +113,7 @@ export class ProductControl extends Component {
                             <td>{product.price}</td>
                             <td>{product.being_sold ? "Taip" : "Ne"}</td>
                             <td>{product.game_type_name}</td>
-                            <td><ToEdit /> <button>Ištrinti</button></td>
+                            <td><ToEdit /> <button>Delete</button></td>
                         </tr>
 
                     )}
@@ -125,14 +125,14 @@ export class ProductControl extends Component {
 
     static renderEmptyProductTable() {
         return (
-            <p>Nėra produktų</p>
+            <p>No items</p>
         );
 }
 
     render() {
         let contents;
         let startingContent = <>
-            <h1 id="tabelLabel" >Produktų kontrolė</h1>
+            <h1 id="tabelLabel" >Product control</h1>
             <ToCreate />
             <ToCreateGenre />
             <ToDeleteGenres />
@@ -140,7 +140,7 @@ export class ProductControl extends Component {
         if (this.state.products.length == 0) {
             contents = this.state.loading
                 ? <p><em>Loading...</em></p>
-                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>Nėra produktų</p>;
+                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>No items</p>;
         } else { 
             contents = this.state.loading
                 ? <p style={{ textAlign: 'center', lineHeight: '100px' }}><em>Loading...</em></p>
