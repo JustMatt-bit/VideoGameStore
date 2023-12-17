@@ -7,13 +7,30 @@ export class Checkout extends Component {
         super(props);
         this.state = {
             order_id: -1, cart_items: [], cart_total_price: 0, loading: true,
-            userData: ''
+            userData: '',
+            discounts: [],
+            selectedDiscount: null
         };
+        this.applyDiscount = this.applyDiscount.bind(this);
     }
 
     componentDidMount() {
-        this.populateCart();
-        this.populateUserData();
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const username = authCookie.split('=')[1];
+            this.populateCart();
+            this.populateUserData();
+            this.fetchDiscounts(username);
+        }
+    }
+
+    async fetchDiscounts(name) {
+        const response = await fetch(`api/discount/userDiscounts/${name}`);
+        const discounts = await response.json();
+        this.setState({ discounts });
     }
 
     static renderCheckout(userData) {
@@ -36,6 +53,9 @@ export class Checkout extends Component {
     }
 
     static renderCart(cart_items, cart_total_price) {
+        let totalPrice = cart_items.reduce((total, item) => {
+            return total + (item.price * item.units_in_cart);
+        }, 0);
         return (
             <>
             <div style={{ padding: 10 }}>
@@ -58,23 +78,40 @@ export class Checkout extends Component {
                     </tbody>
                 </table>
 
-                <div style={{ textAlign: 'right'}}>
-                    <h5>Total: {cart_total_price}€</h5>
-                </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <h5>Total: {totalPrice.toFixed(2)}€</h5>
+                    </div>
             </div>
             </>
 
         );
     }
 
+    static renderDiscountDropdown(discounts, handleDiscountChange) {
+        return (
+            <select onChange={handleDiscountChange}>
+                <option value="">Select a discount</option>
+                {discounts.map(discount => (
+                    <option key={discount.id} value={discount.id}>
+                        {discount.percent}% Discount
+                    </option>
+                ))}
+            </select>
+        );
+    }
+
     render() {
-        let cart = this.state.loading
+        let cartContents = this.state.loading
             ? <p><em>Loading...</em></p>
             : Checkout.renderCart(this.state.cart_items, this.state.cart_total_price);
 
-        let contents = this.state.loading
+        let userContents = this.state.loading
             ? <p><em>Loading...</em></p>
             : Checkout.renderCheckout(this.state.userData);
+
+        let discountDropdown = this.state.loading
+            ? <p><em>Loading discounts...</em></p>
+            : Checkout.renderDiscountDropdown(this.state.discounts, this.handleDiscountChange);
 
         return (
             <div>
@@ -82,30 +119,26 @@ export class Checkout extends Component {
 
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                     <div style={{ flex: 1, textAlign: 'center' }}>
-                        <table border="1" style={{ borderWidth: 2 }}>{cart}</table>
+                        <table border="1" style={{ borderWidth: 2 }}>{cartContents}</table>
                         <br></br>
-                        <input type="text"></input>
-                        <button
-                            style={{
-                                backgroundColor: 'antiquewhite', // Green background
-                                color: 'black', // White text
-                                padding: '5px 10px', // Padding around the text
-                                margin: '10px', // Margin around the button
-                                border: 'none', // No border
-                                borderRadius: '5px', // Slightly rounded corners
-                                cursor: 'pointer', // Cursor pointer
-                                fontSize: '16px', // Font size
-                            }}
-                            onMouseOver={(e) => e.target.style.backgroundColor = 'whitesmoke'} // Darker green on hover
-                            onMouseOut={(e) => e.target.style.backgroundColor = 'antiquewhite'} // Original color when not hovered
-                        >
+                        {discountDropdown}
+                        <button onClick={this.applyDiscount} style={{
+                            backgroundColor: 'antiquewhite', // Green background
+                            color: 'black', // White text
+                            padding: '5px 10px', // Padding around the text
+                            margin: '10px', // Margin around the button
+                            border: 'none', // No border
+                            borderRadius: '5px', // Slightly rounded corners
+                            cursor: 'pointer', // Cursor pointer
+                            fontSize: '16px', // Font size
+                        }}>
                             Apply
                         </button>
                     </div>
                     <div style={{ flex: 2 }}>
-                        {contents}
-                        <a href="/shipping"> <button
-                            style={{
+                        {userContents}
+                        <a href="/shipping">
+                            <button style={{
                                 textAlign: 'center',
                                 backgroundColor: '#4CAF50', // Green background
                                 color: 'white', // White text
@@ -115,17 +148,37 @@ export class Checkout extends Component {
                                 borderRadius: '5px', // Slightly rounded corners
                                 cursor: 'pointer', // Cursor pointer
                                 fontSize: '16px', // Font size
-                            }}
-                            onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'} // Darker green on hover
-                            onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'} // Original color when not hovered
-                        >
-                            Continue
-                        </button></a>
+                            }}>
+                                Continue
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>
         );
     }
+
+    handleDiscountChange = (event) => {
+        const discountId = parseInt(event.target.value);
+        const selectedDiscount = this.state.discounts.find(d => d.id === discountId);
+        this.setState({ selectedDiscount }, () => {
+            if (this.state.selectedDiscount) {
+                this.applyDiscount();
+            }
+        });
+    };
+
+    applyDiscount = () => {
+        console.log(this.state.selectedDiscount);
+        if (this.state.selectedDiscount) {
+            const discountFactor = 1 - this.state.selectedDiscount.percent / 100;
+            const newTotalPrice = this.state.cart_items.reduce((total, item) => {
+                return total + (item.price * item.units_in_cart);
+            }, 0) * discountFactor;
+
+            this.setState({ cart_total_price: newTotalPrice });
+        }
+    };
 
     async populateCart() {
         //var ls = localStorage;

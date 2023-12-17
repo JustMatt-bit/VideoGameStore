@@ -993,5 +993,51 @@ namespace VideoGameStore.Models
             return uniqueCode;
         }
 
+        public IEnumerable<Discount> GetDiscountsByUsername(string username)
+        {
+            List<Discount> discounts = new List<Discount>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM discounts WHERE fk_account = @username AND valid_to >= CURDATE()", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        discounts.Add(new Discount()
+                        {
+                            DiscountId = reader.GetInt32("discount_id"),
+                            ValidFrom = reader.GetDateTime("valid_from"),
+                            ValidTo = reader.GetDateTime("valid_to"),
+                            Percent = reader.GetDouble("percent"),
+                            FkAccount = reader.GetString("fk_account")
+                        });
+                    }
+                }
+            }
+            return discounts;
+        }
+
+        public bool ApplyDiscountToUser(string username, int discountId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Assuming you have a mechanism to associate discounts with orders or carts
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_discount = @discountId WHERE fk_account = @username AND order_id = (SELECT MAX(order_id) FROM orders WHERE fk_account = @username)", connection);
+                cmd.Parameters.AddWithValue("@discountId", discountId);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
+
     }
 }
