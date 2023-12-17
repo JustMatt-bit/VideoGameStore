@@ -452,7 +452,33 @@ namespace VideoGameStore.Models
 
                 int rowsAffected = cmd.ExecuteNonQuery();
 
+                if (rowsAffected > 0 && CheckReferralCodeExists(refferal))
+                {
+                    // User registered successfully and a referral code was used
+                    CreateDiscountForUser(username);
+                }
+
                 return rowsAffected > 0;
+            }
+        }
+
+        private void CreateDiscountForUser(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO discounts (valid_from, valid_to, percent, fk_account) " +
+                    "VALUES (@validFrom, @validTo, @percent, (SELECT username FROM accounts WHERE username = @username))",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@validFrom", DateTime.UtcNow);
+                cmd.Parameters.AddWithValue("@validTo", DateTime.UtcNow.AddMonths(1));
+                cmd.Parameters.AddWithValue("@percent", 10.0); // 10 percent discount
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
             }
         }
 
