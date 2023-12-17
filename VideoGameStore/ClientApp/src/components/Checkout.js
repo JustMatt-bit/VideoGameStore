@@ -19,15 +19,15 @@ export class Checkout extends Component {
     static renderCheckout(userData) {
         return (
             <div>
-                <h2>Mokėjimo informacija</h2>
+                <h2>Payment information</h2>
                 <form>
-                    <label>Vardas: </label><br />
+                    <label>Name: </label><br />
                     <input type="text" value={userData.name} /><br />
-                    <label>Pavardė: </label><br />
+                    <label>Surname: </label><br />
                     <input type="text" value={userData.surname} /><br />
-                    <label>Paštas: </label><br />
+                    <label>Email: </label><br />
                     <input type="email" value={userData.email} /><br />
-                    <label>Telefonas: </label><br />
+                    <label>Phone: </label><br />
                     <input type="text" value={userData.phone} /><br />
                 </form>
 
@@ -42,9 +42,9 @@ export class Checkout extends Component {
                 <table className='table table-striped' aria-labelledby="tabelLabel">
                     <thead>
                         <tr>
-                            <th>Pavadinimas</th>
-                            <th>Kiekis krepšelyje</th>
-                            <th>Kaina</th>
+                            <th>Name</th>
+                            <th>Amount in cart</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,7 +59,7 @@ export class Checkout extends Component {
                 </table>
 
                 <div style={{ textAlign: 'right'}}>
-                    <h5>Viso: {cart_total_price}€</h5>
+                    <h5>Total: {cart_total_price}€</h5>
                 </div>
             </div>
             </>
@@ -78,7 +78,7 @@ export class Checkout extends Component {
 
         return (
             <div>
-                <h1>Atsiskaitymas:</h1>
+                <h1>Payment:</h1>
 
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                     <div style={{ flex: 1, textAlign: 'center' }}>
@@ -99,7 +99,7 @@ export class Checkout extends Component {
                             onMouseOver={(e) => e.target.style.backgroundColor = 'whitesmoke'} // Darker green on hover
                             onMouseOut={(e) => e.target.style.backgroundColor = 'antiquewhite'} // Original color when not hovered
                         >
-                            Pritakyti
+                            Apply
                         </button>
                     </div>
                     <div style={{ flex: 2 }}>
@@ -119,7 +119,7 @@ export class Checkout extends Component {
                             onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'} // Darker green on hover
                             onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'} // Original color when not hovered
                         >
-                            Tęsti
+                            Continue
                         </button></a>
                     </div>
                 </div>

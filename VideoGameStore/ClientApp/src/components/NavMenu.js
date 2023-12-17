@@ -66,16 +66,16 @@ export class NavMenu extends Component {
                 <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/fetch-products">Produktai</NavLink>
+                <NavLink tag={Link} className="text-dark" to="/fetch-products">Products</NavLink>
               </NavItem>
               <NavItem>
-               <NavLink tag={Link} className="text-dark" to="/recommendation-list">Rekomendacijos</NavLink>
+               <NavLink tag={Link} className="text-dark" to="/recommendation-list">Recommendations</NavLink>
               </NavItem> 
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/product-control">Produktų kontrolė</NavLink>
+                <NavLink tag={Link} className="text-dark" to="/product-control">Product control</NavLink>
               </NavItem>
               <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/fetch-account">Account Page</NavLink>
+                  <NavLink tag={Link} className="text-dark" to="/fetch-account">Account page</NavLink>
                         </NavItem>
                      
                         {this.state.isLoggedIn ? (
@@ -88,7 +88,7 @@ export class NavMenu extends Component {
                             </NavItem>
                         )}
               <NavItem> 
-                  <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty Program Progress</NavLink>
+                  <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty program progress</NavLink>
               </NavItem>
               <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart" /></NavLink>

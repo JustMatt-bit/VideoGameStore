@@ -870,5 +870,65 @@ namespace VideoGameStore.Models
                 }
             }
         }
+
+        public LoyaltyTier GetUserLoyaltyTier(string username)
+        {
+            LoyaltyTier currentTier = new LoyaltyTier();
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT t.* FROM loyalty_tiers t JOIN accounts a ON t.tier_id = a.fk_loyalty_tier WHERE a.username = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        currentTier = new LoyaltyTier
+                        {
+                            TierId = reader.GetInt32("tier_id"),
+                            Name = reader.GetString("name"),
+                            PointsFrom = reader.GetInt32("points_from"),
+                            PointsTo = reader.GetInt32("points_to"),
+                            Description = reader.GetString("description"),
+                            DiscountCoefficient = reader.GetDouble("discount_coeficient")
+                        };
+                    }
+                }
+            }
+
+            return currentTier;
+        }
+
+        public LoyaltyTier GetNextLoyaltyTier(int currentTierId)
+        {
+            LoyaltyTier nextTier = null;
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM loyalty_tiers WHERE tier_id = @tierId + 1", connection);
+                cmd.Parameters.AddWithValue("@tierId", currentTierId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        nextTier = new LoyaltyTier
+                        {
+                            TierId = reader.GetInt32("tier_id"),
+                            Name = reader.GetString("name"),
+                            PointsFrom = reader.GetInt32("points_from"),
+                            PointsTo = reader.GetInt32("points_to"),
+                            Description = reader.GetString("description"),
+                            DiscountCoefficient = reader.GetDouble("discount_coeficient")
+                        };
+                    }
+                }
+            }
+
+            return nextTier;
+        }
     }
 }

@@ -50,7 +50,7 @@ export class GenresDelete extends Component {
             body: JSON.stringify(genres),
         });
         if (response.ok) {
-            window.alert("Deletion succeded");
+            window.alert("Successfully removed");
             window.location.href = '/product-control';
         } else {
             window.alert("One or more genres in use, can't be deleted");
@@ -83,7 +83,7 @@ export class GenresDelete extends Component {
         return (
             <div>
                 {contents }
-                <h2>Select which genres to delete</h2>
+                <h2>Choose which genres you want to delete</h2>
                 <Multiselect
                     options={this.state.genres}
                     displayValue="name"

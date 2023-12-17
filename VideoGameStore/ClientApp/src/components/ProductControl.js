@@ -125,7 +125,7 @@ export class ProductControl extends Component {
 
     static renderEmptyProductTable() {
         return (
-            <p>No items</p>
+            <p>No products</p>
         );
 }
 
@@ -140,7 +140,7 @@ export class ProductControl extends Component {
         if (this.state.products.length == 0) {
             contents = this.state.loading
                 ? <p><em>Loading...</em></p>
-                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>No items</p>;
+                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>No products</p>;
         } else { 
             contents = this.state.loading
                 ? <p style={{ textAlign: 'center', lineHeight: '100px' }}><em>Loading...</em></p>

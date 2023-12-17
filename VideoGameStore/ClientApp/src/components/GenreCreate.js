@@ -38,9 +38,9 @@ export class GenreCreate extends Component {
         let errors = [];
         //Perform validation
         if (!genreName) {
-            errors.push("*Type genre name");
+            errors.push("*Fill in the name of the genre");
         } else if (genreName.length > 30) {
-            errors.push("*Genre name can't have more than 30 symbols");
+            errors.push("*The name of the genre cannot be over 30 symbols");
         } else {
             const response = await fetch('api/products/GenreExists', {
                 method: 'POST',
@@ -57,9 +57,9 @@ export class GenreCreate extends Component {
             }
         }
         if (!genreDescription) {
-            errors.push("*Type genre description");
+            errors.push("*Fill in the description of the genre");
         } else if (genreDescription.length > 1000) {
-            errors.push("*Genre description can't be longer than 1000 symbols");
+            errors.push("*The description cannot be over 1000 symbols");
         }
         if (errors.filter(n => n != '').length == 0) {
             let name = genreName;
@@ -73,7 +73,7 @@ export class GenreCreate extends Component {
             });
             const data = await response.json();
             if (response.ok) {
-                window.alert("Sėkmingai sukūrėte žanrą");
+                window.alert("Genre created successfully");
                 window.location.href = '/product-control';
             }
         } else {

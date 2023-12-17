@@ -26,4 +26,22 @@ public class LeaderboardController : ControllerBase
             return StatusCode(500, "Internal server error uwu");
         }
     }
+
+    [HttpGet("GetUserPosition/{username}")]
+    public ActionResult<int> GetUserPosition(string username)
+    {
+        try
+        {
+            int position = _context.GetUserPositionByUsername(username);
+            if (position != -1)
+            {
+                return Ok(position);
+            }
+            return NotFound("User not found");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal server error uwu");
+        }
+    }
 }

@@ -29,7 +29,8 @@ const context = [
     "/api/user/GetCurrentUser",
     "/api/user/GetOrderHistory",
     "/api/leaderboard/GetTopUsers",
-    "/api/leaderboard/GetUserPosition"
+    "/api/leaderboard/GetUserPosition",
+    "/api/loyalty/GetUserTierDetails"
 ];
 
 module.exports = function(app) {

@@ -35,13 +35,13 @@ export class Cart extends Component {
             <><table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
-                        <th>Pavadinimas</th>
-                        <th>Pardavėjas</th>
-                        <th>Likutis</th>
-                        <th>Kaina</th>
-                        <th>Parduodamas</th>
-                        <th>Tipas</th>
-                        <th>Kiekis krepšelyje</th>
+                        <th>Name</th>
+                        <th>Seller</th>
+                        <th>Remaining</th>
+                        <th>Price</th>
+                        <th>Is sold?</th>
+                        <th>Type</th>
+                        <th>Amount in cart</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,7 +60,7 @@ export class Cart extends Component {
             </table>
             <br></br>
             <div style={{ textAlign: 'right' }}>
-                    <h4>Viso: {cart_total_price}€</h4>
+                    <h4>Total: {cart_total_price}€</h4>
                     <a href="/checkout"> <button
                         style={{
                             backgroundColor: '#4CAF50', // Green background
@@ -76,7 +76,7 @@ export class Cart extends Component {
                         onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'} // Original color when not hovered
                         href="/checkout"
                     >
-                        Mokėti
+                        Purchase
                     </button></a>
             </div>
             </>
@@ -91,7 +91,7 @@ export class Cart extends Component {
 
         return (
             <div>
-                <h1 id="tabelLabel" >Esamas krepšelis:</h1>
+                <h1 id="tabelLabel" >Current cart:</h1>
                 {contents}
             </div>
         );
