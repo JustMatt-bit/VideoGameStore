@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Nov 03, 2023 at 03:21 PM
--- Server version: 8.0.33
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Dec 15, 2023 at 02:25 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,24 +28,25 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `accounts` (
-  `username` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `surname` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `referal_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `loyalty_progress` int NOT NULL DEFAULT 0,
-  `fk_user_type` int NOT NULL,
-  `fk_loyalty_tier` int NOT NULL
+  `username` varchar(30) NOT NULL,
+  `password` varchar(32) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `surname` varchar(30) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(30) NOT NULL,
+  `referal_code` varchar(30) DEFAULT NULL,
+  `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `loyalty_progress` int(11) NOT NULL DEFAULT 0,
+  `fk_user_type` int(11) NOT NULL,
+  `fk_loyalty_tier` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `accounts`
 --
 
-INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `fk_user_type`, `fk_loyalty_tier`) VALUES
+INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `loyalty_progress`, `fk_user_type`, `fk_loyalty_tier`) VALUES
+('dovyd', '688787d8ff144c502c7f5cffaafe2cc5', 'Dovydas', 'Katinas', 'lolpmx@gmail.com', '868564914', 'Zaibas', '2023-12-15 15:20:23', 0, 1, 1),
 ('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1);
 
 -- --------------------------------------------------------
@@ -55,12 +56,12 @@ INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `pho
 --
 
 CREATE TABLE `addresses` (
-  `address_id` int NOT NULL,
-  `city` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `street` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `building` int NOT NULL,
-  `postal_code` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `address_id` int(11) NOT NULL,
+  `city` varchar(30) NOT NULL,
+  `street` varchar(30) NOT NULL,
+  `building` int(11) NOT NULL,
+  `postal_code` varchar(30) NOT NULL,
+  `fk_account` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -77,11 +78,11 @@ INSERT INTO `addresses` (`address_id`, `city`, `street`, `building`, `postal_cod
 --
 
 CREATE TABLE `carts` (
-  `cart_id` int NOT NULL,
+  `cart_id` int(11) NOT NULL,
   `price` float NOT NULL,
-  `stock` int NOT NULL,
-  `fk_order` int NOT NULL,
-  `fk_product` int NOT NULL
+  `stock` int(11) NOT NULL,
+  `fk_order` int(11) NOT NULL,
+  `fk_product` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -98,11 +99,11 @@ INSERT INTO `carts` (`cart_id`, `price`, `stock`, `fk_order`, `fk_product`) VALU
 --
 
 CREATE TABLE `comments` (
-  `comment_id` int NOT NULL,
-  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `fk_account` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fk_feedback` int NOT NULL
+  `comment_id` int(11) NOT NULL,
+  `date` datetime NOT NULL DEFAULT current_timestamp(),
+  `text` text NOT NULL,
+  `fk_account` varchar(30) DEFAULT NULL,
+  `fk_feedback` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -119,9 +120,9 @@ INSERT INTO `comments` (`comment_id`, `date`, `text`, `fk_account`, `fk_feedback
 --
 
 CREATE TABLE `developers` (
-  `developer_id` int NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `country` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `developer_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `country` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -138,11 +139,11 @@ INSERT INTO `developers` (`developer_id`, `name`, `country`) VALUES
 --
 
 CREATE TABLE `discounts` (
-  `discount_id` int NOT NULL,
+  `discount_id` int(11) NOT NULL,
   `valid_from` datetime NOT NULL,
   `valid_to` datetime NOT NULL,
-  `percent` int NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `percent` int(11) NOT NULL,
+  `fk_account` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -159,14 +160,14 @@ INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk
 --
 
 CREATE TABLE `feedback` (
-  `feedback_id` int NOT NULL,
+  `feedback_id` int(11) NOT NULL,
   `date` datetime NOT NULL,
-  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `text` text NOT NULL,
   `rating` float NOT NULL,
-  `rating_count` int NOT NULL,
+  `rating_count` int(11) NOT NULL,
   `flagged` tinyint(1) NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fk_product` int NOT NULL
+  `fk_account` varchar(30) DEFAULT NULL,
+  `fk_product` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -183,8 +184,8 @@ INSERT INTO `feedback` (`feedback_id`, `date`, `text`, `rating`, `rating_count`,
 --
 
 CREATE TABLE `game_types` (
-  `game_type_id` int NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `game_type_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -202,9 +203,9 @@ INSERT INTO `game_types` (`game_type_id`, `name`) VALUES
 --
 
 CREATE TABLE `genres` (
-  `genre_id` int NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL
+  `genre_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -221,11 +222,11 @@ INSERT INTO `genres` (`genre_id`, `name`, `description`) VALUES
 --
 
 CREATE TABLE `loyalty_tiers` (
-  `tier_id` int NOT NULL,
-  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `points_from` int NOT NULL,
-  `points_to` int NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tier_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `points_from` int(11) NOT NULL,
+  `points_to` int(11) NOT NULL,
+  `description` text NOT NULL,
   `discount_coeficient` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -243,16 +244,16 @@ INSERT INTO `loyalty_tiers` (`tier_id`, `name`, `points_from`, `points_to`, `des
 --
 
 CREATE TABLE `orders` (
-  `order_id` int NOT NULL,
-  `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `order_id` int(11) NOT NULL,
+  `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `completion_date` datetime NOT NULL,
-  `price` float NOT NULL DEFAULT '0',
-  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `parcel_price` float NOT NULL DEFAULT '0',
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `fk_address` int DEFAULT NULL,
-  `fk_status` int NOT NULL DEFAULT '1',
-  `fk_discount` int DEFAULT NULL
+  `price` float NOT NULL DEFAULT 0,
+  `comment` text NOT NULL,
+  `parcel_price` float NOT NULL DEFAULT 0,
+  `fk_account` varchar(30) NOT NULL,
+  `fk_address` int(11) DEFAULT NULL,
+  `fk_status` int(11) NOT NULL DEFAULT 1,
+  `fk_discount` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -260,7 +261,9 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `creation_date`, `completion_date`, `price`, `comment`, `parcel_price`, `fk_account`, `fk_address`, `fk_status`, `fk_discount`) VALUES
-(1, '2023-11-03 14:43:50', '2023-11-03 13:43:33', 0, 'Užsakymas kuriamas', 0, 'JonasPonas', NULL, 1, NULL);
+(1, '2023-11-03 14:43:50', '2023-11-03 13:43:33', 0, 'Užsakymas kuriamas', 0, 'JonasPonas', NULL, 1, NULL),
+(2, '2023-12-13 15:21:44', '2023-12-15 15:21:44', 200, 'Great order', 55, 'dovyd', 1, 6, NULL),
+(3, '2023-12-14 15:24:16', '2023-12-16 15:24:16', 10, 'very good', 1, 'dovyd', NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -269,16 +272,16 @@ INSERT INTO `orders` (`order_id`, `creation_date`, `completion_date`, `price`, `
 --
 
 CREATE TABLE `products` (
-  `product_id` int NOT NULL,
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `price` float NOT NULL,
-  `stock` int NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `stock` int(11) NOT NULL,
+  `description` text NOT NULL,
   `release_date` date NOT NULL,
   `being_sold` tinyint(1) NOT NULL,
-  `fk_game_type` int NOT NULL,
-  `fk_developer` int NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `fk_game_type` int(11) NOT NULL,
+  `fk_developer` int(11) NOT NULL,
+  `fk_account` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -296,9 +299,9 @@ INSERT INTO `products` (`product_id`, `name`, `price`, `stock`, `description`, `
 --
 
 CREATE TABLE `product_genres` (
-  `product_genre_id` int NOT NULL,
-  `fk_genre` int NOT NULL,
-  `fk_product` int NOT NULL
+  `product_genre_id` int(11) NOT NULL,
+  `fk_genre` int(11) NOT NULL,
+  `fk_product` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -316,8 +319,8 @@ INSERT INTO `product_genres` (`product_genre_id`, `fk_genre`, `fk_product`) VALU
 --
 
 CREATE TABLE `statuses` (
-  `status_id` int NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `status_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -339,9 +342,9 @@ INSERT INTO `statuses` (`status_id`, `name`) VALUES
 --
 
 CREATE TABLE `user_genres` (
-  `user_genre_id` int NOT NULL,
-  `fk_genre` int NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `user_genre_id` int(11) NOT NULL,
+  `fk_genre` int(11) NOT NULL,
+  `fk_account` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -358,8 +361,8 @@ INSERT INTO `user_genres` (`user_genre_id`, `fk_genre`, `fk_account`) VALUES
 --
 
 CREATE TABLE `user_types` (
-  `type_id` int NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
+  `type_id` int(11) NOT NULL,
+  `name` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -500,91 +503,91 @@ ALTER TABLE `user_types`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `address_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `address_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `cart_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `developers`
 --
 ALTER TABLE `developers`
-  MODIFY `developer_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `developer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `discounts`
 --
 ALTER TABLE `discounts`
-  MODIFY `discount_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `discount_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `feedback_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `game_types`
 --
 ALTER TABLE `game_types`
-  MODIFY `game_type_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `game_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `genres`
 --
 ALTER TABLE `genres`
-  MODIFY `genre_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `genre_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `loyalty_tiers`
 --
 ALTER TABLE `loyalty_tiers`
-  MODIFY `tier_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `tier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product_genres`
 --
 ALTER TABLE `product_genres`
-  MODIFY `product_genre_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `product_genre_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `statuses`
 --
 ALTER TABLE `statuses`
-  MODIFY `status_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `status_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `user_genres`
 --
 ALTER TABLE `user_genres`
-  MODIFY `user_genre_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `user_genre_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `user_types`
 --
 ALTER TABLE `user_types`
-  MODIFY `type_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -594,14 +597,14 @@ ALTER TABLE `user_types`
 -- Constraints for table `accounts`
 --
 ALTER TABLE `accounts`
-  ADD CONSTRAINT `account-loyalty_constraint` FOREIGN KEY (`fk_loyalty_tier`) REFERENCES `loyalty_tiers` (`tier_id`) ON DELETE RESTRICT,
-  ADD CONSTRAINT `account-type_constraint` FOREIGN KEY (`fk_user_type`) REFERENCES `user_types` (`type_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `account-loyalty_constraint` FOREIGN KEY (`fk_loyalty_tier`) REFERENCES `loyalty_tiers` (`tier_id`),
+  ADD CONSTRAINT `account-type_constraint` FOREIGN KEY (`fk_user_type`) REFERENCES `user_types` (`type_id`);
 
 --
 -- Constraints for table `addresses`
 --
 ALTER TABLE `addresses`
-  ADD CONSTRAINT `address-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE CASCADE ON UPDATE RESTRICT;
+  ADD CONSTRAINT `address-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `carts`
@@ -614,8 +617,8 @@ ALTER TABLE `carts`
 -- Constraints for table `comments`
 --
 ALTER TABLE `comments`
-  ADD CONSTRAINT `comment-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  ADD CONSTRAINT `comment-feedback_constraint` FOREIGN KEY (`fk_feedback`) REFERENCES `feedback` (`feedback_id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+  ADD CONSTRAINT `comment-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE SET NULL,
+  ADD CONSTRAINT `comment-feedback_constraint` FOREIGN KEY (`fk_feedback`) REFERENCES `feedback` (`feedback_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `discounts`
@@ -627,39 +630,39 @@ ALTER TABLE `discounts`
 -- Constraints for table `feedback`
 --
 ALTER TABLE `feedback`
-  ADD CONSTRAINT `feedback-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  ADD CONSTRAINT `feedback-product_constraint` FOREIGN KEY (`fk_product`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE RESTRICT;
+  ADD CONSTRAINT `feedback-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE SET NULL,
+  ADD CONSTRAINT `feedback-product_constraint` FOREIGN KEY (`fk_product`) REFERENCES `products` (`product_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `order-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`),
-  ADD CONSTRAINT `order-address_constraint` FOREIGN KEY (`fk_address`) REFERENCES `addresses` (`address_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  ADD CONSTRAINT `order-address_constraint` FOREIGN KEY (`fk_address`) REFERENCES `addresses` (`address_id`) ON DELETE SET NULL,
   ADD CONSTRAINT `order-discount_constraint` FOREIGN KEY (`fk_discount`) REFERENCES `discounts` (`discount_id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `order-status_constraint` FOREIGN KEY (`fk_status`) REFERENCES `statuses` (`status_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `order-status_constraint` FOREIGN KEY (`fk_status`) REFERENCES `statuses` (`status_id`);
 
 --
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
-  ADD CONSTRAINT `product-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  ADD CONSTRAINT `product-developer_constraint` FOREIGN KEY (`fk_developer`) REFERENCES `developers` (`developer_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `product-game-type_constraint` FOREIGN KEY (`fk_game_type`) REFERENCES `game_types` (`game_type_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `product-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE CASCADE,
+  ADD CONSTRAINT `product-developer_constraint` FOREIGN KEY (`fk_developer`) REFERENCES `developers` (`developer_id`),
+  ADD CONSTRAINT `product-game-type_constraint` FOREIGN KEY (`fk_game_type`) REFERENCES `game_types` (`game_type_id`);
 
 --
 -- Constraints for table `product_genres`
 --
 ALTER TABLE `product_genres`
-  ADD CONSTRAINT `product_genres-genre_constraint` FOREIGN KEY (`fk_genre`) REFERENCES `genres` (`genre_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `product_genres-product_constraint` FOREIGN KEY (`fk_product`) REFERENCES `products` (`product_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `product_genres-genre_constraint` FOREIGN KEY (`fk_genre`) REFERENCES `genres` (`genre_id`),
+  ADD CONSTRAINT `product_genres-product_constraint` FOREIGN KEY (`fk_product`) REFERENCES `products` (`product_id`);
 
 --
 -- Constraints for table `user_genres`
 --
 ALTER TABLE `user_genres`
-  ADD CONSTRAINT `user_genres-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `user_genres-genre_constraint` FOREIGN KEY (`fk_genre`) REFERENCES `genres` (`genre_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+  ADD CONSTRAINT `user_genres-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`),
+  ADD CONSTRAINT `user_genres-genre_constraint` FOREIGN KEY (`fk_genre`) REFERENCES `genres` (`genre_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
