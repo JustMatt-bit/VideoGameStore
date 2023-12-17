@@ -13,11 +13,19 @@ export class Cart extends Component {
     }
 
     itemsInCartChange(pid, newVal) {
-        this.setState(prevState => ({
-            cart_items: prevState.cart_items.map(item =>
+        this.setState(prevState => {
+            const updatedCartItems = prevState.cart_items.map(item =>
                 item.id === pid ? { ...item, units_in_cart: newVal } : item
-            ),
-        }));
+            );
+
+            // Recalculate total price
+            const newTotalPrice = updatedCartItems.reduce((total, item) => total + (item.price * item.units_in_cart), 0);
+
+            return {
+                cart_items: updatedCartItems,
+                cart_total_price: newTotalPrice,
+            };
+        });
 
         const data = { oid: this.state.order_id, pid: pid, val: newVal }
         fetch('api/cart', {
