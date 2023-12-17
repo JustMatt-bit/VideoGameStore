@@ -18,15 +18,15 @@ export class FetchProducts extends Component {
             <table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
                     <tr>
-                        <th>Pavadinimas</th>
-                        <th>Aprašymas</th>
-                        <th>Išleidimo data</th>
-                        <th>Kūrėjas</th>
-                        <th>Pardavėjas</th>
-                        <th>Likutis</th>
-                        <th>Kaina</th>
-                        <th>Parduodamas</th>
-                        <th>Tipas</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Release date</th>
+                        <th>Developer</th>
+                        <th>Seller</th>
+                        <th>Amount in stock</th>
+                        <th>Price</th>
+                        <th>Is sold?</th>
+                        <th>Type</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,11 +63,11 @@ export class FetchProducts extends Component {
 
     render() {
         let contents;
-        let startingContent = <h1 id="tabelLabel" >Produktai</h1>;
+        let startingContent = <h1 id="tabelLabel" >Products</h1>;
         if (this.state.products.length == 0) {
             contents = this.state.loading
                 ? <p><em>Loading...</em></p>
-                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>Nėra produktų</p>;
+                : <p style={{ textAlign: 'center', lineHeight: '100px' }}>No products</p>;
         } else {
             contents = this.state.loading
                 ? <p style={{ textAlign: 'center', lineHeight: '100px' }}><em>Loading...</em></p>

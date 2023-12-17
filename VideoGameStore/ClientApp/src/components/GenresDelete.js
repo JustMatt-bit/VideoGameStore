@@ -51,7 +51,7 @@ export class GenresDelete extends Component {
         });
         const data = await response.json();
         if (response.ok) {
-            window.alert("Sėkmingai ištrynėte");
+            window.alert("Successfully removed");
             window.location.href = '/product-control';
         }
 
@@ -72,7 +72,7 @@ export class GenresDelete extends Component {
     render() {
         let contents;
         let startingContent = <>
-            <h1 id="tabelLabel" >Produktų kontrolė</h1>
+            <h1 id="tabelLabel" >Products control</h1>
         </>;
 
         const authCookie = document.cookie
@@ -85,7 +85,7 @@ export class GenresDelete extends Component {
         return (
             <div>
                 {contents }
-                <h2>Pasirinkite, kuriuos žanrus norite trinti</h2>
+                <h2>Choose which genres you want to delete</h2>
                 <Multiselect
                     options={this.state.genres}
                     displayValue="name"
