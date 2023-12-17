@@ -96,6 +96,7 @@ export class GenreCreate extends Component {
                 {contents }
                 <form onSubmit={this.handleSubmit}>
                     <div>
+                    <h2>Create genre</h2>
                         <div>
                             <label>
                                 Genre:

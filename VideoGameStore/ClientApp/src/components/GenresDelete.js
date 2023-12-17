@@ -49,10 +49,11 @@ export class GenresDelete extends Component {
             },
             body: JSON.stringify(genres),
         });
-        const data = await response.json();
         if (response.ok) {
             window.alert("Successfully removed");
             window.location.href = '/product-control';
+        } else {
+            window.alert("One or more genres in use, can't be deleted");
         }
 
     }
@@ -71,9 +72,6 @@ export class GenresDelete extends Component {
 
     render() {
         let contents;
-        let startingContent = <>
-            <h1 id="tabelLabel" >Products control</h1>
-        </>;
 
         const authCookie = document.cookie
             .split('; ')
@@ -95,7 +93,7 @@ export class GenresDelete extends Component {
                     avoidHighlightFirstOption
                 />
                 <form onSubmit={this.handleSubmit}>
-                    <input type="submit" value="Trinti" />
+                    <input type="submit" value="Delete" />
                 </form>
             </div>
         );

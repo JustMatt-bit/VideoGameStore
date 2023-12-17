@@ -8,7 +8,7 @@ function ToCreate() {
     };
     return (
         <div>
-            <button onClick={navigateToProductCreate}>Create</button>
+            <button onClick={navigateToProductCreate}>Create product</button>
         </div>
     );
 }
@@ -32,7 +32,7 @@ function ToEdit() {
     };
     return (
         <div>
-            <button onClick={navigateToProductEdit}>Edit</button>
+            <button onClick={navigateToProductEdit}>Change</button>
         </div>
     );
 }
@@ -80,12 +80,12 @@ export class ProductControl extends Component {
                     <tr>
                         <th>Name</th>
                         <th>Description</th>
-                        <th>Release date</th>
+                        <th>Creation date</th>
                         <th>Developer</th>
                         <th>Seller</th>
-                        <th>Amount left</th>
+                        <th>Stock</th>
                         <th>Price</th>
-                        <th>Is sold?</th>
+                        <th>Sellable</th>
                         <th>Type</th>
                         <th>Actions</th>
                     </tr>
@@ -113,7 +113,7 @@ export class ProductControl extends Component {
                             <td>{product.price}</td>
                             <td>{product.being_sold ? "Taip" : "Ne"}</td>
                             <td>{product.game_type_name}</td>
-                            <td><ToEdit /> <button>Remove</button></td>
+                            <td><ToEdit /> <button>Delete</button></td>
                         </tr>
 
                     )}

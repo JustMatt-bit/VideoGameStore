@@ -20,17 +20,17 @@
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Compile Remove="Images\**" />
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="Images\**" />
+    <EmbeddedResource Remove="Images\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="Images\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="ClientApp\src\components\FetchLeaderboard.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Images\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Hosting;
 using VideoGameStore.Models;
+using System.IO;
+using System.Threading.Channels;
 
 namespace VideoGameStore.Controllers
 {
@@ -9,11 +13,13 @@ namespace VideoGameStore.Controllers
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly VideoGameStoreContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductsController(ILogger<ProductsController> logger, VideoGameStoreContext context)
+        public ProductsController(ILogger<ProductsController> logger, VideoGameStoreContext context, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // api/products
@@ -77,6 +83,52 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        [HttpPost("GetGameTypes")]
+        public ActionResult<IEnumerable<GameType>> GetGameTypes()
+        {
+            try
+            {
+                var gameTypes = _context.GetGameTypes();
+                return Ok(gameTypes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("GetDevelopers")]
+        public ActionResult<IEnumerable<Developer>> GetDevelopers()
+        {
+            try
+            {
+                var developers = _context.GetDevelopers();
+                return Ok(developers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("CreateDeveloper")]
+        public ActionResult<int> CreateDeveloper([FromBody] Developer developer)
+        {
+            try
+            {  
+                var id = _context.CreateDeveloper(developer.name, developer.country);
+                return Ok(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating developer");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
         [HttpPost("GenreExists")]
         public ActionResult<bool> GenreExists([FromBody] string name)
         {
@@ -124,6 +176,80 @@ namespace VideoGameStore.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting genres");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        public class FileInfo
+        {
+            public int id { get; set; }
+            public IFormFile image { get; set; }
+        }
+
+
+
+        [HttpPost("UploadImage")]
+        public async Task<IActionResult> UploadImage([FromForm] FileInfo file)
+        {
+            try
+            {
+                if (file.image.Length > 0)
+                {
+                    var stringarr = file.image.FileName.Split('.');
+                    var extension = stringarr[stringarr.Length - 1];
+                    var newFileName = file.id.ToString() + "." + extension;
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "../ClientApp/public/images/", newFileName);
+                    Console.WriteLine(path);
+                    using (FileStream stream = new FileStream(path, FileMode.Create))
+                    {
+                        await file.image.CopyToAsync(stream);
+                        stream.Close();
+                    }
+                    var changed = _context.ChangeProductImage(file.id, newFileName);
+                    return Ok(changed);
+                }
+                return NotFound(new { Message = "Image not found" });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading image");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("CreateProduct")]
+        public ActionResult<int> CreateProduct([FromBody] Product product)
+        {
+            try
+            {
+                var id = _context.CreateProduct(product);
+                return Ok(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        public class GenreProductRelation
+        {
+            public int id { get; set; }
+            public List<Genre> genres { get; set; }
+        }
+
+        [HttpPost("GenresProductConnection")]
+        public ActionResult<bool> GenresProductConnection([FromBody] GenreProductRelation genreProductRelation)
+        {
+            try
+            {
+                var completed = _context.GenresProductConnection(genreProductRelation.id, genreProductRelation.genres);
+                return Ok(completed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product");
                 return StatusCode(500, "Internal server error");
             }
         }
