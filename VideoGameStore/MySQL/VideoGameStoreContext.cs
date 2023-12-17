@@ -791,5 +791,30 @@ namespace VideoGameStore.Models
                 return count > 0;
             }
         }
+
+        public string GenerateReferralCode(string username)
+        {
+            var referralCode = GenerateUniqueCode();
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var cmd = new MySqlCommand("UPDATE accounts SET referal_code = @referralCode WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@referralCode", referralCode);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.ExecuteNonQuery();
+            }
+            return referralCode;
+        }
+
+        private string GenerateUniqueCode()
+        {
+            // Simple example of generating a 10-character alphanumeric string
+            var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            var uniqueCode = new string(Enumerable.Repeat(characters, 10)
+                                        .Select(s => s[random.Next(s.Length)]).ToArray());
+            return uniqueCode;
+        }
+
     }
 }

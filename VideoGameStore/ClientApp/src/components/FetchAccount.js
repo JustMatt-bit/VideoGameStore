@@ -103,6 +103,32 @@ export class FetchAccount extends Component {
             });
     }
 
+    generateReferralCode = () => {
+        const { username } = this.state; // Get the username from state
+        fetch(`/api/referral/GenerateReferralCode/${username}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error generating referral code');
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.setState(prevState => ({
+                    user: { ...prevState.user, referal_code: data.referralCode },
+                }));
+            })
+            .catch(error => {
+                console.error('Error generating referral code:', error);
+                this.setState({ error: error.toString() });
+            });
+    };
+
+
     render() {
         const { isLoggedIn, isLoading, username, user, error } = this.state;
 
@@ -128,6 +154,17 @@ export class FetchAccount extends Component {
                             <NavItem>
                                 <NavLink tag={Link} className="text-dark" to="/fetch-order-history">Order history</NavLink>
                             </NavItem>
+                            {!user?.referal_code && (
+                                <NavItem>
+                                    <NavLink
+                                        tag={Link }
+                                        className="text-dark"
+                                        onClick={this.generateReferralCode}
+                                        >
+                                        Generate Referral Code
+                                    </NavLink>
+                                </NavItem>
+                            )}
                         </ul>
                     </Collapse>
                 </Navbar>
@@ -172,3 +209,4 @@ export class FetchAccount extends Component {
         );
     }
 }
+

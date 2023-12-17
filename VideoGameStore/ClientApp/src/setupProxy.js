@@ -26,6 +26,7 @@ const context = [
     "/api/leaderboard/GetUserPosition",
     "/api/loyalty/GetUserTierDetails",
     "/api/referral/CheckReferralCode",
+    "/api/referral/GenerateReferralCode",
 ];
 
 module.exports = function(app) {

@@ -33,5 +33,13 @@ namespace VideoGameStore.Controllers
                 return NotFound(new { Exists = false });
             }
         }
+
+        [HttpPost("GenerateReferralCode/{userName}")]
+        public IActionResult GenerateReferralCode(string userName)
+        {
+            var username = userName;
+            var referralCode = _context.GenerateReferralCode(username);
+            return Ok(new { referralCode });
+        }
     }
 }
