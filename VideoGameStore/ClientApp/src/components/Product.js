@@ -9,7 +9,7 @@ function ToCart() {
     };
     return (
         <div>
-            <button onClick={navigateToCart}>Pridėti į krepšelį</button>
+            <button onClick={navigateToCart}>Add to cart</button>
         </div>
     );
 }
@@ -46,9 +46,9 @@ export class Product extends Component {
                     <h2>{product.name}</h2>
                     <p>{product.description}
                     </p>
-                    <h4>Kaina: {product.price} €</h4>
+                    <h4>Price: {product.price} €</h4>
                     {/*<ToCart/>*/}
-                    <button>Pridėti į krepšelį</button>
+                    <button>Add to cart</button>
                 </div>
                 <FetchFeedback />
             </>

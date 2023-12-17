@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 15, 2023 at 02:25 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: 127.0.0.1:3306
+-- Generation Time: Dec 17, 2023 at 06:50 PM
+-- Server version: 10.4.22-MariaDB
+-- PHP Version: 8.1.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -16,6 +16,15 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+
+-- Drop the existing database if it exists
+DROP DATABASE IF EXISTS `videogamestore`;
+
+-- Create a new database
+CREATE DATABASE `videogamestore`;
+
+-- Use the new database for subsequent operations
+USE `videogamestore`;
 
 --
 -- Database: `videogamestore`
@@ -28,13 +37,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `accounts` (
-  `username` varchar(30) NOT NULL,
-  `password` varchar(32) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `surname` varchar(30) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(30) NOT NULL,
-  `referal_code` varchar(30) DEFAULT NULL,
+  `username` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `surname` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referal_code` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `loyalty_progress` int(11) NOT NULL DEFAULT 0,
   `fk_user_type` int(11) NOT NULL,
@@ -46,8 +55,12 @@ CREATE TABLE `accounts` (
 --
 
 INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `loyalty_progress`, `fk_user_type`, `fk_loyalty_tier`) VALUES
+('Auksinis', '2a97516c354b68848cdbd8f54a226a0a', 'Auksas', 'Pakopa', 'auk@gmail.com', '000000000', '', '2023-12-17 19:49:30', 1711, 1, 3),
+('Bronzinis', '2a97516c354b68848cdbd8f54a226a0a', 'Bronza', 'Pakopa', 'br@gmail.com', '000000000', '', '2023-12-17 19:48:36', 354, 1, 1),
 ('dovyd', '688787d8ff144c502c7f5cffaafe2cc5', 'Dovydas', 'Katinas', 'lolpmx@gmail.com', '868564914', 'Zaibas', '2023-12-15 15:20:23', 0, 1, 1),
-('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1);
+('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1),
+('Platininis', '2a97516c354b68848cdbd8f54a226a0a', 'Platina', 'Pakopa', 'plat@gmail.com', '000000000', '', '2023-12-17 19:49:59', 4789, 1, 4),
+('Sidabrinis', '2a97516c354b68848cdbd8f54a226a0a', 'Sidabras', 'Pakopa', 'sid@gmail.com', '000000000', '', '2023-12-17 19:49:08', 784, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -57,11 +70,11 @@ INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `pho
 
 CREATE TABLE `addresses` (
   `address_id` int(11) NOT NULL,
-  `city` varchar(30) NOT NULL,
-  `street` varchar(30) NOT NULL,
+  `city` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `street` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `building` int(11) NOT NULL,
-  `postal_code` varchar(30) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `postal_code` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -101,8 +114,8 @@ INSERT INTO `carts` (`cart_id`, `price`, `stock`, `fk_order`, `fk_product`) VALU
 CREATE TABLE `comments` (
   `comment_id` int(11) NOT NULL,
   `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `text` text NOT NULL,
-  `fk_account` varchar(30) DEFAULT NULL,
+  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_feedback` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -121,8 +134,8 @@ INSERT INTO `comments` (`comment_id`, `date`, `text`, `fk_account`, `fk_feedback
 
 CREATE TABLE `developers` (
   `developer_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `country` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -143,7 +156,7 @@ CREATE TABLE `discounts` (
   `valid_from` datetime NOT NULL,
   `valid_to` datetime NOT NULL,
   `percent` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -151,7 +164,7 @@ CREATE TABLE `discounts` (
 --
 
 INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk_account`) VALUES
-(1, '2023-11-03 13:43:59', '2023-11-04 14:43:59', 50, 'JonasPonas');
+(1, '2023-11-03 13:43:59', '2024-11-03 14:43:59', 50, 'JonasPonas');
 
 -- --------------------------------------------------------
 
@@ -162,11 +175,11 @@ INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk
 CREATE TABLE `feedback` (
   `feedback_id` int(11) NOT NULL,
   `date` datetime NOT NULL,
-  `text` text NOT NULL,
+  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `rating` float NOT NULL,
   `rating_count` int(11) NOT NULL,
   `flagged` tinyint(1) NOT NULL,
-  `fk_account` varchar(30) DEFAULT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_product` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -185,7 +198,7 @@ INSERT INTO `feedback` (`feedback_id`, `date`, `text`, `rating`, `rating_count`,
 
 CREATE TABLE `game_types` (
   `game_type_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -204,8 +217,8 @@ INSERT INTO `game_types` (`game_type_id`, `name`) VALUES
 
 CREATE TABLE `genres` (
   `genre_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `description` text NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -223,10 +236,10 @@ INSERT INTO `genres` (`genre_id`, `name`, `description`) VALUES
 
 CREATE TABLE `loyalty_tiers` (
   `tier_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `points_from` int(11) NOT NULL,
   `points_to` int(11) NOT NULL,
-  `description` text NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `discount_coeficient` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -235,7 +248,10 @@ CREATE TABLE `loyalty_tiers` (
 --
 
 INSERT INTO `loyalty_tiers` (`tier_id`, `name`, `points_from`, `points_to`, `description`, `discount_coeficient`) VALUES
-(1, 'Pirmas lygis', 0, 10, 'test test test', 1);
+(1, 'Bronze', 0, 500, 'Lowest tier, assigned to all new users', 1),
+(2, 'Silver', 501, 1000, 'Beginning to make some loyalty progress :)', 1.1),
+(3, 'Gold', 1001, 1750, 'You\'re in the big leagues now!', 1.2),
+(4, 'Platinum', 1751, 2500, 'The best of the best!', 1.25);
 
 -- --------------------------------------------------------
 
@@ -248,9 +264,9 @@ CREATE TABLE `orders` (
   `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `completion_date` datetime NOT NULL,
   `price` float NOT NULL DEFAULT 0,
-  `comment` text NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `parcel_price` float NOT NULL DEFAULT 0,
-  `fk_account` varchar(30) NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `fk_address` int(11) DEFAULT NULL,
   `fk_status` int(11) NOT NULL DEFAULT 1,
   `fk_discount` int(11) DEFAULT NULL
@@ -273,15 +289,15 @@ INSERT INTO `orders` (`order_id`, `creation_date`, `completion_date`, `price`, `
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` float NOT NULL,
   `stock` int(11) NOT NULL,
-  `description` text NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `release_date` date NOT NULL,
   `being_sold` tinyint(1) NOT NULL,
   `fk_game_type` int(11) NOT NULL,
   `fk_developer` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -320,7 +336,7 @@ INSERT INTO `product_genres` (`product_genre_id`, `fk_genre`, `fk_product`) VALU
 
 CREATE TABLE `statuses` (
   `status_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -344,7 +360,7 @@ INSERT INTO `statuses` (`status_id`, `name`) VALUES
 CREATE TABLE `user_genres` (
   `user_genre_id` int(11) NOT NULL,
   `fk_genre` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -362,7 +378,7 @@ INSERT INTO `user_genres` (`user_genre_id`, `fk_genre`, `fk_account`) VALUES
 
 CREATE TABLE `user_types` (
   `type_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -551,7 +567,7 @@ ALTER TABLE `genres`
 -- AUTO_INCREMENT for table `loyalty_tiers`
 --
 ALTER TABLE `loyalty_tiers`
-  MODIFY `tier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `tier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `orders`
