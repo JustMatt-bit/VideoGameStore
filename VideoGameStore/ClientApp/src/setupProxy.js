@@ -33,6 +33,8 @@ const context = [
     "/api/loyalty/GetUserTierDetails",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
+    "/api/discount/applyDiscount",
+    "/api/discount/userDiscounts",
 ];
 
 module.exports = function(app) {
