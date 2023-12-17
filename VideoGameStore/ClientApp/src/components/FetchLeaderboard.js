@@ -21,7 +21,7 @@ export class FetchLeaderboard extends Component {
     componentDidMount() {
         const authCookie = document.cookie
             .split('; ')
-            .find(row => row.startsWith('AuthCookie_Petriukas'));
+            .find(row => row.startsWith('AuthCookie'));
 
         if (authCookie) {
             const username = authCookie.split('=')[1];
