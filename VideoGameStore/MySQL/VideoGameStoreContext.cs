@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Tls;
 using System.Diagnostics.Metrics;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
@@ -1340,7 +1341,115 @@ namespace VideoGameStore.Models
             }
             return discounts;
         }
+        public void InsertVerificationLink(string username, string token)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                "INSERT INTO verification_links (username, token) VALUES (@username, @token)", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+                 cmd.Parameters.AddWithValue("@token", token);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public bool SetVerifiedAccount(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
 
+                // Retrieve the stored verification token for the specified username
+                MySqlCommand cmd = new MySqlCommand(
+                     "UPDATE accounts SET verified = 1 WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
+        public string GetVerificationLinkByUsername(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT token FROM verification_links WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return reader.GetString("token");
+                    }
+                }
+            }
+            return "";
+        }
+        public bool VerifyUserAccount(string username, string providedToken)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Retrieve the stored verification token for the specified username
+                MySqlCommand retrieveCmd = new MySqlCommand(
+                    "SELECT Token FROM verification_links WHERE username = @username", connection);
+                retrieveCmd.Parameters.AddWithValue("@username", username);
+
+                using (MySqlDataReader reader = retrieveCmd.ExecuteReader())
+                {
+                    
+                    if (reader.Read())
+                    {
+                        string storedToken = reader.GetString("Token");
+                        // Compare the provided token with the stored token
+                        if (string.Equals(storedToken, providedToken, StringComparison.OrdinalIgnoreCase))
+                        {
+                            SetVerifiedAccount(username);
+                            return true;
+                        }
+                    }
+                }
+
+                // Verification failed or no token found
+                return false;
+            }
+        }
+        public bool GetVerificationStatus(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Retrieve the stored verification token for the specified username
+                MySqlCommand retrieveCmd = new MySqlCommand(
+                    "SELECT verified FROM accounts WHERE username = @username", connection);
+                retrieveCmd.Parameters.AddWithValue("@username", username);
+
+                using (MySqlDataReader reader = retrieveCmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        if (reader.GetInt16("verified")==1){ return true; }
+                    }
+                }
+
+                // Verification failed or no token found
+                return false;
+            }
+        }
+        public void DeleteVerificationLinkByUsername(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand("DELETE FROM verification_links WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
+                cmd.ExecuteNonQuery();
+            }
+        }
         public bool ApplyDiscountToUser(string username, int discountId)
         {
             using (MySqlConnection connection = GetConnection())
@@ -1357,7 +1466,7 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
-
+       
 
     }
 }

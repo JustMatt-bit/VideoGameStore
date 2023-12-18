@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
+using VideoGameStore.Controllers;
 using VideoGameStore.Models;
-
 
 namespace VideoGameStore.Controllers
 {
@@ -13,11 +15,12 @@ namespace VideoGameStore.Controllers
     {
         private readonly VideoGameStoreContext _context;
         private readonly ILogger<ProductsController> _logger;
-
-        public UserController(ILogger<ProductsController> logger, VideoGameStoreContext context)
+        private readonly EmailService _emailService; // Assuming EmailService is the correct class name
+        public UserController(ILogger<ProductsController> logger, VideoGameStoreContext context, EmailService emailService)
         {
             _context = context;
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpGet("GetOrderHistory/{username}")]
@@ -58,24 +61,27 @@ namespace VideoGameStore.Controllers
 
             // Attempt login
             bool isAuthenticated = _context.Login(HttpContext, model.username, model.password);
-
-            if (isAuthenticated)
-            {
-                // Generate the token and set it in the response cookie
-                var token = model.username; // You need to implement this method
-                Response.Cookies.Append("AuthCookie_" + model.username, token, new CookieOptions
+            if (_context.GetVerificationStatus(model.username)){
+                if (isAuthenticated)
                 {
-                    HttpOnly = false,
-                    Secure = false, // Set to true if using HTTPS
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddHours(1), // Set an appropriate expiration time
-                    Path = "/" // Set the cookie path
-                });
+                    // Generate the token and set it in the response cookie
+                    var token = model.username; // You need to implement this method
+                    Response.Cookies.Append("AuthCookie_" + model.username, token, new CookieOptions
+                    {
+                        HttpOnly = false,
+                        Secure = false, // Set to true if using HTTPS
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddHours(1), // Set an appropriate expiration time
+                        Path = "/" // Set the cookie path
+                    });
 
-                return Ok(new { Message = "Login successful", Token = token });
+                    return Ok(new { Message = "Login successful", Token = token });
+                }
+            }else
+            {
+                return NotFound(new { Message = "Account not verified" });
             }
-
-            return Unauthorized(new { Message = "Wrong password" });
+            return Unauthorized(new { Message = "Wrong password or username" });
         }
 
         public class LoginRequest
@@ -101,6 +107,15 @@ namespace VideoGameStore.Controllers
 
                 if (registrationSuccessful)
                 {
+                    // Generate a verification token
+                    var verificationToken = Guid.NewGuid().ToString();
+
+                    // Store the verification link in the database
+                    _context.InsertVerificationLink(registrationData.username, verificationToken);
+
+                    // Send the verification email
+                    SendVerificationEmail(registrationData.email, registrationData.username, verificationToken);
+
                     return Ok(new { success = true });
                 }
                 else
@@ -219,6 +234,45 @@ namespace VideoGameStore.Controllers
                 _logger.LogError(ex, "Error getting current user");
                 return StatusCode(500, new { Message = "Internal server error" });
             }
+        }
+        [HttpGet("VerifyAccount/{username}/{token}")]
+        public ActionResult VerifyAccount(string username, string token)
+        {
+            try
+            {
+                // Retrieve the verification token stored in the database
+                var storedToken = _context.GetVerificationLinkByUsername(username);
+                _logger.LogError(storedToken);
+                // Check if the provided token matches the stored token
+                if (storedToken == token)
+                {
+                    // Update user account to mark it as verified
+                    if(_context.VerifyUserAccount(username, storedToken))
+                    {
+                        _context.DeleteVerificationLinkByUsername(username);
+                        return Ok(new { Message = "Account verified successfully" });
+                    }
+                  
+                }
+                return BadRequest(new { Message = "Invalid verification token" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during account verification");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        private void SendVerificationEmail(string userEmail, string username, string verificationToken)
+        {
+            // Construct the verification link manually
+            var verificationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/verify?username={username}&token={verificationToken}";
+
+            // Rest of the method remains unchanged
+            var subject = "Verify Your Account";
+            var body = $"Click the following link to verify your account: {verificationLink}";
+
+            _emailService.SendEmailAsync(userEmail, subject, body).Wait();
         }
         [HttpPost("DeactivateAccount")]
         public IActionResult DeactivateAccount()

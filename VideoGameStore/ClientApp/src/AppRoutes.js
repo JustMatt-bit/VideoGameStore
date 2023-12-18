@@ -18,6 +18,7 @@ import { GenresDelete } from "./components/GenresDelete";
 import { Checkout } from "./components/Checkout";
 import { Shipping } from "./components/Shipping";
 import { LoyaltyProgram } from "./components/LoyaltyProgram";
+import { Verify } from "./components/Verify";
 
 
 
@@ -101,6 +102,10 @@ const AppRoutes = [
     {
         path: 'fetch-loyalty',
         element: <LoyaltyProgram />
+    },
+    {
+        path: '/verify',
+        element: <Verify />
     }
 ];
 
