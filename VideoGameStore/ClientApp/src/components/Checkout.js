@@ -1,7 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-
 export class Checkout extends Component {
     static displayName = Checkout.name;
 
@@ -15,16 +14,16 @@ export class Checkout extends Component {
             selectedDiscountId: null,
         };
         this.applyDiscount = this.applyDiscount.bind(this);
+        this.handleContinue = this.handleContinue.bind(this);
     }
 
     async setOrderAsUnpaid() {
-        const done = await fetch(`api/checkout/${this.state.order_id}`, {
+        await fetch(`api/checkout/${this.state.order_id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
         });
-        window.location.href = '/shipping'
     }
 
     componentDidMount() {
@@ -35,8 +34,20 @@ export class Checkout extends Component {
         if (authCookie) {
             const username = authCookie.split('=')[1];
             this.populateCart();
-            this.populateUserData();
-            this.fetchDiscounts(username);
+            this.populateUserData().then(() => {
+                this.fetchDiscounts(username);
+                this.fetchLoyaltyTierDetails(username);
+            });
+        }
+    }
+
+    async fetchLoyaltyTierDetails(username) {
+        const response = await fetch(`api/loyalty/GetUserTierDetails/${username}`);
+        if (response.ok) {
+            const tierDetails = await response.json();
+            this.setState({ loyaltyTierDetails: tierDetails });
+        } else {
+            console.error("Failed to fetch loyalty tier details");
         }
     }
 
@@ -147,7 +158,7 @@ export class Checkout extends Component {
                     </div>
                     <div style={{ flex: 2 }}>
                         {userContents}
-                        <button onClick={this.setOrderAsUnpaid.bind(this)} style={{
+                        <button onClick={this.handleContinue} style={{
                             textAlign: 'center',
                             backgroundColor: '#4CAF50', // Green background
                             color: 'white', // White text
@@ -203,6 +214,45 @@ export class Checkout extends Component {
             cart_total_price: newTotalPrice,
             discounts: this.state.discounts.filter(d => d.discountId !== selectedDiscountId),
             selectedDiscountId: null, // Reset the selected discount ID
+        });
+    };
+
+    handleContinue = async () => {
+        console.log("Handling continue...");
+        const { cart_total_price, loyaltyTierDetails, userData } = this.state;
+        console.log("Loyalty Tier Details:", loyaltyTierDetails);
+        console.log("User Data:", userData);
+
+        if (!loyaltyTierDetails || !userData) {
+            console.error("Loyalty tier details or user data not available");
+            return;
+        }
+
+        // Calculate loyalty points
+        const loyaltyPoints = cart_total_price * loyaltyTierDetails.currentTier.discountCoefficient;
+        console.log(loyaltyPoints)
+
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        const username = authCookie.split('=')[1];
+
+        // Send the calculated loyalty points to the server
+        await this.updateUserLoyaltyPoints(username, loyaltyPoints);
+        // Proceed to set order as unpaid and redirect
+        await this.setOrderAsUnpaid();
+        window.location.href = '/shipping';
+    };
+
+    updateUserLoyaltyPoints = async (username, loyaltyPoints) => {
+        // Make a POST request to your server endpoint to update loyalty points
+        await fetch(`api/loyalty/updateUserLoyaltyPoints`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, loyaltyPoints })
         });
     };
 
