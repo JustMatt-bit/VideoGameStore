@@ -725,6 +725,35 @@ namespace VideoGameStore.Models
             return feedback;
         }
 
+        public bool CreateFeedbackForProduct(int productId, Feedback feedback, string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Prepare the INSERT statement to add new feedback
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+
+                // Set the parameters
+                cmd.Parameters.AddWithValue("@date", feedback.date);
+                cmd.Parameters.AddWithValue("@text", feedback.text);
+                cmd.Parameters.AddWithValue("@rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@ratingCount", feedback.rating_count);
+                cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
+                cmd.Parameters.AddWithValue("@accountName", username);
+                cmd.Parameters.AddWithValue("@productId", productId);
+
+                // Execute the INSERT statement
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                // Return true if one row was affected, otherwise false
+                return rowsAffected == 1;
+            }
+        }
+
+
         public bool UpdateUser(User updatedUser)
         {
             try

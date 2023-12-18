@@ -26,13 +26,13 @@ button {
     padding: 10px;
 }
 
-.feedback-card {
+.feedback-card, .feedback-input {
     background-color: #f9f9f9;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin: 10px 0;
-    width: 80%; /* Adjust width as needed */
+    width: 80%;
 }
 
 .feedback-text {
@@ -44,4 +44,9 @@ button {
 .feedback-info {
     font-size: 14px;
     color: #666;
+}
+
+.feedbackTextArea {
+    resize: none;
+    width: 100%;
 }
