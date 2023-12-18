@@ -201,7 +201,7 @@ export class FetchFeedback extends Component {
                         <StarRating />
                     )}
                 </div>
-                {userType === 2 && !isReply && (
+                {(userType === 2 || userType == 3) && !isReply && (
                     <div>
                         <button onClick={() => this.setState({ replyToId: item.id })}>Reply</button>
                         {replyToId === item.id && (
@@ -258,10 +258,13 @@ export class FetchFeedback extends Component {
                     <h1>User feedback:</h1>
                     <div className="feedback-container">
                         {contents}
-                        {username && userType === 1 && (
+                        {username && (userType === 1 || userType === 3) && (
                             <button onClick={this.toggleFeedbackInput}>
                                 {showFeedbackInput ? 'Cancel' : 'Create Feedback'}
                             </button>
+                        )}
+                        {username == null && (
+                            <p>Please sign in to leave a feedback.</p>
                         )}
                         {feedbackInputSection}
                     </div>
