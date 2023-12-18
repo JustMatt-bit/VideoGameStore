@@ -22,6 +22,7 @@ export class FetchAccount extends Component {
     }
 
     componentDidMount() {
+        
         const authCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('AuthCookie'));
@@ -29,7 +30,7 @@ export class FetchAccount extends Component {
         if (authCookie) {
             const authCookieValue = authCookie.split('=')[1];
             const username = authCookieValue;
-
+            this.sendWelcomeEmail(username);
             // Make API call to fetch user details
             fetch(`/api/user/GetUserDetails/${username}`)
                 .then(response => response.json())
@@ -90,8 +91,12 @@ export class FetchAccount extends Component {
                 }
                 return response.json();
             })
-            .then(data => {
+           .then(data => {
                 this.setState({ isLoggedIn: true, isLoading: false, error: null });
+
+                // Add code here to send an email
+               
+
                 window.location.reload();
             })
             .catch(error => {
@@ -102,7 +107,27 @@ export class FetchAccount extends Component {
                 this.setState({ isLoggedIn: false, isLoading: false, error: 'Invalid username or password.' });
             });
     }
-
+    sendWelcomeEmail(username) {
+        // Make a request to your backend to send the welcome email
+        fetch(`/api/email/sendWelcomeEmail/${username}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error sending welcome email');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.message);
+            })
+            .catch(error => {
+                console.error('Error sending welcome email:', error);
+            });
+    }
     generateReferralCode = () => {
         const { username } = this.state; // Get the username from state
         fetch(`/api/referral/GenerateReferralCode/${username}`, {

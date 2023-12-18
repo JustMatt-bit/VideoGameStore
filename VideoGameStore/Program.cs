@@ -1,4 +1,5 @@
 using VideoGameStore.Models;
+using SendGrid;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<VideoGameStoreContext>(provider =>
     new VideoGameStoreContext(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddSingleton<ISendGridClient>(provider =>
+{
+    var apiKey = builder.Configuration.GetSection("SendGrid")["ApiKey"];
+    return new SendGridClient(apiKey);
+});
+
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
