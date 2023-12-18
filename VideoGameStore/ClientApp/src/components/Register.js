@@ -32,11 +32,43 @@ export class Register extends Component {
         event.preventDefault();
 
         // Perform basic validation
-        const { username, password, name, surname, email, phone } = this.state;
+        const { username, password, name, surname, email, phone, referal_code } = this.state;
         if (!username || !password || !name || !surname || !email || !phone) {
             this.setState({ error: 'All fields are required.', registrationStatus: null });
             return;
         }
+
+        // Check if referral code exists (if provided)
+        if (referal_code) {
+            this.checkReferralCode(referal_code);
+        } else {
+            this.registerUser(); // Proceed with registration if no referral code is provided
+        }
+    };
+
+    checkReferralCode = (referal_code) => {
+        fetch(`api/referral/CheckReferralCode/${referal_code}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Referral code not found.');
+                }
+            })
+            .then(data => {
+                if (data.exists) {
+                    this.registerUser(); // Referral code exists, proceed with registration
+                } else {
+                    throw new Error('No such referral code.');
+                }
+            })
+            .catch(error => {
+                console.error('Referral code check failed:', error);
+                this.setState({ error: error.message, registrationStatus: null });
+            });
+    };
+
+    registerUser = () => {
         // Send registration data to the server
         fetch('api/user/register', {
             method: 'POST',
@@ -46,20 +78,17 @@ export class Register extends Component {
             body: JSON.stringify(this.state),
         })
             .then((response) => {
-                console.log('Response Status:', response.status);
                 if (response.ok) {
                     return response.json();
                 } else {
                     throw new Error('Network response was not ok.');
                 }
-                
             })
             .then((data) => {
-                console.log('Registration response:', data);
                 this.setState({ registrationStatus: 'Registration successful!', error: null });
                 setTimeout(() => {
                     window.location.href = '/fetch-account';
-                }, 3);
+                }, 3000); // Redirect after 3 seconds
             })
             .catch((error) => {
                 console.error('Registration failed:', error);
