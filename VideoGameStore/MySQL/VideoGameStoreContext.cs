@@ -211,6 +211,25 @@ namespace VideoGameStore.Models
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public void AddProductToCart(int orderID, int productID, float price)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                   "INSERT INTO carts (price, stock, fk_order, fk_product) " +
+                   "VALUES (@price, 1, @fk_order, @fk_product)",
+                   connection);
+
+                cmd.Parameters.AddWithValue("@price", price);
+                cmd.Parameters.AddWithValue("@fk_order", orderID);
+                cmd.Parameters.AddWithValue("@fk_product", productID);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+            }
+        }
+
         public List<Product> GetAllProducts()
         {
             List<Product> types = new List<Product>();

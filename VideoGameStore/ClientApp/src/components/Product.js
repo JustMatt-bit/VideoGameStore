@@ -21,9 +21,28 @@ export class Product extends Component {
         
         this.state = {
             loading: true,
+            productID: null,
             data: null,
             hasID: false
         };
+    }
+
+    addToCart = () => {
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        const authCookieValue = authCookie.split('=')[1];
+        const username = authCookieValue;
+        const data = { id: this.state.productID, username: username, price: this.state.data.price }
+
+        fetch('api/cart/addtocart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
     }
 
     componentDidMount() {
@@ -31,13 +50,14 @@ export class Product extends Component {
         if (searchParams.has('id')) {
 
             const id = searchParams.get('id');
+            this.setState({ productID: id })
             this.getData(id);
         } else {
             this.setState({ loading: false, data: null, hasID: false });
         }
     }
 
-    static productRender(product) {
+    productRender(product) {
         return (
             <>
                 <img style={{ float: 'left', margin: '0 40px 0 40px', width: '30%', height: '30%' }} src={`/images/${product.image}`} />
@@ -48,7 +68,7 @@ export class Product extends Component {
                     </p>
                     <h4>Price: {product.price} €</h4>
                     {/*<ToCart/>*/}
-                    <button>Add to cart</button>
+                    <button onClick={this.addToCart}>Add to cart</button>
                 </div>
                 <FetchFeedback />
             </>
@@ -64,7 +84,7 @@ export class Product extends Component {
         }
         let contents = loading
             ? <p><em>Loading...</em></p>
-            : Product.productRender(data);
+            : this.productRender(data);
         return (
             <div>
                 {contents}

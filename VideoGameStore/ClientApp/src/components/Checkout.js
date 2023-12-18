@@ -181,10 +181,14 @@ export class Checkout extends Component {
     };
 
     async populateCart() {
-        //var ls = localStorage;
-        //var user = ls.getItem("UserID");
-        var user = "JonasPonas";
-        const response = await fetch(`api/cart/${user}`);
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        const authCookieValue = authCookie.split('=')[1];
+        const username = authCookieValue;
+
+        const response = await fetch(`api/cart/${username}`);
         const data = await response.json();
         var sum = 0;
         data[1].map(product => sum += product.price);
@@ -192,10 +196,14 @@ export class Checkout extends Component {
     }
 
     async populateUserData() {
-        //var ls = localStorage;
-        //var user = ls.getItem("UserID");
-        var user = "JonasPonas";
-        const response = await fetch(`api/checkout/${user}`); // !!!! CHANGE TO USER CONTROLLER !!!!!!
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        const authCookieValue = authCookie.split('=')[1];
+        const username = authCookieValue;
+
+        const response = await fetch(`api/checkout/${username}`);
         const data = await response.json();
         this.setState({ userData: data, loading: false });
     }
