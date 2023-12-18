@@ -39,10 +39,12 @@ const context = [
     "/api/leaderboard/GetTopUsers",
     "/api/leaderboard/GetUserPosition",
     "/api/loyalty/GetUserTierDetails",
+    "/api/loyalty/updateUserLoyaltyPoints",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
     "/api/discount/applyDiscount",
     "/api/discount/userDiscounts",
+    "/api/discount/applyDiscountToOrder",
 ];
 
 module.exports = function(app) {
