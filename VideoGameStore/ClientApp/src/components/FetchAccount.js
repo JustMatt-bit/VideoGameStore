@@ -128,38 +128,6 @@ export class FetchAccount extends Component {
             });
     };
 
-    deactivateAccount = () => {
-        // Show a confirmation dialog
-        const confirmDeactivation = window.confirm("Are you sure you want to deactivate your account? This action will log you out and delete all your data.");
-
-        if (confirmDeactivation) {
-            // User confirmed, proceed with deactivation
-            fetch('/api/user/DeactivateAccount', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error deactivating account');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Handle success, e.g., show a confirmation message
-                    console.log(data.message);
-                    // Optionally, you can redirect the user to a different page or perform additional actions
-
-                    window.location.reload();
-                })
-                .catch(error => {
-                    console.error('Error deactivating account:', error);
-                });
-        }
-        // If the user cancels, do nothing
-    };
-
 
     render() {
         const { isLoggedIn, isLoading, username, user, error } = this.state;
@@ -216,22 +184,6 @@ export class FetchAccount extends Component {
                         </div>
                     )}
                 </div>
-                <button
-                    type="button"
-                    style={{
-                        backgroundColor: '#c41851',
-                        color: 'white',
-                        padding: '5px 10px',
-                        margin: '0px',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                    }}
-                    onClick={this.deactivateAccount}
-                >
-                    Deactivate this account
-                </button>
             </header>
         ) : (
             // Render Login component when not logged in
