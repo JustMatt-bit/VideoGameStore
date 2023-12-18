@@ -802,7 +802,7 @@ namespace VideoGameStore.Models
                 connection.Open();
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product " +
+                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product, f.replying_to_id " +
                     "FROM feedback f LEFT JOIN products p ON p.product_id=f.fk_product WHERE f.fk_product=@productId", connection);
                 cmd.Parameters.AddWithValue("@productId", productId);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -820,7 +820,10 @@ namespace VideoGameStore.Models
                             account_name = reader.IsDBNull(reader.GetOrdinal("fk_account"))
                                          ? (string?)null
                                          : reader.GetString("fk_account"),
-                            fk_product = reader.GetInt32("fk_product")
+                            fk_product = reader.GetInt32("fk_product"),
+                            replying_to_id = reader.IsDBNull(reader.GetOrdinal("replying_to_id"))
+                                         ? null
+                                         : reader.GetInt32("replying_to_id"),
                         });
                     }
                 }
