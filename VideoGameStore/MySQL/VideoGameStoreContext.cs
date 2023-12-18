@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Tls;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Security.Cryptography;
 using System.Security.Principal;
@@ -124,6 +125,8 @@ namespace VideoGameStore.Models
             }
         }
 
+        
+
         public List<Order> GetOrdersByUser(string username)
         {
             List<Order> orders = new List<Order>();
@@ -228,6 +231,193 @@ namespace VideoGameStore.Models
 
                 int rowsAffected = cmd.ExecuteNonQuery();
             }
+        }
+
+        public List<int> TopPopularGenres()
+        {
+            List<int> topGenres = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT product_genres.fk_genre,COUNT(product_genres.fk_genre)as countval FROM product_genres GROUP BY product_genres.fk_genre ORDER BY countval DESC LIMIT 5", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGenres.Add(reader.GetInt32("fk_genre"));
+                    }
+                }
+            }
+            return topGenres;
+        }
+
+        public List<int> TopPopularGames()
+        {
+            List<int> topGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT carts.fk_product,SUM(carts.stock)as sumval FROM carts INNER JOIN orders ON carts.fk_order=orders.order_id AND orders.fk_status=6 GROUP BY carts.fk_product ORDER BY sumval DESC LIMIT 10", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGames.Add(reader.GetInt32("fk_product"));
+                    }
+                }
+            }
+            return topGames;
+        }
+
+        List<int> GetLeastPopularGames()
+        {
+            List<int> bottomGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT products.product_id, COUNT(products.product_id) as countval FROM products LEFT JOIN carts ON carts.fk_product=products.product_id GROUP BY products.product_id ORDER BY countval LIMIT 10", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        bottomGames.Add(reader.GetInt32("product_id"));
+                    }
+                }
+            }
+            return bottomGames;
+        }
+
+        public List<int> GetUserGenres(string username)
+        {
+            List<int> topGenres = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT fk_genre FROM user_genres WHERE fk_account= \"" + username + "\"", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGenres.Add(reader.GetInt32("fk_genre"));
+                    }
+                }
+            }
+            return topGenres;
+        }
+
+        public List<int> GetPopularGamesFromGenres(List<int> genres)
+        {
+            List<int> topGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd;
+                foreach (var genre in genres)
+                {
+                    cmd = new MySqlCommand(
+                    "SELECT *,SUM(carts.stock)as sumval FROM product_genres INNER JOIN carts ON carts.fk_product=product_genres.fk_product AND product_genres.fk_genre=\"" + genre + "\" INNER JOIN orders ON carts.fk_order=orders.order_id AND orders.fk_status=6 GROUP BY product_genres.fk_product ORDER BY sumval DESC LIMIT 5", connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            topGames.Add(reader.GetInt32("fk_product"));
+                        }
+                    }
+                }
+            }
+            topGames = topGames.Distinct().ToList();
+            return topGames;
+        }
+
+
+
+        public List<Product> GetRecommendations(string name)
+        {
+            List<Product> products = new List<Product>();
+            List<int> userGenres = GetUserGenres(name);
+            List<int> topGenres = TopPopularGenres();
+            List<int> topPopularGames = TopPopularGames();
+            List<int> popularGameFromGenre = new List<int>();
+            //if uer has no favorite genres
+            if (userGenres.Count == 0) {
+                
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(topGenres));
+            }
+            else
+            {
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(topGenres));
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(userGenres));
+            }
+            popularGameFromGenre.AddRange(topPopularGames);
+            List<int> leastPopularGame = GetLeastPopularGames();
+            popularGameFromGenre.AddRange(leastPopularGame);
+            popularGameFromGenre = popularGameFromGenre.Distinct().ToList();
+            //get 5 random games from generated game array (if generated array lenght is less than or equal 5, than return all array
+            List<int> recommendedGameIds = new List<int>();
+            if (popularGameFromGenre.Count > 5)
+            {
+                int i = 5;
+                Random rnd = new Random();
+                while (0 < i)
+                {
+                    int randIndex = rnd.Next(0, popularGameFromGenre.Count);
+                    var item = popularGameFromGenre[randIndex];
+                    popularGameFromGenre.RemoveAt(randIndex);
+                    recommendedGameIds.Add(item);
+                    i--;
+                }
+                products = GetProductsByIds(recommendedGameIds);
+            }
+            else
+            {
+                products = GetProductsByIds(popularGameFromGenre);
+            }
+            return products;
+            
+        }
+
+
+        public List<Product> GetProductsByIds(List<int> ids)
+        {
+            List<Product> product = new List<Product>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd;
+                foreach(var id in ids){
+                    cmd = new MySqlCommand(
+                        "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account, p.image " +
+                        "FROM products p LEFT JOIN developers d ON  d.developer_id=p.fk_developer LEFT JOIN game_types gt ON  gt.game_type_id=p.fk_game_type WHERE p.product_id=\"" + id + "\"", connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            product.Add(new Product()
+                            {
+                                id = reader.GetInt32("product_id"),
+                                name = reader.GetString("name"),
+                                price = reader.GetFloat("price"),
+                                stock = reader.GetInt32("stock"),
+                                description = reader.GetString("description"),
+                                release_date = reader.GetDateTime("release_date"),
+                                being_sold = reader.GetBoolean("being_sold"),
+                                fk_game_type = reader.GetInt32("fk_game_type"),
+                                game_type_name = reader.GetString("game_type"),
+                                fk_developer = reader.GetInt32("fk_developer"),
+                                developer_name = reader.GetString("developer"),
+                                fk_account = reader.GetString("fk_account"),
+                                image = reader.GetString("image")
+                            });
+                        }
+
+                    }
+                }
+            }
+            return product;
         }
 
         public List<Product> GetAllProducts()
