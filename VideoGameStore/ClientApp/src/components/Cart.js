@@ -5,7 +5,7 @@ export class Cart extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { order_id: -1, cart_items: [], cart_total_price: 0, loading: true };
+        this.state = { order_id: -1, cart_items: [], cart_total_price: 0, loading: true, user: "" };
     }
 
     componentDidMount() {
@@ -39,6 +39,7 @@ export class Cart extends Component {
     }
 
     static renderCartTable(cart_items, cart_total_price, itemsInCartChange) {
+        const cartSize = cart_items.length;
         return (
             <><table className='table table-striped' aria-labelledby="tabelLabel">
                 <thead>
@@ -68,7 +69,7 @@ export class Cart extends Component {
             </table>
             <br></br>
             <div style={{ textAlign: 'right' }}>
-                    <h4>Total: {cart_total_price}€</h4>
+                    <h4>Total: {cart_total_price.toFixed(2)}€</h4>
                     <a href="/checkout"> <button
                         style={{
                             backgroundColor: '#4CAF50', // Green background
@@ -79,6 +80,7 @@ export class Cart extends Component {
                             borderRadius: '5px', // Slightly rounded corners
                             cursor: 'pointer', // Cursor pointer
                             fontSize: '16px', // Font size
+                            visibility: cartSize > 0 ? "visible" : "hidden"
                         }}
                         onMouseOver={(e) => e.target.style.backgroundColor = '#45a049'} // Darker green on hover
                         onMouseOut={(e) => e.target.style.backgroundColor = '#4CAF50'} // Original color when not hovered
@@ -106,13 +108,19 @@ export class Cart extends Component {
     }
 
     async populateCart() {
-        //var ls = localStorage;
-        //var user = ls.getItem("UserID");
-        var user = "JonasPonas";
-        const response = await fetch(`api/cart/${user}`);
-        const data = await response.json();
-        var sum = 0;
-        data[1].map(product => sum += product.price);
-        this.setState({ order_id:data[0], cart_items: data[1], cart_total_price: sum, loading: false });
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+
+            const response = await fetch(`api/cart/${username}`);
+            const data = await response.json();
+            var sum = 0;
+            data[1].map(product => sum += product.price);
+            this.setState({ order_id: data[0], cart_items: data[1], cart_total_price: sum, loading: false });
+        }
     }
 }

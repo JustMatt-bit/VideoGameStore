@@ -5,6 +5,9 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
   env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:38593';
 
 const context = [
+    "/api/email/sendWelcomeEmail",
+    "/api/user/GetOrderById",
+    "/api/user/DeactivateAccount",
     "/api/user/GetUserDetails",
     "/api/weatherforecast",
     "/api/products/get",
@@ -22,6 +25,7 @@ const context = [
     "/api/products/GetProductGenres",
     "/api/products/UpdateProduct",
     "/api/products/DeleteGenres",
+    "/api/products/DeleteProductIfNotInUse",
     "/api/products/GenresProductConnection",
     "/api/products/UpdateGenresProductConnection",
     "/api/cart",

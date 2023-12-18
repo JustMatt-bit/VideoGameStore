@@ -32,5 +32,23 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        // api/cart/:id
+        [HttpPost("{orderID}")]
+        public ActionResult Post(int orderID)
+        {
+            try
+            {
+                Console.WriteLine(orderID);
+                _context.UpdateOrderStatus(orderID, 2);
+                _context.CreateNewBuildOrderFromOrderID(orderID);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting cart items");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

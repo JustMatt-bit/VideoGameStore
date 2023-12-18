@@ -37,6 +37,8 @@ function ToEdit() {
     );
 }
 
+
+
 function ToCreateGenre() {
     const navigate = useNavigate();
     const navigateToGenreCreate = () => {
@@ -61,6 +63,27 @@ function ToDeleteGenres() {
     );
 }
 
+async function handleProductDelete(id) {
+    if (window.confirm("Confirm deletion") == true) {
+        const response = await fetch('api/products/DeleteProductIfNotInUse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(id),
+        });
+        const data = await response.json();
+        if (data) {
+            alert("Product deleted successfully.");
+            window.location.href = '/product-control';
+        }else{
+            alert("Product is in use - can't be deleted. Changed to not sellable if it was sellable.");
+            window.location.href = '/product-control';
+        }
+    }
+    
+}
+
 export class ProductControl extends Component {
     static displayName = ProductControl.name;
 
@@ -72,7 +95,8 @@ export class ProductControl extends Component {
     componentDidMount() {
         this.populateVideoGameData();
     }
-
+    
+    
     static renderProductTable(products) {
         return (
             <table className='table table-striped' aria-labelledby="tabelLabel">
@@ -120,7 +144,7 @@ export class ProductControl extends Component {
                                 })}`
                             }}>
                                 Edit
-                            </Link> <button>Delete</button></td>
+                            </Link> <button onClick={() => handleProductDelete(product.id)}>Delete</button></td>
                         </tr>
 
                     )}
