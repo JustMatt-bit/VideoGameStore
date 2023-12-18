@@ -22,6 +22,7 @@ const context = [
     "/api/products/GetProductGenres",
     "/api/products/UpdateProduct",
     "/api/products/DeleteGenres",
+    "/api/products/DeleteProductIfNotInUse",
     "/api/products/GenresProductConnection",
     "/api/products/UpdateGenresProductConnection",
     "/api/cart",

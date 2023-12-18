@@ -2,10 +2,10 @@
 -- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Dec 18, 2023 at 12:09 AM
--- Server version: 10.4.22-MariaDB
--- PHP Version: 8.1.2
+-- Host: 127.0.0.1
+-- Generation Time: Dec 18, 2023 at 02:19 AM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -52,7 +52,8 @@ INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `pho
 ('dovyd', '688787d8ff144c502c7f5cffaafe2cc5', 'Dovydas', 'Katinas', 'lolpmx@gmail.com', '868564914', 'Zaibas', '2023-12-15 15:20:23', 0, 1, 1),
 ('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1),
 ('Platininis', '2a97516c354b68848cdbd8f54a226a0a', 'Platina', 'Pakopa', 'plat@gmail.com', '000000000', '', '2023-12-17 19:49:59', 4789, 1, 4),
-('Sidabrinis', '2a97516c354b68848cdbd8f54a226a0a', 'Sidabras', 'Pakopa', 'sid@gmail.com', '000000000', '', '2023-12-17 19:49:08', 784, 1, 2);
+('Sidabrinis', '2a97516c354b68848cdbd8f54a226a0a', 'Sidabras', 'Pakopa', 'sid@gmail.com', '000000000', '', '2023-12-17 19:49:08', 784, 1, 2),
+('test', '9f86d081884c7d659a2feaa0c55ad015', 'test', 'test', 'test@test.lt', '123', NULL, '2023-12-18 03:18:27', 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -158,7 +159,8 @@ CREATE TABLE `discounts` (
 
 INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk_account`) VALUES
 (1, '2023-11-03 13:43:59', '2024-11-03 14:43:59', 50, 'JonasPonas'),
-(2, '2023-12-17 22:58:14', '2023-12-19 22:58:14', 10, 'Sidabrinis');
+(2, '2023-12-18 01:18:27', '2024-01-18 01:18:27', 10, 'test'),
+(3, '2023-12-17 22:58:14', '2023-12-19 22:58:14', 10, 'Sidabrinis');
 
 -- --------------------------------------------------------
 
@@ -168,21 +170,23 @@ INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk
 
 CREATE TABLE `feedback` (
   `feedback_id` int(11) NOT NULL,
-  `date` datetime NOT NULL,
-  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rating` float NOT NULL,
-  `rating_count` int(11) NOT NULL,
-  `flagged` tinyint(1) NOT NULL,
-  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fk_product` int(11) NOT NULL
+  `date` datetime NOT NULL DEFAULT current_timestamp(),
+  `text` text NOT NULL,
+  `rating` float DEFAULT 0,
+  `rating_count` int(11) DEFAULT 0,
+  `flagged` tinyint(1) NOT NULL DEFAULT 0,
+  `fk_account` varchar(30) DEFAULT NULL,
+  `fk_product` int(11) NOT NULL,
+  `replying_to_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `feedback`
 --
 
-INSERT INTO `feedback` (`feedback_id`, `date`, `text`, `rating`, `rating_count`, `flagged`, `fk_account`, `fk_product`) VALUES
-(1, '2023-11-03 13:48:38', 'Good game!', 5, 1, 0, 'JonasPonas', 1);
+INSERT INTO `feedback` (`feedback_id`, `date`, `text`, `rating`, `rating_count`, `flagged`, `fk_account`, `fk_product`, `replying_to_id`) VALUES
+(1, '2023-11-03 13:48:38', 'Good game!', 5, 1, 0, 'JonasPonas', 1, NULL),
+(10, '2023-12-18 01:18:53', 'I love this game!! ', 0, 0, 0, 'test', 3, NULL);
 
 -- --------------------------------------------------------
 
@@ -546,7 +550,7 @@ ALTER TABLE `discounts`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `feedback_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `game_types`

@@ -273,6 +273,7 @@ export class ProductCreate extends Component {
 
     render() {
         let contents = <></>;
+        console.log(this.state);
         const { error } = this.state;
         const authCookie = document.cookie
             .split('; ')

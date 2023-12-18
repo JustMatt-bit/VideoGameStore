@@ -546,6 +546,36 @@ namespace VideoGameStore.Models
             }
 
         }
+        public bool DeleteProductIfNotInUse(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM carts WHERE fk_product=\"" + id + "\"", connection);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int rowsAffected = 0;
+                if (count == 0)
+                {
+                    cmd = new MySqlCommand(
+                        "DELETE FROM product_genres WHERE fk_product=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                    cmd = new MySqlCommand(
+                        "DELETE FROM products WHERE product_id=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                else
+                {
+
+                    cmd = new MySqlCommand("UPDATE products SET being_sold=0 WHERE product_id=\"" + id + "\"", connection);
+                    int rows = cmd.ExecuteNonQuery();
+                }
+                return rowsAffected > 0;
+
+
+            }
+
+        }
 
         public bool DeleteDeveloper(int id)
         {
@@ -846,6 +876,35 @@ namespace VideoGameStore.Models
             }
             return feedback;
         }
+
+        public bool CreateFeedbackForProduct(int productId, Feedback feedback, string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Prepare the INSERT statement to add new feedback
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+
+                // Set the parameters
+                cmd.Parameters.AddWithValue("@date", feedback.date);
+                cmd.Parameters.AddWithValue("@text", feedback.text);
+                cmd.Parameters.AddWithValue("@rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@ratingCount", feedback.rating_count);
+                cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
+                cmd.Parameters.AddWithValue("@accountName", username);
+                cmd.Parameters.AddWithValue("@productId", productId);
+
+                // Execute the INSERT statement
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                // Return true if one row was affected, otherwise false
+                return rowsAffected == 1;
+            }
+        }
+
 
         public bool UpdateUser(User updatedUser)
         {
