@@ -1,0 +1,15 @@
+{
+  "name": "videogamestore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
+    "multiselect-react-dropdown": "^2.0.25"
+  }
+}

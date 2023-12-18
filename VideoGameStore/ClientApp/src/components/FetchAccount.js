@@ -22,6 +22,7 @@ export class FetchAccount extends Component {
     }
 
     componentDidMount() {
+        
         const authCookie = document.cookie
             .split('; ')
             .find(row => row.startsWith('AuthCookie'));
@@ -29,7 +30,7 @@ export class FetchAccount extends Component {
         if (authCookie) {
             const authCookieValue = authCookie.split('=')[1];
             const username = authCookieValue;
-
+            this.sendWelcomeEmail(username);
             // Make API call to fetch user details
             fetch(`/api/user/GetUserDetails/${username}`)
                 .then(response => response.json())
@@ -90,8 +91,12 @@ export class FetchAccount extends Component {
                 }
                 return response.json();
             })
-            .then(data => {
+           .then(data => {
                 this.setState({ isLoggedIn: true, isLoading: false, error: null });
+
+                // Add code here to send an email
+               
+
                 window.location.reload();
             })
             .catch(error => {
@@ -102,7 +107,27 @@ export class FetchAccount extends Component {
                 this.setState({ isLoggedIn: false, isLoading: false, error: 'Invalid username or password.' });
             });
     }
-
+    sendWelcomeEmail(username) {
+        // Make a request to your backend to send the welcome email
+        fetch(`/api/email/sendWelcomeEmail/${username}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error sending welcome email');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.message);
+            })
+            .catch(error => {
+                console.error('Error sending welcome email:', error);
+            });
+    }
     generateReferralCode = () => {
         const { username } = this.state; // Get the username from state
         fetch(`/api/referral/GenerateReferralCode/${username}`, {
@@ -126,6 +151,38 @@ export class FetchAccount extends Component {
                 console.error('Error generating referral code:', error);
                 this.setState({ error: error.toString() });
             });
+    };
+
+    deactivateAccount = () => {
+        // Show a confirmation dialog
+        const confirmDeactivation = window.confirm("Are you sure you want to deactivate your account? This action will log you out and delete all your data.");
+
+        if (confirmDeactivation) {
+            // User confirmed, proceed with deactivation
+            fetch('/api/user/DeactivateAccount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error deactivating account');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle success, e.g., show a confirmation message
+                    console.log(data.message);
+                    // Optionally, you can redirect the user to a different page or perform additional actions
+
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error deactivating account:', error);
+                });
+        }
+        // If the user cancels, do nothing
     };
 
 
@@ -157,10 +214,10 @@ export class FetchAccount extends Component {
                             {!user?.referal_code && (
                                 <NavItem>
                                     <NavLink
-                                        tag={Link }
+                                        tag={Link}
                                         className="text-dark"
                                         onClick={this.generateReferralCode}
-                                        >
+                                    >
                                         Generate Referral Code
                                     </NavLink>
                                 </NavItem>
@@ -172,7 +229,7 @@ export class FetchAccount extends Component {
                     <p></p>
                     {/* Render user information */}
                     {user && (
-                        
+
                         <div>
                             <p><h3>Welcome, {user.name}!</h3> <h4><br /> Your data:</h4></p>
                             <p>Name: {user.name}</p>
@@ -184,6 +241,22 @@ export class FetchAccount extends Component {
                         </div>
                     )}
                 </div>
+                <button
+                    type="button"
+                    style={{
+                        backgroundColor: '#c41851',
+                        color: 'white',
+                        padding: '5px 10px',
+                        margin: '0px',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                    }}
+                    onClick={this.deactivateAccount}
+                >
+                    Deactivate this account
+                </button>
             </header>
         ) : (
             // Render Login component when not logged in

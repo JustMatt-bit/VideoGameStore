@@ -93,58 +93,42 @@ export class FetchOrderHistory extends Component {
 
         return (
             <div>
-                <header>
-                    <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
-                        <NavbarBrand tag={Link} to="/fetch-order-history">Order history</NavbarBrand>
-                        <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-                        <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-                            <ul className="navbar-nav flex-grow">
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/fetch-order">order</NavLink>
-                                </NavItem>
-                            </ul>
-                        </Collapse>
-                    </Navbar>
-                </header>
+
 
                 <h2>
                     Order History
                 </h2>
 
-                
-                <table className='table table-striped' aria-labelledby="tabelLabel">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Buyer</th>
-                            <th>Order date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                {orderHistory.map(order => (
+                    <div key={order.id}>
+                        {/* Display order details */}
+                        <p><b>Order ID: {order.id}</b></p>
+                        <p>
 
-                        {orderHistory.map(order =>
+                            Creation Date: {order.creation_date.split('T')[0]}
+                            <br />
+                            Creation Time: {order.creation_date.split('T')[1]}
+                            <br />
+                            <Link to={`/fetch-order/${order.id}`}>
+                                <button
+                                    type="submit"
+                                    style={{
+                                        backgroundColor: '#4CAF50',
+                                        color: 'white',
+                                        padding: '5px 10px',
+                                        margin: '0px',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                        fontSize: '16px',
+                                    }}>
+                                    View this order
+                                </button>
+                            </Link>
 
-                            <tr key={order.id} style={{ visibility: order.fk_status <= 1 ? "hidden" : "visible" }}>
-
-                                <td><Link style={{ color: 'black', textDecoration: 'none' }} to={{
-                                    pathname: "/fetch-order",
-                                    search: `?${createSearchParams({
-                                        id: order.id
-                                    })}`
-                                }}>
-                                    {order.id}
-                                </Link></td>
-                                <td>{order.fk_account}</td>
-                                <td>{order.creation_date.split("T")[0]}</td>
-                                <td>{statuses[order.fk_status-1]}</td>
-
-                            </tr>
-
-                        )}
-
-                    </tbody>
-                </table>
+                        </p>
+                    </div>
+                ))}
             </div>
         );
     }
