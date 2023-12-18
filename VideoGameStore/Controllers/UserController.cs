@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 using VideoGameStore.Models;
 
 
@@ -172,7 +175,31 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpGet("GetOrderById/{id}")]
+        public ActionResult<Order> GetOrderById(int id)
+        {
+            try
+            {
+                // Make a call to your VideoGameStoreContext or any service to get the order by ID
+                Order order = _context.GetOrderByID(id);
 
+                if (order != null)
+                {
+                    // Return the order if found
+                    return Ok(order);
+                }
+                else
+                {
+                    // Order not found
+                    return NotFound(new { Message = "Order not found" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
         [HttpGet("GetCurrentUser")]
         public ActionResult<User> GetCurrentUser()
         {
@@ -193,6 +220,50 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, new { Message = "Internal server error" });
             }
         }
+        [HttpPost("DeactivateAccount")]
+        public IActionResult DeactivateAccount()
+        {
+            var authCookie = HttpContext.Request.Cookies
+       .FirstOrDefault(cookie => cookie.Key.StartsWith("AuthCookie_", StringComparison.OrdinalIgnoreCase));
+
+            if (authCookie.Key != null)
+            {
+                var username = authCookie.Value;
+
+                try
+                {
+                    // Implement logic to deactivate the account based on the authenticated user
+                    bool accountDeactivationSuccessful = _context.DeactivateAccount(username);
+
+                    if (accountDeactivationSuccessful)
+                    {
+                        // Optionally, you can also log the user out by removing the authentication cookie
+                        // Delete all cookies by iterating through them
+                        foreach (var cookie in HttpContext.Request.Cookies.Keys)
+                        {
+                            Response.Cookies.Delete(cookie);
+                        }
+
+                        return Ok(new { Message = "Account deactivated successfully" });
+                    }
+                    else
+                    {
+                        return BadRequest(new { Message = "Failed to deactivate account" });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception or handle it accordingly
+                    return StatusCode(500, new { Message = "Internal server error", Error = ex.Message });
+                }
+            }
+            else
+            {
+                // Handle the case where the authentication cookie is not present
+                return BadRequest(new { Message = "User not authenticated" });
+            }
+        }
+
 
     }
 }

@@ -5,6 +5,7 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
   env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:38593';
 
 const context = [
+    "/api/user/GetOrderById",
     "/api/user/GetUserDetails",
     "/api/weatherforecast",
     "/api/products/get",
@@ -37,8 +38,13 @@ const context = [
     "/api/loyalty/GetUserTierDetails",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
+<<<<<<< HEAD
     "/api/discount/applyDiscount",
     "/api/discount/userDiscounts",
+=======
+    "/api/user/DeactivateAccount",
+    
+>>>>>>> ec2b2f0 (Added deactivation, fixed order history and fully implemented it, started integrating email service)
 ];
 
 module.exports = function(app) {

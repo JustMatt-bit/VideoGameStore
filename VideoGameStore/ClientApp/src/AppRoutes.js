@@ -19,9 +19,8 @@ import { Checkout } from "./components/Checkout";
 import { Shipping } from "./components/Shipping";
 import { LoyaltyProgram } from "./components/LoyaltyProgram";
 
-
-
 const AppRoutes = [
+
   {
     index: true,
     element: <Home />
@@ -51,7 +50,7 @@ const AppRoutes = [
         element: <EditAccount />
     },
     {
-        path: '/fetch-order',
+        path: '/fetch-order/:id',
         element: <FetchOrder />
     },
     {

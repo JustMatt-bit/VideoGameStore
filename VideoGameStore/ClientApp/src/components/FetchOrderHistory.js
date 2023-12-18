@@ -91,30 +91,40 @@ export class FetchOrderHistory extends Component {
 
         return (
             <div>
-                <header>
-                    <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
-                        <NavbarBrand tag={Link} to="/fetch-order-history">Order history</NavbarBrand>
-                        <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-                        <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-                            <ul className="navbar-nav flex-grow">
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/fetch-order">order</NavLink>
-                                </NavItem>
-                            </ul>
-                        </Collapse>
-                    </Navbar>
-                </header>
+               
 
                 <h2>
                     Order History
                 </h2>
 
                 {orderHistory.map(order => (
-                    <div key={order.order_id}>
+                    <div key={order.id}>
                         {/* Display order details */}
-                        <p>Order ID: {order.order_id}</p>
-                        <p>Creation Date: {order.creation_date}</p>
-                        {/* Add other order details as needed */}
+                        <p><b>Order ID: {order.id}</b></p>
+                        <p>
+                         
+                           Creation Date: {order.creation_date.split('T')[0]}
+                            <br />
+                           Creation Time: {order.creation_date.split('T')[1]}
+                            <br />
+                                <Link to={`/fetch-order/${order.id}`}>
+                                    <button
+                                        type="submit"
+                                        style={{
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            padding: '5px 10px',
+                                            margin: '0px',
+                                            border: 'none',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer',
+                                            fontSize: '16px',
+                                        }}>
+                                        View this order
+                                    </button>
+                                </Link>
+                           
+                        </p>
                     </div>
                 ))}
             </div>
