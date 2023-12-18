@@ -31,5 +31,31 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        public class FeedbackRequestModel
+        {
+            public Feedback Feedback { get; set; }
+            public string Username { get; set; }
+        }
+
+        [HttpPost("{productId}")]
+        public IActionResult CreateFeedback(int productId, [FromBody] FeedbackRequestModel request)
+        {
+            try
+            {
+                bool isSuccess = _context.CreateFeedbackForProduct(productId, request.Feedback, request.Username);
+                if (isSuccess)
+                {
+                    return Ok(); // or return CreatedAtRoute if you want to return the created entity
+                }
+
+                return BadRequest("Failed to save feedback");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating feedback");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }
