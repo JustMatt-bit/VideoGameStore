@@ -57,9 +57,28 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        [HttpPost("applyDiscountToOrder/{orderId}")]
+        public ActionResult ApplyDiscountToOrder(int orderId, [FromBody] DiscountApplication data)
+        {
+            try
+            {
+                var result = _context.ApplyDiscountToOrder(orderId, data.DiscountId);
+                if (result)
+                {
+                    return Ok("Discount applied to order successfully.");
+                }
+                return BadRequest("Failed to apply discount to order.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in ApplyDiscountToOrder: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         public class DiscountApplication
         {
-            public string Username { get; set; }
+            public string? Username { get; set; }
             public int DiscountId { get; set; }
         }
     }

@@ -68,8 +68,11 @@ export class Product extends Component {
                     </p>
                     <h4>Price: {product.price} €</h4>
                     {/*<ToCart/>*/}
+
                     <button onClick={this.addToCart}>Add to cart</button>
+
                 </div>
+                <div style={{ clear: 'both' }}></div>
                 <FetchFeedback />
             </>
         );

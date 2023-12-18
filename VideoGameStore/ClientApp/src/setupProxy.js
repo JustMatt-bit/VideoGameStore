@@ -5,6 +5,9 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
   env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:38593';
 
 const context = [
+    "/api/email/sendWelcomeEmail",
+    "/api/user/GetOrderById",
+    "/api/user/DeactivateAccount",
     "/api/user/GetUserDetails",
     "/api/weatherforecast",
     "/api/products/get",
@@ -37,10 +40,12 @@ const context = [
     "/api/leaderboard/GetTopUsers",
     "/api/leaderboard/GetUserPosition",
     "/api/loyalty/GetUserTierDetails",
+    "/api/loyalty/updateUserLoyaltyPoints",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
     "/api/discount/applyDiscount",
     "/api/discount/userDiscounts",
+    "/api/discount/applyDiscountToOrder",
 ];
 
 module.exports = function(app) {

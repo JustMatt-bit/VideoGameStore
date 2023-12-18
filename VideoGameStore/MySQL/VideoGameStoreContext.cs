@@ -22,6 +22,144 @@ namespace VideoGameStore.Models
         {
             return new MySqlConnection(ConnectionString);
         }
+        public Order GetOrderByID(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM orders WHERE order_id = @id", connection);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        Order order = new Order()
+                        {
+                            id = reader.GetInt32("order_id"),
+                            creation_date = reader.GetDateTime("creation_date"),
+                            completion_date = reader.GetDateTime("completion_date"),
+                            price = reader.GetFloat("price"),
+                            comment = reader.GetString("comment"),
+                            parcel_price = reader.GetFloat("parcel_price"),
+                            fk_account = reader.GetString("fk_account"),
+                            fk_address = reader.IsDBNull(reader.GetOrdinal("fk_address")) ? (int?)null : reader.GetInt32("fk_address"),
+                            fk_status = reader.GetInt32("fk_status"),
+                            fk_discount = reader.IsDBNull(reader.GetOrdinal("fk_discount")) ? (int?)null : reader.GetInt32("fk_discount")
+                        };
+
+                        // Build the address string directly within GetOrderByID
+                        if (order.fk_address.HasValue)
+                        {
+                            using (MySqlConnection addressConnection = GetConnection())
+                            {
+                                addressConnection.Open();
+                                MySqlCommand addressCmd = new MySqlCommand("SELECT * FROM addresses WHERE address_id = @id", addressConnection);
+                                addressCmd.Parameters.AddWithValue("@id", order.fk_address.Value);
+
+                                using (MySqlDataReader addressReader = addressCmd.ExecuteReader())
+                                {
+                                    if (addressReader.Read())
+                                    {
+                                        string city = addressReader.GetString("city");
+                                        string street = addressReader.GetString("street");
+                                        int building = addressReader.GetInt32("building");
+                                        string postalCode = addressReader.GetString("postal_code");
+
+                                        order.AddressV = $"{city}, {street} {building}, {postalCode}";
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            order.AddressV = "N/A";
+                        }
+
+                        order.StatusV = GetStatusById(order.fk_status);
+                        order.DiscountV = (order.fk_discount == null) ? 0 : GetDiscountById(order.fk_discount);
+
+                        return order;
+                    }
+                }
+
+                // If the order with the given ID is not found, you might want to handle this case.
+                // You can return null or throw an exception based on your application logic.
+                return null;
+            }
+        }
+        private string GetStatusById(int statusId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM statuses WHERE status_id = @statusId", connection);
+                cmd.Parameters.AddWithValue("@statusId", statusId);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        string status = reader.GetString("name");
+                        return status;
+                    }
+                }
+
+                // If status with the given ID is not found, you might want to handle this case.
+                // You can return null or throw an exception based on your application logic.
+                return "";
+            }
+        }
+        public bool DeactivateAccount(string username)
+        {
+            try
+            {
+                using (MySqlConnection connection = GetConnection())
+                {
+                    connection.Open();
+
+                    // Create a MySqlCommand for the DELETE statement
+                    using (MySqlCommand cmd = new MySqlCommand("DELETE FROM accounts WHERE username = @username", connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        cmd.Parameters.AddWithValue("@username", username);
+
+                        // Execute the DELETE statement
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        // Check if any rows were affected (i.e., if the user was deleted)
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                throw new Exception("Error during account deactivation", ex);
+            }
+        }
+        private int GetDiscountById(int? discountId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM discounts WHERE discount_id = @discountId", connection);
+                cmd.Parameters.AddWithValue("@discountId", discountId);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        int dis = reader.GetInt32("percent");
+                        return dis;
+                    }
+                }
+
+                // If discount with the given ID is not found, you might want to handle this case.
+                // You can return null or throw an exception based on your application logic.
+                return 0;
+            }
+        }
 
         public User GetUserByUsername(string username)
         {
@@ -52,32 +190,33 @@ namespace VideoGameStore.Models
                 return user;
             }
         }
-        public User GetAdressesByUsername(string username)
+        public List<Address> GetAddressesByUsername(string username)
         {
-            User user = new User();
+            List<Address> addresses = new List<Address>();
             using (MySqlConnection connection = GetConnection())
             {
                 connection.Open();
-                MySqlCommand cmd = new MySqlCommand("SELECT * FROM addresses WHERE username=@user", connection);
-                cmd.Parameters.AddWithValue("@user", username);
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM addresses WHERE fk_account = @username", connection);
+                cmd.Parameters.AddWithValue("@username", username);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        user.name = reader.GetString("name");
-                        user.surname = reader.GetString("surname");
-                        user.email = reader.GetString("email");
-                        user.phone = reader.GetString("phone");
-                        user.referal_code = reader.IsDBNull(reader.GetOrdinal("referal_code"))
-                                            ? (string?)null
-                                            : reader.GetString("referal_code");
-                        user.creation_date = reader.GetDateTime("creation_date");
-                        user.fk_user_type = reader.GetInt32("fk_user_type");
-                        user.fk_loyalty_tier = reader.GetInt32("fk_loyalty_tier");
+                        Address address = new Address()
+                        {
+                            id = reader.GetInt32("address_id"),
+                            city = reader.GetString("city"),
+                            street = reader.GetString("street"),
+                            building = reader.GetInt32("building"),
+                            postal_code = reader.GetString("postal_code"),
+                            fk_account = reader.GetString("fk_account")
+                        };
+
+                        addresses.Add(address);
                     }
                 }
-                return user;
             }
+            return addresses;
         }
 
         public List<Developer> GetAllDevelopers()
@@ -125,7 +264,45 @@ namespace VideoGameStore.Models
             }
         }
 
-        
+        public void CreateNewBuildOrderFromOrderID (int orderID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders (SELECT NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, fk_account, NULL, 1, NULL FROM orders WHERE order_id = @orderID);", connection);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void CreateNewBuildOrderFromUsername(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders VALUES (NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, @user, NULL, 1, NULL);", connection);
+                cmd.Parameters.AddWithValue("@user", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderStatus(int orderID, int statusID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_status =@newVal WHERE order_id=@orderID;", connection);
+                cmd.Parameters.AddWithValue("@newVal", statusID);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
 
         public List<Order> GetOrdersByUser(string username)
         {
@@ -1041,7 +1218,7 @@ namespace VideoGameStore.Models
                 connection.Open();
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product " +
+                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product, f.replying_to_id " +
                     "FROM feedback f LEFT JOIN products p ON p.product_id=f.fk_product WHERE f.fk_product=@productId", connection);
                 cmd.Parameters.AddWithValue("@productId", productId);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1055,11 +1232,14 @@ namespace VideoGameStore.Models
                             text = reader.GetString("text"),
                             rating = reader.GetFloat("rating"),
                             rating_count = reader.GetInt32("rating_count"),
-                            is_flagged = reader.GetBoolean("flagged"),
+                            is_flagged = reader.GetInt32("flagged"),
                             account_name = reader.IsDBNull(reader.GetOrdinal("fk_account"))
                                          ? (string?)null
                                          : reader.GetString("fk_account"),
-                            fk_product = reader.GetInt32("fk_product")
+                            fk_product = reader.GetInt32("fk_product"),
+                            replying_to_id = reader.IsDBNull(reader.GetOrdinal("replying_to_id"))
+                                         ? null
+                                         : reader.GetInt32("replying_to_id"),
                         });
                     }
                 }
@@ -1075,8 +1255,8 @@ namespace VideoGameStore.Models
 
                 // Prepare the INSERT statement to add new feedback
                 MySqlCommand cmd = new MySqlCommand(
-                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
-                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product, replying_to_id) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId, @replying_to_id)", connection);
 
                 // Set the parameters
                 cmd.Parameters.AddWithValue("@date", feedback.date);
@@ -1086,12 +1266,43 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
                 cmd.Parameters.AddWithValue("@accountName", username);
                 cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@replying_to_id", feedback.replying_to_id);
+
 
                 // Execute the INSERT statement
                 int rowsAffected = cmd.ExecuteNonQuery();
 
                 // Return true if one row was affected, otherwise false
                 return rowsAffected == 1;
+            }
+        }
+
+        public bool ReportFeedback(int feedbackId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET flagged = flagged + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
+        public bool RateFeedback(int feedbackId, int newRating)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET rating = ((rating * rating_count + @newRating) / (rating_count + 1)), rating_count = rating_count + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    cmd.Parameters.AddWithValue("@newRating", newRating);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
 
@@ -1409,6 +1620,75 @@ namespace VideoGameStore.Models
             }
         }
 
+        public void UpdateUserLoyaltyProgress(string username, double loyaltyPoints)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var user = GetUserByUsername(username);
+                var newLoyaltyProgress = user.loyalty_progress + loyaltyPoints;
+                var currentTier = GetUserLoyaltyTier(username);
+
+                // Check if new progress exceeds the current tier's limit
+                if (newLoyaltyProgress >= currentTier.PointsTo)
+                {
+                    newLoyaltyProgress = 0; // Reset progress
+                    var nextTier = GetNextLoyaltyTier(currentTier.TierId);
+                    if (nextTier != null)
+                    {
+                        // Update user's tier to the next one
+                        UpdateUserTier(username, nextTier.TierId);
+                    }
+                }
+
+                // Update user's loyalty progress
+                UpdateUserLoyaltyProgressInDatabase(username, newLoyaltyProgress);
+            }
+        }
+
+        private void UpdateUserLoyaltyProgressInDatabase(string username, double newProgress)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET loyalty_progress = @newProgress WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newProgress", newProgress);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateUserTier(string username, int newTierId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET fk_loyalty_tier = @newTierId WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newTierId", newTierId);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public bool ApplyDiscountToOrder(int orderId, int discountId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_discount = @discountId WHERE order_id = @orderId", connection);
+                cmd.Parameters.AddWithValue("@discountId", discountId);
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
 
     }
 }

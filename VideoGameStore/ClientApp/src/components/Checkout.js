@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 export class Checkout extends Component {
     static displayName = Checkout.name;
@@ -9,9 +10,20 @@ export class Checkout extends Component {
             order_id: -1, cart_items: [], cart_total_price: 0, loading: true,
             userData: '',
             discounts: [],
-            selectedDiscount: null
+            selectedDiscount: null,
+            selectedDiscountId: null,
         };
         this.applyDiscount = this.applyDiscount.bind(this);
+        this.handleContinue = this.handleContinue.bind(this);
+    }
+
+    async setOrderAsUnpaid() {
+        await fetch(`api/checkout/${this.state.order_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
     }
 
     componentDidMount() {
@@ -22,8 +34,20 @@ export class Checkout extends Component {
         if (authCookie) {
             const username = authCookie.split('=')[1];
             this.populateCart();
-            this.populateUserData();
-            this.fetchDiscounts(username);
+            this.populateUserData().then(() => {
+                this.fetchDiscounts(username);
+                this.fetchLoyaltyTierDetails(username);
+            });
+        }
+    }
+
+    async fetchLoyaltyTierDetails(username) {
+        const response = await fetch(`api/loyalty/GetUserTierDetails/${username}`);
+        if (response.ok) {
+            const tierDetails = await response.json();
+            this.setState({ loyaltyTierDetails: tierDetails });
+        } else {
+            console.error("Failed to fetch loyalty tier details");
         }
     }
 
@@ -53,9 +77,6 @@ export class Checkout extends Component {
     }
 
     static renderCart(cart_items, cart_total_price) {
-        let totalPrice = cart_items.reduce((total, item) => {
-            return total + (item.price * item.units_in_cart);
-        }, 0);
         return (
             <>
             <div style={{ padding: 10 }}>
@@ -79,7 +100,7 @@ export class Checkout extends Component {
                 </table>
 
                     <div style={{ textAlign: 'right' }}>
-                        <h5>Total: {totalPrice.toFixed(2)}€</h5>
+                        <h5>Total: {cart_total_price.toFixed(2)}€</h5>
                     </div>
             </div>
             </>
@@ -92,7 +113,7 @@ export class Checkout extends Component {
             <select onChange={handleDiscountChange}>
                 <option value="">Select a discount</option>
                 {discounts.map(discount => (
-                    <option key={discount.id} value={discount.id}>
+                    <option key={discount.discountId} value={discount.discountId}>
                         {discount.percent}% Discount
                     </option>
                 ))}
@@ -137,21 +158,19 @@ export class Checkout extends Component {
                     </div>
                     <div style={{ flex: 2 }}>
                         {userContents}
-                        <a href="/shipping">
-                            <button style={{
-                                textAlign: 'center',
-                                backgroundColor: '#4CAF50', // Green background
-                                color: 'white', // White text
-                                padding: '5px 10px', // Padding around the text
-                                margin: '10px', // Margin around the button
-                                border: 'none', // No border
-                                borderRadius: '5px', // Slightly rounded corners
-                                cursor: 'pointer', // Cursor pointer
-                                fontSize: '16px', // Font size
-                            }}>
-                                Continue
-                            </button>
-                        </a>
+                        <button onClick={this.handleContinue} style={{
+                            textAlign: 'center',
+                            backgroundColor: '#4CAF50', // Green background
+                            color: 'white', // White text
+                            padding: '5px 10px', // Padding around the text
+                            margin: '10px', // Margin around the button
+                            border: 'none', // No border
+                            borderRadius: '5px', // Slightly rounded corners
+                            cursor: 'pointer', // Cursor pointer
+                            fontSize: '16px', // Font size
+                        }}>
+                            Continue
+                        </button>
                     </div>
                 </div>
             </div>
@@ -160,25 +179,100 @@ export class Checkout extends Component {
 
     handleDiscountChange = (event) => {
         const discountId = parseInt(event.target.value);
-        const selectedDiscount = this.state.discounts.find(d => d.id === discountId);
-        this.setState({ selectedDiscount }, () => {
-            if (this.state.selectedDiscount) {
-                this.applyDiscount();
-            }
+        console.log(this.state.discounts, discountId)
+        this.setState({ selectedDiscountId: discountId });
+    };
+
+    applyDiscount = async () => {
+        const { selectedDiscountId, discounts, cart_total_price } = this.state;
+
+        if (!selectedDiscountId) {
+            console.log("No discount selected");
+            return;
+        }
+
+        const selectedDiscount = discounts.find(d => d.discountId === selectedDiscountId);
+        if (!selectedDiscount) {
+            console.log("Invalid discount");
+            return;
+        }
+
+        const validToDate = new Date(selectedDiscount.validTo);
+        const currentDate = new Date();
+
+        if (validToDate < currentDate) {
+            console.log("Discount is invalid: expired");
+            alert("This discount is no longer valid.");
+            return;
+        }
+
+        const discountFactor = 1 - selectedDiscount.percent / 100;
+        const newTotalPrice = cart_total_price * discountFactor;
+
+        // Filter out the applied discount from the discounts array
+        const updatedDiscounts = discounts.filter(d => d.discountId !== selectedDiscountId);
+
+        this.setState({
+            cart_total_price: newTotalPrice,
+            discounts: updatedDiscounts, // Update the discounts array
+            selectedDiscountId: null, // Reset the selected discount ID
+        });
+
+        // Apply the discount to the current order
+        await this.applyDiscountToOrder(selectedDiscountId);
+    };
+
+    applyDiscountToOrder = async (discountId) => {
+        // Assuming you have an endpoint to update the order with a discount ID
+        await fetch(`api/discount/applyDiscountToOrder/${this.state.order_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ discountId })
         });
     };
 
-    applyDiscount = () => {
-        console.log(this.state.selectedDiscount);
-        if (this.state.selectedDiscount) {
-            const discountFactor = 1 - this.state.selectedDiscount.percent / 100;
-            const newTotalPrice = this.state.cart_items.reduce((total, item) => {
-                return total + (item.price * item.units_in_cart);
-            }, 0) * discountFactor;
+    handleContinue = async () => {
+        console.log("Handling continue...");
+        const { cart_total_price, loyaltyTierDetails, userData } = this.state;
+        console.log("Loyalty Tier Details:", loyaltyTierDetails);
+        console.log("User Data:", userData);
 
-            this.setState({ cart_total_price: newTotalPrice });
+        if (!loyaltyTierDetails || !userData) {
+            console.error("Loyalty tier details or user data not available");
+            return;
         }
+
+        // Calculate loyalty points
+        const loyaltyPoints = cart_total_price * loyaltyTierDetails.currentTier.discountCoefficient;
+        console.log(loyaltyPoints)
+
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        const username = authCookie.split('=')[1];
+
+        // Send the calculated loyalty points to the server
+        await this.updateUserLoyaltyPoints(username, loyaltyPoints);
+        // Proceed to set order as unpaid and redirect
+        await this.setOrderAsUnpaid();
+        window.location.href = '/shipping';
     };
+
+    updateUserLoyaltyPoints = async (username, loyaltyPoints) => {
+        // Make a POST request to your server endpoint to update loyalty points
+        await fetch(`api/loyalty/updateUserLoyaltyPoints`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, loyaltyPoints })
+        });
+    };
+
+
 
     async populateCart() {
         const authCookie = document.cookie

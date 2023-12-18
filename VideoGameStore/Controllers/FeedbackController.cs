@@ -57,5 +57,44 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpPost("report/{feedbackId}")]
+        public IActionResult ReportFeedback(int feedbackId)
+        {
+            try
+            {
+                bool isSuccess = _context.ReportFeedback(feedbackId);
+                if (isSuccess)
+                {
+                    return Ok();
+                }
+                return BadRequest("Failed to report feedback");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reporting feedback");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("rate/{feedbackId}")]
+        public IActionResult RateFeedback(int feedbackId, [FromBody] int newRating)
+        {
+            try
+            {
+                bool isSuccess = _context.RateFeedback(feedbackId, newRating);
+                if (isSuccess)
+                {
+                    return Ok();
+                }
+                return BadRequest("Failed to update rating");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating feedback rating");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
     }
 }
