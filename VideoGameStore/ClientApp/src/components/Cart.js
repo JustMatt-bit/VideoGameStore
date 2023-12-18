@@ -69,7 +69,7 @@ export class Cart extends Component {
             </table>
             <br></br>
             <div style={{ textAlign: 'right' }}>
-                    <h4>Total: {cart_total_price}€</h4>
+                    <h4>Total: {cart_total_price.toFixed(2)}€</h4>
                     <a href="/checkout"> <button
                         style={{
                             backgroundColor: '#4CAF50', // Green background

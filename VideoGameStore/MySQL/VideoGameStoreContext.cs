@@ -124,6 +124,46 @@ namespace VideoGameStore.Models
             }
         }
 
+        public void CreateNewBuildOrderFromOrderID (int orderID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders (SELECT NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, fk_account, NULL, 1, NULL FROM orders WHERE order_id = @orderID);", connection);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void CreateNewBuildOrderFromUsername(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders VALUES (NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, @user, NULL, 1, NULL);", connection);
+                cmd.Parameters.AddWithValue("@user", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderStatus(int orderID, int statusID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_status =@newVal WHERE order_id=@orderID;", connection);
+                cmd.Parameters.AddWithValue("@newVal", statusID);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public List<Order> GetOrdersByUser(string username)
         {
             List<Order> orders = new List<Order>();

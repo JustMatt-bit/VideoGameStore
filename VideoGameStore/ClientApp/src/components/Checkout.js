@@ -1,4 +1,6 @@
 ﻿import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+
 
 export class Checkout extends Component {
     static displayName = Checkout.name;
@@ -12,6 +14,16 @@ export class Checkout extends Component {
             selectedDiscount: null
         };
         this.applyDiscount = this.applyDiscount.bind(this);
+    }
+
+    async setOrderAsUnpaid() {
+        const done = await fetch(`api/checkout/${this.state.order_id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+        window.location.href = '/shipping'
     }
 
     componentDidMount() {
@@ -137,21 +149,19 @@ export class Checkout extends Component {
                     </div>
                     <div style={{ flex: 2 }}>
                         {userContents}
-                        <a href="/shipping">
-                            <button style={{
-                                textAlign: 'center',
-                                backgroundColor: '#4CAF50', // Green background
-                                color: 'white', // White text
-                                padding: '5px 10px', // Padding around the text
-                                margin: '10px', // Margin around the button
-                                border: 'none', // No border
-                                borderRadius: '5px', // Slightly rounded corners
-                                cursor: 'pointer', // Cursor pointer
-                                fontSize: '16px', // Font size
-                            }}>
-                                Continue
-                            </button>
-                        </a>
+                        <button onClick={this.setOrderAsUnpaid.bind(this)} style={{
+                            textAlign: 'center',
+                            backgroundColor: '#4CAF50', // Green background
+                            color: 'white', // White text
+                            padding: '5px 10px', // Padding around the text
+                            margin: '10px', // Margin around the button
+                            border: 'none', // No border
+                            borderRadius: '5px', // Slightly rounded corners
+                            cursor: 'pointer', // Cursor pointer
+                            fontSize: '16px', // Font size
+                        }}>
+                            Continue
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { createSearchParams } from "react-router-dom";
+
 import './NavMenu.css';
 
 export class FetchOrderHistory extends Component {
@@ -82,7 +84,7 @@ export class FetchOrderHistory extends Component {
 
     render() {
         const { isLoggedIn, orderHistory } = this.state;
-
+        const statuses = ["Kuriamas", "Neapmokėtas", "Apmokėtas", "Apdorojamas", "Išsiųstas", "Užbaigtas"]
         // Redirect to /fetch-account if the user is not logged in
         if (!isLoggedIn) {
             window.location.href = '/fetch-account';
@@ -109,14 +111,40 @@ export class FetchOrderHistory extends Component {
                     Order History
                 </h2>
 
-                {orderHistory.map(order => (
-                    <div key={order.order_id}>
-                        {/* Display order details */}
-                        <p>Order ID: {order.order_id}</p>
-                        <p>Creation Date: {order.creation_date}</p>
-                        {/* Add other order details as needed */}
-                    </div>
-                ))}
+                
+                <table className='table table-striped' aria-labelledby="tabelLabel">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Buyer</th>
+                            <th>Order date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {orderHistory.map(order =>
+
+                            <tr key={order.id} style={{ visibility: order.fk_status <= 1 ? "hidden" : "visible" }}>
+
+                                <td><Link style={{ color: 'black', textDecoration: 'none' }} to={{
+                                    pathname: "/fetch-order",
+                                    search: `?${createSearchParams({
+                                        id: order.id
+                                    })}`
+                                }}>
+                                    {order.id}
+                                </Link></td>
+                                <td>{order.fk_account}</td>
+                                <td>{order.creation_date.split("T")[0]}</td>
+                                <td>{statuses[order.fk_status-1]}</td>
+
+                            </tr>
+
+                        )}
+
+                    </tbody>
+                </table>
             </div>
         );
     }

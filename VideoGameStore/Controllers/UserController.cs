@@ -96,6 +96,8 @@ namespace VideoGameStore.Controllers
                     registrationData.referal_code
                 );
 
+                _context.CreateNewBuildOrderFromUsername( registrationData.username );
+
                 if (registrationSuccessful)
                 {
                     return Ok(new { success = true });
