@@ -1030,7 +1030,7 @@ namespace VideoGameStore.Models
                 connection.Open();
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product " +
+                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product, f.replying_to_id " +
                     "FROM feedback f LEFT JOIN products p ON p.product_id=f.fk_product WHERE f.fk_product=@productId", connection);
                 cmd.Parameters.AddWithValue("@productId", productId);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1048,7 +1048,10 @@ namespace VideoGameStore.Models
                             account_name = reader.IsDBNull(reader.GetOrdinal("fk_account"))
                                          ? (string?)null
                                          : reader.GetString("fk_account"),
-                            fk_product = reader.GetInt32("fk_product")
+                            fk_product = reader.GetInt32("fk_product"),
+                            replying_to_id = reader.IsDBNull(reader.GetOrdinal("replying_to_id"))
+                                         ? null
+                                         : reader.GetInt32("replying_to_id"),
                         });
                     }
                 }
@@ -1064,8 +1067,8 @@ namespace VideoGameStore.Models
 
                 // Prepare the INSERT statement to add new feedback
                 MySqlCommand cmd = new MySqlCommand(
-                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
-                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product, replying_to_id) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId, @replying_to_id)", connection);
 
                 // Set the parameters
                 cmd.Parameters.AddWithValue("@date", feedback.date);
@@ -1075,6 +1078,8 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
                 cmd.Parameters.AddWithValue("@accountName", username);
                 cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@replying_to_id", feedback.replying_to_id);
+
 
                 // Execute the INSERT statement
                 int rowsAffected = cmd.ExecuteNonQuery();
