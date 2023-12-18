@@ -1044,7 +1044,7 @@ namespace VideoGameStore.Models
                             text = reader.GetString("text"),
                             rating = reader.GetFloat("rating"),
                             rating_count = reader.GetInt32("rating_count"),
-                            is_flagged = reader.GetBoolean("flagged"),
+                            is_flagged = reader.GetInt32("flagged"),
                             account_name = reader.IsDBNull(reader.GetOrdinal("fk_account"))
                                          ? (string?)null
                                          : reader.GetString("fk_account"),
@@ -1086,6 +1086,20 @@ namespace VideoGameStore.Models
 
                 // Return true if one row was affected, otherwise false
                 return rowsAffected == 1;
+            }
+        }
+
+        public bool ReportFeedback(int feedbackId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET flagged = flagged + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
 

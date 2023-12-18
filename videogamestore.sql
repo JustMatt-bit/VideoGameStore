@@ -174,7 +174,7 @@ CREATE TABLE `feedback` (
   `text` text NOT NULL,
   `rating` float DEFAULT 0,
   `rating_count` int(11) DEFAULT 0,
-  `flagged` tinyint(1) NOT NULL DEFAULT 0,
+  `flagged` int(11) NOT NULL DEFAULT 0,
   `fk_account` varchar(30) DEFAULT NULL,
   `fk_product` int(11) NOT NULL,
   `replying_to_id` int(11) DEFAULT NULL
