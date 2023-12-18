@@ -1,4 +1,4 @@
-﻿import React, { Component, useState } from 'react';
+import React, { Component, useState } from 'react';
 import "./FetchFeedback.css";
 
 
@@ -59,6 +59,28 @@ export class FetchFeedback extends Component {
         }));
     }
 
+    handleReportClick(feedbackId) {
+        if (window.confirm("Are you sure you want to report this feedback?")) {
+            this.reportFeedback(feedbackId);
+        }
+    }
+
+    async reportFeedback(feedbackId) {
+        try {
+            const response = await fetch(`/api/feedback/report/${feedbackId}`, { method: 'POST' });
+            if (response.ok) {
+                // Refresh feedback to show updated report count
+                this.populateVideoGameData(this.props.productId);
+            } else {
+                // Handle error
+                console.error("Failed to report feedback");
+            }
+        } catch (error) {
+            console.error("Error reporting feedback:", error);
+        }
+    }
+
+
     handleInputChange(event) {
         this.setState({ newFeedbackText: event.target.value });
     }
@@ -79,7 +101,7 @@ export class FetchFeedback extends Component {
                 date: new Date().toISOString(),
                 rating: 0, // example default value
                 rating_count: 0, // example default value
-                is_flagged: false, // example default value
+                is_flagged: 0, // example default value
                 replying_to_id: replyingToId // replying to this feedback id
             };
 
@@ -161,7 +183,7 @@ export class FetchFeedback extends Component {
                 date: new Date().toISOString(),
                 rating: 0, // example default value
                 rating_count: 0, // example default value
-                is_flagged: false, // example default value
+                is_flagged: 0, // example default value
             };
 
             // Call the API to submit the feedback
@@ -187,27 +209,29 @@ export class FetchFeedback extends Component {
     }
 
 
+    // Add the Report Button and its logic
     renderFeedbackCards(feedback) {
-        const { userType, replyToId, replyText } = this.state;
+        const { userType, replyToId, replyText, username } = this.state;
 
-        // Function to render individual feedback or reply
         const renderFeedbackOrReply = (item, isReply = false) => (
             <div className={`feedback-card ${isReply ? "reply-card" : ""}`} key={item.id}>
                 <div className="feedback-text">{item.text}</div>
                 <div className="feedback-info">
                     <div>Date: {item.date.split("T")[0]}</div>
                     <div>User: {item.account_name}</div>
-                    {!isReply &&(
-                        <StarRating />
-                    )}
+                    {!isReply && username && <StarRating />}
                 </div>
-                {(userType === 2 || userType == 3) && !isReply && (
+                {username && !isReply && (
                     <div>
-                        <button onClick={() => this.setState({ replyToId: item.id })}>Reply</button>
+                        <button onClick={() => this.handleReportClick(item.id)}>Report ({item.is_flagged})</button>
+
+                        {(userType === 2 || userType === 3) && (
+                            <button onClick={() => this.setState({ replyToId: item.id })}>Reply</button>
+                        )}
                         {replyToId === item.id && (
                             <div>
                                 <textarea value={replyText} onChange={this.handleReplyChange} />
-                                <button onClick={() => this.submitReply(item.id, replyText)}>Submit Reply</button>
+                                <button onClick={() => this.submitReply(item.id, replyText)}>Submit</button>
                             </div>
                         )}
                     </div>
@@ -215,15 +239,58 @@ export class FetchFeedback extends Component {
             </div>
         );
 
-        return (
-            feedback.map(feedbackItem => (
-                <div key={feedbackItem.id}>
-                    {renderFeedbackOrReply(feedbackItem)}
-                    {feedbackItem.replies && feedbackItem.replies.map(reply => renderFeedbackOrReply(reply, true))}
-                </div>
-            ))
-        );
+        return feedback.map(feedbackItem => (
+            <div key={feedbackItem.id}>
+                {renderFeedbackOrReply(feedbackItem)}
+                {feedbackItem.replies && feedbackItem.replies.map(reply => renderFeedbackOrReply(reply, true))}
+            </div>
+        ));
     }
+
+    async reportFeedback(feedbackId) {
+        try {
+            const response = await fetch(`/api/feedback/report/${feedbackId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ feedbackId }) // Send feedbackId in request body
+            });
+
+            if (response.ok) {
+                alert("Feedback reported successfully.");
+
+                // Update the feedback state to reflect the new report count
+                this.setState(prevState => {
+                    const updatedFeedback = prevState.feedback.map(item => {
+                        if (item.id === feedbackId) {
+                            // Assuming 'is_flagged' holds the report count
+                            // Increment report count here
+                            return { ...item, is_flagged: item.is_flagged + 1 };
+                        }
+                        return item;
+                    });
+                    return { feedback: updatedFeedback };
+                });
+
+            } else {
+                console.error("Failed to report feedback");
+                alert("Failed to report feedback.");
+            }
+        } catch (error) {
+            console.error("Error reporting feedback:", error);
+            alert("Error reporting feedback.");
+        }
+    }
+
+
+
+    handleReportClick(feedbackId) {
+        if (window.confirm("Are you sure you want to report this feedback?")) {
+            this.reportFeedback(feedbackId);
+        }
+    }
+
 
 
 
@@ -263,9 +330,9 @@ export class FetchFeedback extends Component {
                                 {showFeedbackInput ? 'Cancel' : 'Create Feedback'}
                             </button>
                         )}
-                        {username == null && (
-                            <p>Please sign in to leave a feedback.</p>
-                        )}
+                        {!username && (
+                            <p>Please sign up to leave a feedback.</p>
+                        ) }
                         {feedbackInputSection}
                     </div>
                     </div>
