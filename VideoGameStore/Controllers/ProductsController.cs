@@ -157,6 +157,21 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        [HttpPost("DeleteProductIfNotInUse")]
+        public ActionResult<bool> DeleteProductIfNotInUse([FromBody] int id)
+        {
+            try
+            {
+                var deleted = _context.DeleteProductIfNotInUse(id);
+                return Ok(deleted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost("GenreExists")]
         public ActionResult<bool> GenreExists([FromBody] string name)
         {

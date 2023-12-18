@@ -527,6 +527,36 @@ namespace VideoGameStore.Models
             }
 
         }
+        public bool DeleteProductIfNotInUse(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM carts WHERE fk_product=\"" + id + "\"", connection);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int rowsAffected = 0;
+                if (count == 0)
+                {
+                    cmd = new MySqlCommand(
+                        "DELETE FROM product_genres WHERE fk_product=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                    cmd = new MySqlCommand(
+                        "DELETE FROM products WHERE product_id=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                else
+                {
+
+                    cmd = new MySqlCommand("UPDATE products SET being_sold=0 WHERE product_id=\"" + id + "\"", connection);
+                    int rows = cmd.ExecuteNonQuery();
+                }
+                return rowsAffected > 0;
+
+
+            }
+
+        }
 
         public bool DeleteDeveloper(int id)
         {
