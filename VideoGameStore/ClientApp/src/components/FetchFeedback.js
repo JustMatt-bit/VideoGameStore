@@ -2,11 +2,11 @@ import React, { Component, useState } from 'react';
 import "./FetchFeedback.css";
 
 
-const StarRating = () => {
-
-    // NENAUDOTI USE STATES
-    const [rating, setRating] = useState(0);
+const StarRating = ({ currentRating, ratingCount, onRate }) => {
     const [hover, setHover] = useState(0);
+
+    const roundedRating = Math.round(currentRating);
+
     return (
         <div className="star-rating">
             {[...Array(5)].map((star, index) => {
@@ -15,18 +15,20 @@ const StarRating = () => {
                     <button
                         type="button"
                         key={index}
-                        className={index <= (hover || rating) ? "on" : "off"}
-                        onClick={() => setRating(index)}
+                        className={index <= (hover || roundedRating) ? "on" : "off"}
+                        onClick={() => onRate(index)}
                         onMouseEnter={() => setHover(index)}
-                        onMouseLeave={() => setHover(rating)}
+                        onMouseLeave={() => setHover(roundedRating)}
                     >
                         <span className="star">&#9733;</span>
                     </button>
                 );
             })}
+            <span>({ratingCount})</span>
         </div>
     );
 };
+
 
 export class FetchFeedback extends Component {
     //static displayName = FetchFeedback.name;
@@ -216,10 +218,17 @@ export class FetchFeedback extends Component {
         const renderFeedbackOrReply = (item, isReply = false) => (
             <div className={`feedback-card ${isReply ? "reply-card" : ""}`} key={item.id}>
                 <div className="feedback-text">{item.text}</div>
+
                 <div className="feedback-info">
                     <div>Date: {item.date.split("T")[0]}</div>
                     <div>User: {item.account_name}</div>
-                    {!isReply && username && <StarRating />}
+                    {!isReply && username && (
+                        <StarRating
+                            currentRating={item.rating}
+                            ratingCount={item.rating_count}
+                            onRate={(newRating) => this.handleRatingUpdate(item.id, newRating)}
+                        />
+                    )}
                 </div>
                 {username && !isReply && (
                     <div>
@@ -291,6 +300,38 @@ export class FetchFeedback extends Component {
         }
     }
 
+
+    handleRatingUpdate = async (feedbackId, selectedRating) => {
+        const newFeedback = this.state.feedback.map(f => {
+            if (f.id === feedbackId) {
+                const newRatingCount = f.rating_count + 1;
+                const newRatingAverage = (f.rating * f.rating_count + selectedRating) / newRatingCount;
+
+                // Optimistically update the rating and rating count
+                return { ...f, rating: newRatingAverage, rating_count: newRatingCount };
+            }
+            return f;
+        });
+
+        this.setState({ feedback: newFeedback });
+
+        try {
+            const response = await fetch(`/api/feedback/rate/${feedbackId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(selectedRating)
+            });
+
+            if (!response.ok) {
+                // If the API call fails, revert to the original state
+                this.populateVideoGameData(this.props.productId);
+            }
+        } catch (error) {
+            console.error("Error updating rating:", error);
+            // If there's an error, revert to the original state
+            this.populateVideoGameData(this.props.productId);
+        }
+    };
 
 
 

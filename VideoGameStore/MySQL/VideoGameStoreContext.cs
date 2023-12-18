@@ -1103,6 +1103,21 @@ namespace VideoGameStore.Models
             }
         }
 
+        public bool RateFeedback(int feedbackId, int newRating)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET rating = ((rating * rating_count + @newRating) / (rating_count + 1)), rating_count = rating_count + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    cmd.Parameters.AddWithValue("@newRating", newRating);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
 
         public bool UpdateUser(User updatedUser)
         {
