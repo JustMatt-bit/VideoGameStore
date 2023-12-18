@@ -51,7 +51,7 @@ const AppRoutes = [
         element: <EditAccount />
     },
     {
-        path: '/fetch-order',
+        path: '/fetch-order/:id',
         element: <FetchOrder />
     },
     {
