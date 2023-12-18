@@ -33,7 +33,13 @@ export class FetchFeedback extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { feedback: [], loading: true, newFeedbackText: "" };
+        this.state = {
+            feedback: [],
+            loading: true,
+            newFeedbackText: "",
+            username: null,
+            userType: null
+        };
 
         // Bind functions
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -47,9 +53,43 @@ export class FetchFeedback extends Component {
 
     componentDidMount() {
         const searchParams = new URLSearchParams(window.location.search);
-        const productId = searchParams.get('id') || null; // Default to 1 if not present
+        const productId = searchParams.get('id') || null;
         if (productId != null)
             this.populateVideoGameData(productId);
+
+        const authCookie = document.cookie.split('; ').find(row => row.startsWith('AuthCookie'));
+        if (authCookie) {
+            const username = authCookie.split('=')[1];
+            this.setState({ username });
+
+            // Fetch user details to get userType
+            fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({
+                        userType: data.fk_user_type // Set userType based on API response
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
+        }
+    }
+
+    async fetchUserType() {
+        const authCookie = document.cookie.split('; ').find(row => row.startsWith('AuthCookie'));
+        const username = authCookie ? authCookie.split('=')[1] : null;
+        if (username) {
+            try {
+                const response = await fetch(`/api/user/GetType/${username}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    this.setState({ userType: data.userType });
+                }
+            } catch (error) {
+                console.error('Error fetching user type:', error);
+            }
+        }
     }
 
     async submitFeedback() {
@@ -111,28 +151,43 @@ export class FetchFeedback extends Component {
     }
 
     render() {
-        const { feedback, loading, newFeedbackText } = this.state;
+        const { feedback, loading, newFeedbackText, username, userType } = this.state;
         let contents = loading
             ? <p><em>Loading...</em></p>
             : FetchFeedback.renderFeedbackCards(feedback);
 
-        return (
+        let feedbackInputSection;
+
+        if (!username) {
+            // User is not logged in
+            feedbackInputSection = <p>You must be logged in to leave feedback.</p>;
+        } else if (userType !== 1) {
+            // User is logged in but does not have the correct user type
+            feedbackInputSection = <p>You do not have permission to leave feedback.</p>;
+        } else {
+            // User is logged in and has the correct user type
+            feedbackInputSection = (
+               <div className="feedback-input">
+                    <textarea
+                        className="feedbackTextArea"
+                        value={newFeedbackText}
+                        onChange={this.handleInputChange}
+                        placeholder="Write your feedback here..."
+                        maxLength={500}
+                        minLength={3}
+                    />
+                    <br></br>
+                    <button onClick={this.submitFeedback}>Submit Feedback</button>
+               </div>
+            );
+        }
+
+        return  (
             <div>
                 <br></br>
                 <div className="feedback-container">
                     {contents}
-                    <div className="feedback-input">
-                        <textarea
-                            className="feedbackTextArea"
-                            value={newFeedbackText}
-                            onChange={this.handleInputChange}
-                            placeholder="Write your feedback here..."
-                            maxLength={500}
-                            minLength={3}
-                        />
-                        <br></br>
-                        <button onClick={this.submitFeedback}>Submit Feedback</button>
-                    </div>
+                    {feedbackInputSection}
                 </div>
             </div>
         );

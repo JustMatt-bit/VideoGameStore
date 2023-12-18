@@ -836,8 +836,8 @@ namespace VideoGameStore.Models
 
                 // Prepare the INSERT statement to add new feedback
                 MySqlCommand cmd = new MySqlCommand(
-                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
-                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product, replying_to_id) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId, @replying_to_id)", connection);
 
                 // Set the parameters
                 cmd.Parameters.AddWithValue("@date", feedback.date);
@@ -847,6 +847,8 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
                 cmd.Parameters.AddWithValue("@accountName", username);
                 cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@replying_to_id", feedback.replying_to_id);
+
 
                 // Execute the INSERT statement
                 int rowsAffected = cmd.ExecuteNonQuery();

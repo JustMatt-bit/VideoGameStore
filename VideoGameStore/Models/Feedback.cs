@@ -10,5 +10,6 @@
         public bool is_flagged { get; set; }
         public string? account_name { get; set; }
         public int fk_product { get; set; }
+        public int? replying_to_id { get; set; }
     }
 }
