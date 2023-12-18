@@ -1,5 +1,5 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `accounts` (
-  `username` varchar(30) NOT NULL,
-  `password` varchar(32) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `surname` varchar(30) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `phone` varchar(30) NOT NULL,
-  `referal_code` varchar(30) DEFAULT NULL,
+  `username` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `surname` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referal_code` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `loyalty_progress` int(11) NOT NULL DEFAULT 0,
   `fk_user_type` int(11) NOT NULL,
@@ -63,11 +63,11 @@ INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `pho
 
 CREATE TABLE `addresses` (
   `address_id` int(11) NOT NULL,
-  `city` varchar(30) NOT NULL,
-  `street` varchar(30) NOT NULL,
+  `city` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `street` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `building` int(11) NOT NULL,
-  `postal_code` varchar(30) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `postal_code` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -107,8 +107,8 @@ INSERT INTO `carts` (`cart_id`, `price`, `stock`, `fk_order`, `fk_product`) VALU
 CREATE TABLE `comments` (
   `comment_id` int(11) NOT NULL,
   `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `text` text NOT NULL,
-  `fk_account` varchar(30) DEFAULT NULL,
+  `text` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_feedback` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -127,8 +127,8 @@ INSERT INTO `comments` (`comment_id`, `date`, `text`, `fk_account`, `fk_feedback
 
 CREATE TABLE `developers` (
   `developer_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `country` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -150,7 +150,7 @@ CREATE TABLE `discounts` (
   `valid_from` datetime NOT NULL,
   `valid_to` datetime NOT NULL,
   `percent` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -160,6 +160,7 @@ CREATE TABLE `discounts` (
 INSERT INTO `discounts` (`discount_id`, `valid_from`, `valid_to`, `percent`, `fk_account`) VALUES
 (1, '2023-11-03 13:43:59', '2024-11-03 14:43:59', 50, 'JonasPonas'),
 (2, '2023-12-18 01:18:27', '2024-01-18 01:18:27', 10, 'test');
+(3, '2023-12-17 22:58:14', '2023-12-19 22:58:14', 10, 'Sidabrinis');
 
 -- --------------------------------------------------------
 
@@ -195,7 +196,7 @@ INSERT INTO `feedback` (`feedback_id`, `date`, `text`, `rating`, `rating_count`,
 
 CREATE TABLE `game_types` (
   `game_type_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -214,8 +215,8 @@ INSERT INTO `game_types` (`game_type_id`, `name`) VALUES
 
 CREATE TABLE `genres` (
   `genre_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `description` text NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -233,10 +234,10 @@ INSERT INTO `genres` (`genre_id`, `name`, `description`) VALUES
 
 CREATE TABLE `loyalty_tiers` (
   `tier_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL,
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `points_from` int(11) NOT NULL,
   `points_to` int(11) NOT NULL,
-  `description` text NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `discount_coeficient` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -261,9 +262,9 @@ CREATE TABLE `orders` (
   `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `completion_date` datetime NOT NULL,
   `price` float NOT NULL DEFAULT 0,
-  `comment` text NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `parcel_price` float NOT NULL DEFAULT 0,
-  `fk_account` varchar(30) NOT NULL,
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `fk_address` int(11) DEFAULT NULL,
   `fk_status` int(11) NOT NULL DEFAULT 1,
   `fk_discount` int(11) DEFAULT NULL
@@ -286,16 +287,16 @@ INSERT INTO `orders` (`order_id`, `creation_date`, `completion_date`, `price`, `
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` float NOT NULL,
   `stock` int(11) NOT NULL,
-  `description` text NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `release_date` date NOT NULL,
   `being_sold` tinyint(1) NOT NULL,
   `fk_game_type` int(11) NOT NULL,
   `fk_developer` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL,
-  `image` varchar(255) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -336,7 +337,7 @@ INSERT INTO `product_genres` (`product_genre_id`, `fk_genre`, `fk_product`) VALU
 
 CREATE TABLE `statuses` (
   `status_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -360,7 +361,7 @@ INSERT INTO `statuses` (`status_id`, `name`) VALUES
 CREATE TABLE `user_genres` (
   `user_genre_id` int(11) NOT NULL,
   `fk_genre` int(11) NOT NULL,
-  `fk_account` varchar(30) NOT NULL
+  `fk_account` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -378,7 +379,7 @@ INSERT INTO `user_genres` (`user_genre_id`, `fk_genre`, `fk_account`) VALUES
 
 CREATE TABLE `user_types` (
   `type_id` int(11) NOT NULL,
-  `name` varchar(30) NOT NULL
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

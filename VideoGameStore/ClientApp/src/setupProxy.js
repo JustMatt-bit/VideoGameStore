@@ -16,10 +16,14 @@ const context = [
     "/api/products/GetGameTypes",
     "/api/products/GetDevelopers",
     "/api/products/CreateDeveloper",
+    "/api/products/DeleteDeveloper",
     "/api/products/GenreExists",
     "/api/products/CreateGenre",
+    "/api/products/GetProductGenres",
+    "/api/products/UpdateProduct",
     "/api/products/DeleteGenres",
     "/api/products/GenresProductConnection",
+    "/api/products/UpdateGenresProductConnection",
     "/api/cart",
     "/api/checkout",
     "/api/feedback",
@@ -33,6 +37,8 @@ const context = [
     "/api/loyalty/GetUserTierDetails",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
+    "/api/discount/applyDiscount",
+    "/api/discount/userDiscounts",
 ];
 
 module.exports = function(app) {
