@@ -9,7 +9,8 @@ export class Checkout extends Component {
             order_id: -1, cart_items: [], cart_total_price: 0, loading: true,
             userData: '',
             discounts: [],
-            selectedDiscount: null
+            selectedDiscount: null,
+            selectedDiscountId: null,
         };
         this.applyDiscount = this.applyDiscount.bind(this);
     }
@@ -53,9 +54,6 @@ export class Checkout extends Component {
     }
 
     static renderCart(cart_items, cart_total_price) {
-        let totalPrice = cart_items.reduce((total, item) => {
-            return total + (item.price * item.units_in_cart);
-        }, 0);
         return (
             <>
             <div style={{ padding: 10 }}>
@@ -79,7 +77,7 @@ export class Checkout extends Component {
                 </table>
 
                     <div style={{ textAlign: 'right' }}>
-                        <h5>Total: {totalPrice.toFixed(2)}€</h5>
+                        <h5>Total: {cart_total_price.toFixed(2)}€</h5>
                     </div>
             </div>
             </>
@@ -92,7 +90,7 @@ export class Checkout extends Component {
             <select onChange={handleDiscountChange}>
                 <option value="">Select a discount</option>
                 {discounts.map(discount => (
-                    <option key={discount.id} value={discount.id}>
+                    <option key={discount.discountId} value={discount.discountId}>
                         {discount.percent}% Discount
                     </option>
                 ))}
@@ -160,25 +158,45 @@ export class Checkout extends Component {
 
     handleDiscountChange = (event) => {
         const discountId = parseInt(event.target.value);
-        const selectedDiscount = this.state.discounts.find(d => d.id === discountId);
-        this.setState({ selectedDiscount }, () => {
-            if (this.state.selectedDiscount) {
-                this.applyDiscount();
-            }
-        });
+        console.log(this.state.discounts, discountId)
+        this.setState({ selectedDiscountId: discountId });
     };
 
     applyDiscount = () => {
-        console.log(this.state.selectedDiscount);
-        if (this.state.selectedDiscount) {
-            const discountFactor = 1 - this.state.selectedDiscount.percent / 100;
-            const newTotalPrice = this.state.cart_items.reduce((total, item) => {
-                return total + (item.price * item.units_in_cart);
-            }, 0) * discountFactor;
+        const { selectedDiscountId, discounts, cart_total_price } = this.state;
 
-            this.setState({ cart_total_price: newTotalPrice });
+        if (!selectedDiscountId) {
+            console.log("No discount selected");
+            return;
         }
+
+        const selectedDiscount = discounts.find(d => d.discountId === selectedDiscountId);
+        if (!selectedDiscount) {
+            console.log("Invalid discount");
+            return;
+        }
+
+        // Parse the validTo date and compare it with the current date
+        const validToDate = new Date(selectedDiscount.validTo);
+        const currentDate = new Date();
+
+        if (validToDate < currentDate) {
+            console.log("Discount is invalid: expired");
+            alert("This discount is no longer valid."); // Or use a more sophisticated method to display the message
+            return;
+        }
+
+        const discountFactor = 1 - selectedDiscount.percent / 100;
+        const newTotalPrice = cart_total_price * discountFactor;
+
+        this.setState({
+            cart_total_price: newTotalPrice,
+            discounts: this.state.discounts.filter(d => d.discountId !== selectedDiscountId),
+            selectedDiscountId: null, // Reset the selected discount ID
+        });
     };
+
+
 
     async populateCart() {
         const authCookie = document.cookie
