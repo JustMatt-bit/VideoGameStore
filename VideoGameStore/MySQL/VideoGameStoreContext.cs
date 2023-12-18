@@ -1403,6 +1403,60 @@ namespace VideoGameStore.Models
             }
         }
 
+        public void UpdateUserLoyaltyProgress(string username, double loyaltyPoints)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var user = GetUserByUsername(username);
+                var newLoyaltyProgress = user.loyalty_progress + loyaltyPoints;
+                var currentTier = GetUserLoyaltyTier(username);
+
+                // Check if new progress exceeds the current tier's limit
+                if (newLoyaltyProgress >= currentTier.PointsTo)
+                {
+                    newLoyaltyProgress = 0; // Reset progress
+                    var nextTier = GetNextLoyaltyTier(currentTier.TierId);
+                    if (nextTier != null)
+                    {
+                        // Update user's tier to the next one
+                        UpdateUserTier(username, nextTier.TierId);
+                    }
+                }
+
+                // Update user's loyalty progress
+                UpdateUserLoyaltyProgressInDatabase(username, newLoyaltyProgress);
+            }
+        }
+
+        private void UpdateUserLoyaltyProgressInDatabase(string username, double newProgress)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET loyalty_progress = @newProgress WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newProgress", newProgress);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateUserTier(string username, int newTierId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET fk_loyalty_tier = @newTierId WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newTierId", newTierId);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
 
     }
 }
