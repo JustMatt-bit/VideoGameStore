@@ -280,6 +280,7 @@ namespace VideoGameStore.Models
         }
 
 
+
         public bool GenreExists(string name)
         {
             using (MySqlConnection connection = GetConnection())
@@ -445,7 +446,25 @@ namespace VideoGameStore.Models
             }
             return developers;
         }
+        public List<int> GetProductGenres(int id)
+        {
+            List<int> genres = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM product_genres WHERE fk_product=\"" + id + "\"", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        genres.Add(reader.GetInt32("fk_genre"));
+                    }
+                }
+            }
+            return genres;
 
+        }
 
         public List<Genre> GetGenres()
         {
@@ -494,7 +513,43 @@ namespace VideoGameStore.Models
             return deleted;
 
         }
+        public bool DeleteGenresProductConnection(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                    MySqlCommand cmd = new MySqlCommand(
+                        "DELETE FROM product_genres WHERE fk_product=\"" + id + "\"", connection);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                
 
+            }
+
+        }
+
+        public bool DeleteDeveloper(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM products WHERE fk_developer=\"" + id + "\"", connection);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int rowsAffected = 0;
+                if (count == 0)
+                {
+                    cmd = new MySqlCommand(
+                        "DELETE FROM developers WHERE developer_id=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                return rowsAffected > 0;
+
+
+            }
+
+        }
         public bool ChangeProductImage(int id, string name)
         {
             using (MySqlConnection connection = GetConnection())
@@ -512,6 +567,53 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
+        public bool UpdateProduct(Product product)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                StringBuilder sqlCommandBuilder = new StringBuilder("UPDATE products SET ");
+
+                sqlCommandBuilder.Append("name=@name, ");
+                sqlCommandBuilder.Append("price=@price, ");
+                sqlCommandBuilder.Append("stock=@stock, ");
+                sqlCommandBuilder.Append("description=@description, ");
+                sqlCommandBuilder.Append("release_date=@release_date, ");
+                sqlCommandBuilder.Append("being_sold=@being_sold, ");
+                sqlCommandBuilder.Append("fk_game_type=@fk_game_type, ");
+                sqlCommandBuilder.Append("fk_developer=@fk_developer, ");
+                sqlCommandBuilder.Append("fk_account=@fk_account, ");
+
+                if (!string.IsNullOrEmpty(product.image))
+                {
+                    sqlCommandBuilder.Append("image=@image, ");
+                }
+                sqlCommandBuilder.Length -= 2;
+
+                sqlCommandBuilder.Append(" WHERE product_id=@id");
+
+                MySqlCommand cmd = new MySqlCommand(sqlCommandBuilder.ToString(), connection);
+                
+
+                cmd.Parameters.AddWithValue("@name", product.name);
+                cmd.Parameters.AddWithValue("@price", product.price);
+                cmd.Parameters.AddWithValue("@stock", product.stock);
+                cmd.Parameters.AddWithValue("@description", product.description);
+                cmd.Parameters.AddWithValue("@release_date", product.release_date);
+                cmd.Parameters.AddWithValue("@being_sold", product.being_sold);
+                cmd.Parameters.AddWithValue("@fk_game_type", product.fk_game_type);
+                cmd.Parameters.AddWithValue("@fk_developer", product.fk_developer);
+                cmd.Parameters.AddWithValue("@fk_account", product.fk_account);
+                if (!string.IsNullOrEmpty(product.image))
+                {
+                    cmd.Parameters.AddWithValue("@image", product.image);
+                }
+                cmd.Parameters.AddWithValue("@id", product.id);
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
 
         public int CreateProduct(Product product)
         {
@@ -544,6 +646,7 @@ namespace VideoGameStore.Models
                 return id;
             }
         }
+
 
 
         public Product GetProduct(int id)

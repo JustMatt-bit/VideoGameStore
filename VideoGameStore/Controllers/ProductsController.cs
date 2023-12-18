@@ -68,6 +68,21 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        [HttpGet("GetProductGenres/{id}")]
+        public ActionResult<IEnumerable<int>> GetProductGenres(int id)
+        {
+            try
+            {
+                var genres = _context.GetProductGenres(id);
+                return Ok(genres);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product genres");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost("GetGenres")]
         public ActionResult<IEnumerable<Genre>> GetGenres()
         {
@@ -127,7 +142,20 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
+        [HttpPost("DeleteDeveloper")]
+        public ActionResult<bool> DeleteDeveloper([FromBody] int id)
+        {
+            try
+            {
+                var deleted = _context.DeleteDeveloper(id);
+                return Ok(deleted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating developer");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         [HttpPost("GenreExists")]
         public ActionResult<bool> GenreExists([FromBody] string name)
@@ -179,7 +207,21 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
+        [HttpPost("UpdateGenresProductConnection")]
+        public ActionResult<bool> UpdateGenresProductConnection([FromBody] GenreProductRelation genreProductRelation)
+        {
+            try
+            {
+                var deleted = _context.DeleteGenresProductConnection(genreProductRelation.id);
+                var completed = _context.GenresProductConnection(genreProductRelation.id, genreProductRelation.genres);
+                return Ok(completed);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating product to genre connection");
+                return StatusCode(500, "Internal server error");
+            }
+        }
         public class FileInfo
         {
             public int id { get; set; }
@@ -232,6 +274,20 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpPost("UpdateProduct")]
+        public ActionResult<bool> UpdateProduct([FromBody] Product product)
+        {
+            try
+            {
+                var success = _context.UpdateProduct(product);
+                return Ok(success);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         public class GenreProductRelation
         {
@@ -249,7 +305,7 @@ namespace VideoGameStore.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating product");
+                _logger.LogError(ex, "Error creating product connection to genres");
                 return StatusCode(500, "Internal server error");
             }
         }

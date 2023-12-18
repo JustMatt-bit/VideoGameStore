@@ -80,12 +80,12 @@ export class ProductControl extends Component {
                     <tr>
                         <th>Name</th>
                         <th>Description</th>
-                        <th>Creation date</th>
+                        <th>Release date</th>
                         <th>Developer</th>
                         <th>Seller</th>
-                        <th>Stock</th>
+                        <th>Amount in stock</th>
                         <th>Price</th>
-                        <th>Sellable</th>
+                        <th>Is sold?</th>
                         <th>Type</th>
                         <th>Actions</th>
                     </tr>
@@ -113,7 +113,14 @@ export class ProductControl extends Component {
                             <td>{product.price}</td>
                             <td>{product.being_sold ? "Taip" : "Ne"}</td>
                             <td>{product.game_type_name}</td>
-                            <td><ToEdit /> <button>Delete</button></td>
+                            <td><Link style={{ color: 'black', textDecoration: 'none' }} to={{
+                                pathname: "/product-edit",
+                                search: `?${createSearchParams({
+                                    id: product.id
+                                })}`
+                            }}>
+                                Edit
+                            </Link> <button>Delete</button></td>
                         </tr>
 
                     )}
