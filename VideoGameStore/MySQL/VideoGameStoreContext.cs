@@ -1457,6 +1457,21 @@ namespace VideoGameStore.Models
             }
         }
 
+        public bool ApplyDiscountToOrder(int orderId, int discountId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_discount = @discountId WHERE order_id = @orderId", connection);
+                cmd.Parameters.AddWithValue("@discountId", discountId);
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
 
     }
 }

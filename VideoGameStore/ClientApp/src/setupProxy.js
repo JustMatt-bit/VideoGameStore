@@ -44,6 +44,7 @@ const context = [
     "/api/referral/GenerateReferralCode",
     "/api/discount/applyDiscount",
     "/api/discount/userDiscounts",
+    "/api/discount/applyDiscountToOrder",
 ];
 
 module.exports = function(app) {
