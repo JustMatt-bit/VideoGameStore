@@ -49,6 +49,32 @@ namespace VideoGameStore.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        public class CartAdditionRequest
+        {
+            public int id { get; set; }
+            public string username { get; set; }
+            public float price { get; set; }
+        }
+
+        // api/cart/addtocart/:id
+        [HttpPost("addtocart")]
+        public ActionResult AddToCart([FromBody] CartAdditionRequest req)
+        {
+            try
+            {
+                var cart_order_id = _context.GetOrdersByUser(req.username).Last().id;
+                Console.WriteLine("Here");
+                _context.AddProductToCart(cart_order_id, req.id, req.price);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding cart item");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         public class CartChangeData
         {
             public int oid { get; set; }

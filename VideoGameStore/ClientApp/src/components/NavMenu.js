@@ -20,6 +20,7 @@ export class NavMenu extends Component {
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
         collapsed: true,
+        userType: null,
     };
   }
 
@@ -37,6 +38,17 @@ export class NavMenu extends Component {
         if (authCookie) {
             const authCookieValue = authCookie.split('=')[1];
             const username = authCookieValue;
+
+            fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({
+                        userType: data.fk_user_type // Set userType based on API response
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
             // Update the state with user information
             this.setState({ isLoggedIn: true,  username });
         } else {
@@ -87,9 +99,12 @@ export class NavMenu extends Component {
                                 <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
                             </NavItem>
                         )}
-              <NavItem> 
-                  <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty program progress</NavLink>
-              </NavItem>
+                        {
+                            this.state.userType === 1 &&
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty program progress</NavLink>
+                            </NavItem>
+                        }
               <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart" /></NavLink>
               </NavItem>

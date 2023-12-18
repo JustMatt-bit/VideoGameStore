@@ -350,6 +350,25 @@ namespace VideoGameStore.Models
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public void AddProductToCart(int orderID, int productID, float price)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                   "INSERT INTO carts (price, stock, fk_order, fk_product) " +
+                   "VALUES (@price, 1, @fk_order, @fk_product)",
+                   connection);
+
+                cmd.Parameters.AddWithValue("@price", price);
+                cmd.Parameters.AddWithValue("@fk_order", orderID);
+                cmd.Parameters.AddWithValue("@fk_product", productID);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+            }
+        }
+
         public List<Product> GetAllProducts()
         {
             List<Product> types = new List<Product>();
@@ -662,6 +681,36 @@ namespace VideoGameStore.Models
                     int rowsAffected = cmd.ExecuteNonQuery();
                     return rowsAffected > 0;
                 
+
+            }
+
+        }
+        public bool DeleteProductIfNotInUse(int id)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM carts WHERE fk_product=\"" + id + "\"", connection);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int rowsAffected = 0;
+                if (count == 0)
+                {
+                    cmd = new MySqlCommand(
+                        "DELETE FROM product_genres WHERE fk_product=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                    cmd = new MySqlCommand(
+                        "DELETE FROM products WHERE product_id=\"" + id + "\"", connection);
+                    rowsAffected = cmd.ExecuteNonQuery();
+                }
+                else
+                {
+
+                    cmd = new MySqlCommand("UPDATE products SET being_sold=0 WHERE product_id=\"" + id + "\"", connection);
+                    int rows = cmd.ExecuteNonQuery();
+                }
+                return rowsAffected > 0;
+
 
             }
 

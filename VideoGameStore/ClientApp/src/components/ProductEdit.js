@@ -72,7 +72,7 @@ export class ProductEdit extends Component {
                 price: prodData.price,
                 stock: prodData.stock,
                 releaseDate: prodData.release_date.split('T')[0],
-                beingSold: prodData.being_sold,
+                beingSold: prodData.being_sold ? 1 : 0,
                 gameType: prodData.fk_game_type,
                 developerID: prodData.fk_developer,
                 selectedValues: selectedValues,
@@ -383,9 +383,9 @@ export class ProductEdit extends Component {
                         />}
                         {error[3] && <div style={{ color: 'red' }}>{error[3]}</div>}
                         <label>Type:</label><br />
-                        {this.state.gameType == 1 ? <> <input type="radio" id="gameTypePhy" name="gameType" value="1" checked onChange={this.handleChange} /></> : <> <input type="radio" id="gameTypePhy" name="gameType" value="1" onChange={this.handleChange} /></>}
+                        {!this.state.loading ? this.state.gameType == 1 ? <> <input type="radio" id="gameTypePhy" name="gameType" value="1" checked onChange={this.handleChange} /></> : <> <input type="radio" id="gameTypePhy" name="gameType" value="1" onChange={this.handleChange} /></>: console.log("loading")}
                         <label for="gameTypePhy" style={{ marginRight: '10px' }}>Physical copy</label>
-                        {this.state.gameType == 2 ? <><input type="radio" id="gameTypePhy" name="gameType" value="2" checked onChange={this.handleChange} /></> : <><input type="radio" id="gameTypeKey" name="gameType" value="2" onChange={this.handleChange} /></>}
+                        {!this.state.loading ? this.state.gameType == 2 ? <><input type="radio" id="gameTypePhy" name="gameType" value="2" checked onChange={this.handleChange} /></> : <><input type="radio" id="gameTypeKey" name="gameType" value="2" onChange={this.handleChange} /></> : console.log("loading")}
                         <label for="gameTypeKey">Key code</label>
                         <br />
                         <label>Stock: </label><br />
@@ -395,9 +395,9 @@ export class ProductEdit extends Component {
                         <input type="text" name="price" value={this.state.price} onChange={this.handleChange} /><br />
                         {error[5] && <div style={{ color: 'red' }}>{error[5]}</div>}
                         <label>Is sellable: </label><br />
-                        {this.state.beingSold == 1 ? <><input type="radio" id="sellable" name="beingSold" value="1" checked onChange={this.handleChange} /></> : <><input type="radio" id="sellable" name="beingSold" value="1" onChange={this.handleChange} /></>}
+                        {!this.state.loading ? this.state.beingSold == 1 ? <><input type="radio" id="sellable" name="beingSold" value="1" checked onChange={this.handleChange} /></> : <><input type="radio" id="sellable" name="beingSold" value="1" onChange={this.handleChange} /></> : console.log("loading")}
                         <label for="sellable" style={{ marginRight: '10px' }}>Yes</label>
-                        {this.state.beingSold == 0 ? <><input type="radio" id="notSellable" name="beingSold" value="0" checked onChange={this.handleChange} /></> : <><input type="radio" id="notSellable" name="beingSold" value="0" onChange={this.handleChange} /></>}
+                        {!this.state.loading ? this.state.beingSold == 0 ? <><input type="radio" id="notSellable" name="beingSold" value="0" checked onChange={this.handleChange} /></> : <><input type="radio" id="notSellable" name="beingSold" value="0" onChange={this.handleChange} /></> : console.log("loading")}
                         <label for="notSellable">No</label><br />
                         <label for="file" style={{ marginBottom: '10px' }}>Image (jpg, png, jpeg) :</label><br />
                         <input id="file" type="file" name="image" value={this.state.image} onChange={this.handleChange} /><br />
