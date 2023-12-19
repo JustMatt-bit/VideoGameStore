@@ -134,7 +134,17 @@ namespace VideoGameStore.Models
                 using (MySqlConnection connection = GetConnection())
                 {
                     connection.Open();
+                    using (MySqlCommand cmd = new MySqlCommand("DELETE FROM orders WHERE fk_account = @username", connection))
+                    {
+                        // Add parameters to prevent SQL injection
+                        cmd.Parameters.AddWithValue("@username", username);
 
+                        // Execute the DELETE statement
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        // Check if any rows were affected (i.e., if the user was deleted)
+                       
+                    }
                     // Create a MySqlCommand for the DELETE statement
                     using (MySqlCommand cmd = new MySqlCommand("DELETE FROM accounts WHERE username = @username", connection))
                     {
