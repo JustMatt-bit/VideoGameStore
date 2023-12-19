@@ -19,7 +19,35 @@ export class ProductEdit extends Component {
     }
 
     componentDidMount() {
+        this.getUserType();
         this.populateData();
+    }
+
+    async getUserType() {
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+
+            await fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({
+                        userType: data.fk_user_type // Set userType based on API response
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
+            // Update the state with user information
+            this.setState({ isLoggedIn: true, username });
+        } else {
+            // Authentication cookie not present
+            this.setState({ isLoggedIn: false });
+        }
     }
 
     async populateData() {
@@ -351,6 +379,7 @@ export class ProductEdit extends Component {
         return (
             
             <div style={{ marginBottom: '10%', textAlign: 'center' }} id="prodEdit">
+                {!this.state.loading && (!authCookie || authCookie && this.state.userType !== 2 && this.state.userType !== 3) ? <Navigate to="/fetch-products" replace={true} /> : <></>}
                 {contents}
                 <h2>Product edit</h2>
                 <form onSubmit={this.handleSubmit}>

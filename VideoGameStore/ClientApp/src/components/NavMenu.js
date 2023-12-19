@@ -79,13 +79,17 @@ export class NavMenu extends Component {
               </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/fetch-products">Products</NavLink>
-              </NavItem>
-              <NavItem>
-               <NavLink tag={Link} className="text-dark" to="/recommendation-list">Recommendations</NavLink>
-              </NavItem> 
+                        </NavItem>
+                        {this.state.isLoggedIn &&
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/recommendation-list">Recommendations</NavLink>
+                            </NavItem>
+                        }
+              {(this.state.userType === 2 || this.state.userType === 3) &&
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/product-control">Product control</NavLink>
-              </NavItem>
+                        </NavItem>
+              }
               <NavItem>
                   <NavLink tag={Link} className="text-dark" to="/fetch-account">Account page</NavLink>
                         </NavItem>

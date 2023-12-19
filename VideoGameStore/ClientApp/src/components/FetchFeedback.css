@@ -53,7 +53,13 @@ button {
 }
 
 .reply-card {
-    margin-left: 60px; /* Increase left margin for replies */
-    width: 95.5%;
+    margin-left: 80px;
+    width: 93%;
     background-color: #EAEAEA;
 }
+
+.facebook-share-btn {
+    background-color: #3b5998;
+    color: white;
+}
+

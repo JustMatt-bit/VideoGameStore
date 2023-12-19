@@ -7,10 +7,41 @@ export class GenreCreate extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { genreName: '', genreDescription: '', error: [] };
+        this.state = { genreName: '', genreDescription: '', error: [], loading: true };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        this.getUserType();
+    }
+
+    async getUserType() {
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+
+            await fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({
+                        userType: data.fk_user_type // Set userType based on API response
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
+            // Update the state with user information
+            this.setState({ isLoggedIn: true, username, loading: false });
+        } else {
+            // Authentication cookie not present
+            this.setState({ isLoggedIn: false, loading: false });
+        }
     }
 
     handleChange(event) {
@@ -93,6 +124,7 @@ export class GenreCreate extends Component {
         }
         return (
             <div>
+                {!this.state.loading && (!this.state.isLoggedIn || this.state.isLoggedIn && this.state.userType !== 3) ? <Navigate to="/fetch-products" replace={true} /> : <></>}
                 {contents }
                 <form onSubmit={this.handleSubmit}>
                     <div>
