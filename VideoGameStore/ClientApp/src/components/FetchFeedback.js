@@ -210,6 +210,28 @@ export class FetchFeedback extends Component {
         }
     }
 
+ /*   getFacebookShareLink(feedbackText, productName, url) {
+        const baseUrl = 'https://www.facebook.com/sharer/sharer.php';
+        const shareText = `I found this awesome feedback for ${productName} on this online video game store:\n${feedbackText}`;
+        return `${baseUrl}?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(shareText)}`;
+    }*/
+
+    getFacebookShareLink(url) {
+        const baseUrl = 'https://www.facebook.com/sharer/sharer.php';
+        return `${baseUrl}?u=${encodeURIComponent(url)}`;
+    }
+
+    formatFeedbackForClipboard(productName, feedbackText) {
+        return `Found this awesome feedback for "${productName}" on this online video game store:\n\n"${feedbackText}"`;
+    }
+
+    copyFeedbackToClipboard(feedbackText) {
+        const formattedText = this.formatFeedbackForClipboard(this.props.productName, feedbackText);
+        navigator.clipboard.writeText(formattedText).then(() => {
+            alert("Feedback copied to clipboard. Please paste it into Facebook.");
+        });
+    }
+
 
     // Add the Report Button and its logic
     renderFeedbackCards(feedback) {
@@ -243,6 +265,15 @@ export class FetchFeedback extends Component {
                                 <button onClick={() => this.submitReply(item.id, replyText)}>Submit</button>
                             </div>
                         )}
+                        {/*<button onClick={() => window.open(this.getFacebookShareLink(item.text, "Product Name", "https://google.com"), '_blank')}>
+                            Share on Facebook
+                        </button>*/}
+                        <button onClick={() => window.open(this.getFacebookShareLink("https://gameroom.lt/en/"), '_blank')}>
+                            Share on Facebook
+                        </button>
+                        <button onClick={() => this.copyFeedbackToClipboard(item.text)}>Copy Feedback</button>
+
+
                     </div>
                 )}
             </div>

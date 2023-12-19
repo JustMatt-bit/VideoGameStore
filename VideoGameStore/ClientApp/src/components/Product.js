@@ -73,7 +73,7 @@ export class Product extends Component {
 
                 </div>
                 <div style={{ clear: 'both' }}></div>
-                <FetchFeedback />
+                <FetchFeedback productName={this.state.data.name} />
             </>
         );
     }
