@@ -93,9 +93,37 @@ export class ProductControl extends Component {
     }
 
     componentDidMount() {
+        this.getUserType();
         this.populateVideoGameData();
+        
     }
-    
+
+    async getUserType() {
+        const authCookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AuthCookie'));
+
+        if (authCookie) {
+            const authCookieValue = authCookie.split('=')[1];
+            const username = authCookieValue;
+
+            await fetch(`/api/user/GetUserDetails/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({
+                        userType: data.fk_user_type // Set userType based on API response
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching user details:', error);
+                });
+            // Update the state with user information
+            this.setState({ isLoggedIn: true, username, loading: false });
+        } else {
+            // Authentication cookie not present
+            this.setState({ isLoggedIn: false, loading: false });
+        }
+    }
     
     static renderProductTable(products) {
         return (
@@ -161,12 +189,14 @@ export class ProductControl extends Component {
 }
 
     render() {
+        console.log(this.state);
         let contents;
         let startingContent = <>
             <h1 id="tabelLabel" >Product control</h1>
             <ToCreate />
-            <ToCreateGenre />
-            <ToDeleteGenres />
+            {!this.state.loading && (!this.state.isLoggedIn || this.state.isLoggedIn && this.state.userType !== 3) ? <></> : <> <ToCreateGenre />
+            <ToDeleteGenres /></>}
+           
         </>;
         if (this.state.products.length == 0) {
             contents = this.state.loading
@@ -190,7 +220,7 @@ export class ProductControl extends Component {
         }
         return (
             <div>
-                
+                {!this.state.loading && (!authCookie || authCookie && this.state.userType !== 2 && this.state.userType !== 3) ? <Navigate to="/fetch-products" replace={true} /> : <></>}
                 {contents}
                 
             </div>
@@ -208,7 +238,7 @@ export class ProductControl extends Component {
             const response = await fetch(`/api/products/GetUserProducts/${username}`);
             const data = await response.json();
             
-            this.setState({ products: data, loading: false });
+            this.setState({ products: data});
         }
         
     }
