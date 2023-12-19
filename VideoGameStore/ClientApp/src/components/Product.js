@@ -42,7 +42,7 @@ export class Product extends Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
-        })
+        }).then(window.location.href = '/cart')
     }
 
     componentDidMount() {
