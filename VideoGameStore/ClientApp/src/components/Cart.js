@@ -119,7 +119,7 @@ export class Cart extends Component {
             const response = await fetch(`api/cart/${username}`);
             const data = await response.json();
             var sum = 0;
-            data[1].map(product => sum += product.price);
+            data[1].map(product => sum += product.price * product.units_in_cart);
             this.setState({ order_id: data[0], cart_items: data[1], cart_total_price: sum, loading: false });
         }
     }

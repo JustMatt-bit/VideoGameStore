@@ -109,6 +109,23 @@ namespace VideoGameStore.Models
                 return "";
             }
         }
+
+        public void AddAddressToUsername(Address address)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO addresses (SELECT NULL,@city, @street, @building, @postalCode, @user);", connection);
+                cmd.Parameters.AddWithValue("@city", address.city);
+                cmd.Parameters.AddWithValue("@building", address.building);
+                cmd.Parameters.AddWithValue("@postalCode", address.postal_code);
+                cmd.Parameters.AddWithValue("@user", address.fk_account);
+                cmd.Parameters.AddWithValue("@street", address.street);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
         public bool DeactivateAccount(string username)
         {
             try
@@ -137,6 +154,7 @@ namespace VideoGameStore.Models
                 throw new Exception("Error during account deactivation", ex);
             }
         }
+
         private int GetDiscountById(int? discountId)
         {
             using (MySqlConnection connection = GetConnection())
@@ -298,6 +316,77 @@ namespace VideoGameStore.Models
                     "UPDATE orders SET fk_status =@newVal WHERE order_id=@orderID;", connection);
                 cmd.Parameters.AddWithValue("@newVal", statusID);
                 cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderShipping(int orderID, float price)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET parcel_price =@newVal WHERE order_id=@orderID;", connection);
+                cmd.Parameters.AddWithValue("@newVal", price);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderAddressByPostalCode(int orderID, string postalCode)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    @"UPDATE orders 
+                        SET fk_address = (
+                            SELECT address_id 
+                            FROM addresses 
+                            WHERE postal_code = @newVal 
+                            ORDER BY address_id DESC 
+                            LIMIT 1 
+                        ) 
+                        WHERE order_id = @orderID;
+                        ;", connection);
+                cmd.Parameters.AddWithValue("@newVal", postalCode);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderPrice(int orderID, float price)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    @"UPDATE orders 
+                        SET price = @newVal
+                        WHERE order_id = @orderID;
+                        ;", connection);
+                cmd.Parameters.AddWithValue("@newVal", price);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DecrementItem(int id, int amount)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    @"UPDATE products 
+                        SET stock = stock - @newVal 
+                        WHERE product_id = @id;
+                        ;", connection);
+                cmd.Parameters.AddWithValue("@newVal", amount);
+                cmd.Parameters.AddWithValue("@id", id);
 
                 cmd.ExecuteNonQuery();
             }

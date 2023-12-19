@@ -26,6 +26,26 @@ export class Checkout extends Component {
         });
     }
 
+    async setOrderPrice() {
+        await fetch(`api/checkout/setprice/${this.state.order_id}/${this.state.cart_total_price}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+    }
+
+    async decreaseItemStock() {
+        this.state.cart_items.map(product => {
+            fetch(`api/checkout/decreaseItem/${product.id}/${product.units_in_cart}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+        })
+    }
+
     componentDidMount() {
         const authCookie = document.cookie
             .split('; ')
@@ -258,7 +278,9 @@ export class Checkout extends Component {
         await this.updateUserLoyaltyPoints(username, loyaltyPoints);
         // Proceed to set order as unpaid and redirect
         await this.setOrderAsUnpaid();
-        window.location.href = '/shipping';
+        await this.setOrderPrice();
+        await this.decreaseItemStock();
+        window.location.href = '/shipping?id=' + this.state.order_id;
     };
 
     updateUserLoyaltyPoints = async (username, loyaltyPoints) => {
@@ -285,7 +307,7 @@ export class Checkout extends Component {
         const response = await fetch(`api/cart/${username}`);
         const data = await response.json();
         var sum = 0;
-        data[1].map(product => sum += product.price);
+        data[1].map(product => sum += product.price * product.units_in_cart);
         this.setState({ order_id: data[0], cart_items: data[1], cart_total_price: sum, loading: false });
     }
 

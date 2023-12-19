@@ -1,4 +1,6 @@
 ﻿import React, { Component } from 'react';
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
 
 export class FetchOrder extends Component {
     constructor(props) {
@@ -6,6 +8,7 @@ export class FetchOrder extends Component {
 
         this.state = {
             order: null,
+            newStatus: null,
             isLoggedIn: true,
             isLoading: false,
         };
@@ -50,6 +53,7 @@ export class FetchOrder extends Component {
                 // Update the state with the fetched order
                 this.setState({
                     order: data,
+                    newStatus: data.fk_status,
                 });
             })
             .catch(error => {
@@ -58,7 +62,7 @@ export class FetchOrder extends Component {
     }
 
     render() {
-        const { order, isLoggedIn } = this.state;
+        const { order, newStatus, isLoggedIn } = this.state;
         // Redirect to /fetch-account if the user is not logged in
         if (!isLoggedIn) {
             window.location.href = '/fetch-account';
@@ -72,6 +76,13 @@ export class FetchOrder extends Component {
 
         const [date, time] = order.creation_date.split('T');
         const [datec, timec] = order.completion_date.split('T');
+        const statuses = [
+            { value: 1, label: "Being built" },
+            { value: 2, label: "Unpaid" },
+            { value: 3, label: "Paid" },
+            { value: 4, label: "Processing" },
+            { value: 5, label: "Sent" },
+            { value: 6, label: "Completed" }]
 
         return (
             <div>
@@ -105,8 +116,36 @@ export class FetchOrder extends Component {
                 <div>
                     <strong>Current status:</strong> {order.statusV}
                 </div>
-                {/* Add more keys as needed */}
+                <div>
+                    <Dropdown
+                        options={statuses}
+                        value={statuses[newStatus-1]}
+                        placeholder="Select an option"
+                        onChange={this.handleStatusChange} // Updated to use the new handler
+                    />
+                </div>
             </div>
         );
+    }
+
+    handleStatusChange = (option) => {
+        // Update the state with the new status
+        this.setState({ newStatus: option.value }, () => {
+            // Call the update status method after state update
+            this.UpdateStatus();
+        });
+    }
+
+    async UpdateStatus() {
+        if (!this.state.order || !this.state.newStatus) return;
+
+        const done = await fetch(`api/checkout/updateorder/${this.state.order.id}/${this.state.newStatus}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        this.componentDidMount()
     }
 }
