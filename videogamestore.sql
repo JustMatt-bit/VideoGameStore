@@ -28,13 +28,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `accounts` (
-  `username` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `surname` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `referal_code` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(30) NOT NULL,
+  `password` varchar(32) NOT NULL,
+  `verified` tinyint(1) DEFAULT 0,
+  `name` varchar(30) NOT NULL,
+  `surname` varchar(30) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(30) NOT NULL,
+  `referal_code` varchar(30) DEFAULT NULL,
   `creation_date` datetime NOT NULL DEFAULT current_timestamp(),
   `loyalty_progress` int(11) NOT NULL DEFAULT 0,
   `fk_user_type` int(11) NOT NULL,
@@ -45,15 +46,14 @@ CREATE TABLE `accounts` (
 -- Dumping data for table `accounts`
 --
 
-INSERT INTO `accounts` (`username`, `password`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `loyalty_progress`, `fk_user_type`, `fk_loyalty_tier`) VALUES
-('asd', '688787d8ff144c502c7f5cffaafe2cc5', 'sdadas', 'sadasd', 'asdasdas@asdasd', 'adsadsa', '', '2023-12-17 22:15:23', 0, 1, 1),
-('Auksinis', '2a97516c354b68848cdbd8f54a226a0a', 'Auksas', 'Pakopa', 'auk@gmail.com', '000000000', '', '2023-12-17 19:49:30', 1711, 1, 3),
-('Bronzinis', '2a97516c354b68848cdbd8f54a226a0a', 'Bronza', 'Pakopa', 'br@gmail.com', '000000000', '', '2023-12-17 19:48:36', 354, 1, 1),
-('dovyd', '688787d8ff144c502c7f5cffaafe2cc5', 'Dovydas', 'Katinas', 'lolpmx@gmail.com', '868564914', 'Zaibas', '2023-12-15 15:20:23', 0, 1, 1),
-('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1),
-('Platininis', '2a97516c354b68848cdbd8f54a226a0a', 'Platina', 'Pakopa', 'plat@gmail.com', '000000000', '', '2023-12-17 19:49:59', 4789, 1, 4),
-('Sidabrinis', '2a97516c354b68848cdbd8f54a226a0a', 'Sidabras', 'Pakopa', 'sid@gmail.com', '000000000', '', '2023-12-17 19:49:08', 784, 1, 2),
-('test', '9f86d081884c7d659a2feaa0c55ad015', 'test', 'test', 'test@test.lt', '123', NULL, '2023-12-18 03:18:27', 0, 1, 1);
+INSERT INTO `accounts` (`username`, `password`, `verified`, `name`, `surname`, `email`, `phone`, `referal_code`, `creation_date`, `loyalty_progress`, `fk_user_type`, `fk_loyalty_tier`) VALUES
+('Auksinis', '2a97516c354b68848cdbd8f54a226a0a', 1, 'Auksas', 'Pakopa', 'auk@gmail.com', '000000000', '', '2023-12-17 19:49:30', 1711, 1, 3),
+('Bronzinis', '2a97516c354b68848cdbd8f54a226a0a', 1, 'Bronza', 'Pakopa', 'br@gmail.com', '000000000', '', '2023-12-17 19:48:36', 354, 1, 1),
+('dovyd', '688787d8ff144c502c7f5cffaafe2cc5', 1, 'Dovydas', 'Katinas', 'thegmail@gmail.com', '86856', 'Zaibas', '2023-12-15 15:20:23', 0, 1, 1),
+('JonasPonas', '2e53d715b9d776b6c45263d31ecd3d87', 1, 'Jonas', 'Ponas', 'jonas.ponas@gmail.com', '864761351', NULL, '2023-11-03 14:34:43', 15, 1, 1),
+('Platininis', '2a97516c354b68848cdbd8f54a226a0a', 1, 'Platina', 'Pakopa', 'plat@gmail.com', '000000000', '', '2023-12-17 19:49:59', 4789, 1, 4),
+('Sidabrinis', '2a97516c354b68848cdbd8f54a226a0a', 1, 'Sidabras', 'Pakopa', 'sid@gmail.com', '000000000', '', '2023-12-17 19:49:08', 784, 1, 2),
+('test', '9f86d081884c7d659a2feaa0c55ad015', 1, 'test', 'test', 'test@test.lt', '123', NULL, '2023-12-18 03:18:27', 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -391,6 +391,17 @@ INSERT INTO `user_types` (`type_id`, `name`) VALUES
 (2, 'pardavėjas'),
 (3, 'administratorius');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `verification_links`
+--
+
+CREATE TABLE `verification_links` (
+  `id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 --
 -- Indexes for dumped tables
 --
@@ -607,6 +618,11 @@ ALTER TABLE `user_types`
   MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `verification_links`
+--
+ALTER TABLE `verification_links`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
 -- Constraints for dumped tables
 --
 
