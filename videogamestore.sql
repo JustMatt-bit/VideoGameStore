@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 19, 2023 at 01:19 AM
+-- Generation Time: Dec 19, 2023 at 03:38 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -99,27 +99,6 @@ CREATE TABLE `carts` (
 
 INSERT INTO `carts` (`cart_id`, `price`, `stock`, `fk_order`, `fk_product`) VALUES
 (1, 59.99, 2, 1, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `comments`
---
-
-CREATE TABLE `comments` (
-  `comment_id` int(11) NOT NULL,
-  `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `text` text NOT NULL,
-  `fk_account` varchar(30) DEFAULT NULL,
-  `fk_feedback` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `comments`
---
-
-INSERT INTO `comments` (`comment_id`, `date`, `text`, `fk_account`, `fk_feedback`) VALUES
-(1, '2023-11-03 14:50:03', 'Tikrai tikrai', 'JonasPonas', 1);
 
 -- --------------------------------------------------------
 
@@ -438,14 +417,6 @@ ALTER TABLE `carts`
   ADD KEY `cart-product_constraint` (`fk_product`);
 
 --
--- Indexes for table `comments`
---
-ALTER TABLE `comments`
-  ADD PRIMARY KEY (`comment_id`),
-  ADD KEY `comment-account_constraint` (`fk_account`),
-  ADD KEY `comment-feedback_constraint` (`fk_feedback`);
-
---
 -- Indexes for table `developers`
 --
 ALTER TABLE `developers`
@@ -548,12 +519,6 @@ ALTER TABLE `carts`
   MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `comments`
---
-ALTER TABLE `comments`
-  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
 -- AUTO_INCREMENT for table `developers`
 --
 ALTER TABLE `developers`
@@ -648,13 +613,6 @@ ALTER TABLE `addresses`
 ALTER TABLE `carts`
   ADD CONSTRAINT `cart-order_constraint` FOREIGN KEY (`fk_order`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `cart-product_constraint` FOREIGN KEY (`fk_product`) REFERENCES `products` (`product_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `comments`
---
-ALTER TABLE `comments`
-  ADD CONSTRAINT `comment-account_constraint` FOREIGN KEY (`fk_account`) REFERENCES `accounts` (`username`) ON DELETE SET NULL,
-  ADD CONSTRAINT `comment-feedback_constraint` FOREIGN KEY (`fk_feedback`) REFERENCES `feedback` (`feedback_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `discounts`
