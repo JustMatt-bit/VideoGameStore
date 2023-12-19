@@ -1728,10 +1728,6 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
-<<<<<<< HEAD
-       
-=======
-
         public void UpdateUserLoyaltyProgress(string username, double loyaltyPoints)
         {
             using (var connection = GetConnection())
@@ -1801,7 +1797,7 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
->>>>>>> origin/master
+
 
     }
 }
