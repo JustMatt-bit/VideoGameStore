@@ -97,6 +97,12 @@ export class FetchFeedback extends Component {
         const authCookie = document.cookie.split('; ').find(row => row.startsWith('AuthCookie'));
         const username = authCookie ? authCookie.split('=')[1] : null;
 
+        // Check if reply text is empty
+        if (!replyText.trim()) {
+            alert("Reply cannot be empty.");
+            return;
+        }
+
         if (productId && replyText && username && replyingToId != null) {
             const feedback = {
                 text: replyText,
@@ -178,22 +184,27 @@ export class FetchFeedback extends Component {
         const authCookie = document.cookie.split('; ').find(row => row.startsWith('AuthCookie'));
         const username = authCookie ? authCookie.split('=')[1] : null;
 
+        // Check if feedback text is empty
+        if (!newFeedbackText.trim()) {
+            alert("Feedback cannot be empty.");
+            return;
+        }
+
         if (productId && newFeedbackText && username) {
             const feedback = {
                 text: newFeedbackText,
-                // Add other required fields, set default values if needed
                 date: new Date().toISOString(),
-                rating: 0, // example default value
-                rating_count: 0, // example default value
-                is_flagged: 0, // example default value
+                rating: 0, 
+                rating_count: 0, 
+                is_flagged: 0, 
             };
 
-            // Call the API to submit the feedback
+            
             try {
                 const response = await fetch(`api/feedback/${productId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ feedback, username }) // Ensure proper JSON structure
+                    body: JSON.stringify({ feedback, username }) 
                 });
 
                 if (response.ok) {
@@ -304,8 +315,6 @@ export class FetchFeedback extends Component {
                 this.setState(prevState => {
                     const updatedFeedback = prevState.feedback.map(item => {
                         if (item.id === feedbackId) {
-                            // Assuming 'is_flagged' holds the report count
-                            // Increment report count here
                             return { ...item, is_flagged: item.is_flagged + 1 };
                         }
                         return item;
@@ -383,12 +392,12 @@ export class FetchFeedback extends Component {
                     onChange={this.handleInputChange}
                     placeholder="Write your feedback here..."
                     maxLength={500}
-                    minLength={3}
+                    minLength={1}
                 />
                 <br />
                 <button onClick={this.submitFeedback}>Submit Feedback</button>
             </div>
-        );
+    );
 
         return (
             <div>
@@ -407,7 +416,7 @@ export class FetchFeedback extends Component {
                         ) }
                         {feedbackInputSection}
                     </div>
-                    </div>
+                </div>
                 <br></br>
                 <br></br>
                 <br></br>
@@ -419,25 +428,23 @@ export class FetchFeedback extends Component {
     organizeFeedback(feedbackList) {
         const feedbackMap = {};
 
-        // First, map all feedback by their ID
+        // map all feedback by their ID
         feedbackList.forEach(feedback => {
             feedbackMap[feedback.id] = { ...feedback, replies: [] };
         });
 
-        // Then, associate replies with their corresponding feedback
+        // associate replies with their corresponding feedback
         feedbackList.forEach(feedback => {
             if (feedback.replying_to_id != null) {
                 feedbackMap[feedback.replying_to_id].replies.push(feedback);
             }
         });
 
-        // Finally, filter out the replies from the top level, as they are now nested
+        // filter out the replies from the top level, as they are now nested
         return Object.values(feedbackMap).filter(feedback => feedback.replying_to_id == null);
     }
 
     async populateVideoGameData(productId) {
-        //const productId = this.props.productId;
-        //const productId = 1;
         const response = await fetch(`api/feedback/${productId}`);
         const data = await response.json();
         const organizedFeedback = this.organizeFeedback(data);
