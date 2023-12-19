@@ -109,9 +109,11 @@ export class NavMenu extends Component {
                                 <NavLink tag={Link} className="text-dark" to="/fetch-loyalty">Loyalty program progress</NavLink>
                             </NavItem>
                         }
-              <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart" /></NavLink>
-              </NavItem>
+                <NavItem>
+                            {this.state.isLoggedIn ? (
+                                <NavLink tag={Link} className="text-dark" to="/cart"><img src="/images/cart.png" style={{ width: '25px', height: '25px' }} alt="Cart" /></NavLink>
+                            ) : ""}
+                </NavItem>
             </ul>
           </Collapse>
         </Navbar>

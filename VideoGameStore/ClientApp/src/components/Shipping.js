@@ -133,19 +133,19 @@ export class Shipping extends Component {
                 >
                     <form onSubmit={this.handleSaveAddress}>
                         <label>
-                            City:
+                            City:<br/>
                             <input type="text" name="city" value={newAddress.city} onChange={this.handleInputChange} />
                         </label><br></br>
                         <label>
-                            Street:
+                            Street:<br />
                             <input type="text" name="street" value={newAddress.street} onChange={this.handleInputChange} />
                         </label><br></br>
                         <label>
-                            Building Number:
+                            Building Number:<br />
                             <input type="text" name="building" value={newAddress.building} onChange={this.handleInputChange} />
                         </label><br></br>
                         <label>
-                            Postal Code:
+                            Postal Code:<br />
                             <input type="text" name="postalCode" value={newAddress.postalCode} onChange={this.handleInputChange} />
                         </label><br></br>
                         <button type="submit">Save</button>

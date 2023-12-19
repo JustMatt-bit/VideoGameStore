@@ -1485,8 +1485,43 @@ namespace VideoGameStore.Models
             {
                 connection.Open();
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT * FROM orders WHERE fk_account = @username", connection);
+                    "SELECT * FROM orders WHERE fk_account = @username and not fk_status = 1", connection);
                 cmd.Parameters.AddWithValue("@username", username);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        orderHistory.Add(new Order()
+                        {
+                            id = reader.GetInt32("order_id"),
+                            creation_date = reader.GetDateTime("creation_date"),
+                            completion_date = reader.GetDateTime("completion_date"),
+                            price = reader.GetFloat("price"),
+                            comment = reader.GetString("comment"),
+                            parcel_price = reader.GetFloat("parcel_price"),
+                            fk_account = reader.GetString("fk_account"),
+                            fk_address = reader.IsDBNull(reader.GetOrdinal("fk_address"))
+                                         ? (int?)null
+                                         : reader.GetInt32("fk_address"),
+                            fk_status = reader.GetInt32("fk_status"),
+                            fk_discount = reader.IsDBNull(reader.GetOrdinal("fk_discount"))
+                                          ? (int?)null
+                                          : reader.GetInt32("fk_discount")
+                        });
+                    }
+                }
+                return orderHistory;
+            }
+        }
+
+        public List<Order> GetAllOrders()
+        {
+            List<Order> orderHistory = new List<Order>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT * FROM orders WHERE 1 and not fk_status = 1", connection);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())

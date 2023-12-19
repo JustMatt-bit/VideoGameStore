@@ -16,6 +16,7 @@ export class FetchOrderHistory extends Component {
             collapsed: true,
             isLoggedIn: true,
             username: '', // Add username to state
+            userType: null,
             orderHistory: [],    // Add orders to state
         };
     }
@@ -42,11 +43,12 @@ export class FetchOrderHistory extends Component {
                         email: data.email,
                         phone: data.phone,
                         referal_code: data.referal_code,
+                        userType: data.fk_user_type,
                         date: new Date().toLocaleDateString(),
                     });
 
                     // Fetch order history for the user
-                    this.fetchOrderHistory();
+                    this.fetchOrderHistory(data.fk_user_type);
                 })
                 .catch(error => {
                     console.error('Error fetching user details:', error);
@@ -65,21 +67,22 @@ export class FetchOrderHistory extends Component {
         });
     }
 
-    fetchOrderHistory() {
+    fetchOrderHistory(userType) {
         const { username } = this.state;
 
-        // Make API call to fetch order history
-        fetch(`/api/user/GetOrderHistory/${username}`)
-            .then(response => response.json())
-            .then(data => {
-                // Update the state with order history
-                this.setState({
-                    orderHistory: data,
+            // Make API call to fetch order history
+            fetch(`/api/user/GetOrderHistory/${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the state with order history
+                    this.setState({
+                        orderHistory: data,
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching order history:', error);
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching order history:', error);
-            });
+
     }
 
     render() {

@@ -188,6 +188,22 @@ namespace VideoGameStore.Controllers
         }
 
         // api/cart/:id
+        [HttpPost("cancelOrder/{id}")]
+        public ActionResult CancelOrder(int id)
+        {
+            try
+            {
+                _context.UpdateOrderStatus(id, 6);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting cart items");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // api/cart/:id
         [HttpPost("updateorder/{orderID}/{newStatus}")]
         public ActionResult UpdateOrder(int orderID, int newStatus)
         {

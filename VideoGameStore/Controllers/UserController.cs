@@ -47,6 +47,33 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        [HttpGet("GetAllOrderHistory/{username}")]
+        public ActionResult<List<Order>> GetAllOrderHistory(string username)
+        {
+            try
+            {
+                // Make a call to your VideoGameStoreContext or any service to get order history
+                List<Order> orderHistory = _context.GetAllOrders();
+
+                if (orderHistory != null)
+                {
+                    // Return order history if found
+                    return Ok(orderHistory);
+                }
+                else
+                {
+                    // No orders found for the user
+                    return NotFound(new { Message = "No order history found for the user" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it accordingly
+                _logger.LogError(ex, "Error during fetching order history");
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
+
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest model)
         {

@@ -8,6 +8,7 @@ export class FetchOrder extends Component {
 
         this.state = {
             order: null,
+            userType: null,
             newStatus: null,
             isLoggedIn: true,
             isLoading: false,
@@ -28,7 +29,7 @@ export class FetchOrder extends Component {
                 .then(response => response.json())
                 .then(data => {
                     // Update the state with user information
-                    this.setState({ isLoggedIn: true, isLoading: false });
+                    this.setState({ isLoggedIn: true, isLoading: false, userType: data.fk_user_type, });
                 })
                 .catch(error => {
                     console.error('Error fetching user details:', error);
@@ -116,13 +117,28 @@ export class FetchOrder extends Component {
                 <div>
                     <strong>Current status:</strong> {order.statusV}
                 </div>
-                <div>
+                <div style={{ visibility: this.state.userType > 1 ? "visible" : "hidden" }}>
                     <Dropdown
                         options={statuses}
                         value={statuses[newStatus-1]}
                         placeholder="Select an option"
                         onChange={this.handleStatusChange} // Updated to use the new handler
                     />
+                </div>
+                <div style={{ visibility: this.state.userType < 2 ? "visible" : "hidden" }}>
+                    <button onClick={this.state.order.fk_status < 4 ? this.cancelOrder.bind(this) : ''} style={{
+                        textAlign: 'center',
+                        backgroundColor: 'red', // Green background
+                        color: 'white', // White text
+                        padding: '5px 10px', // Padding around the text
+                        margin: '10px', // Margin around the button
+                        border: 'none', // No border
+                        borderRadius: '5px', // Slightly rounded corners
+                        cursor: 'pointer', // Cursor pointer
+                        fontSize: '16px', // Font size
+                    }}>
+                        Cancel order
+                    </button>
                 </div>
             </div>
         );
@@ -134,6 +150,19 @@ export class FetchOrder extends Component {
             // Call the update status method after state update
             this.UpdateStatus();
         });
+    }
+
+    async cancelOrder() {
+        if (window.confirm("Are you sure you want to cancel this order?")) {
+            const done = await fetch(`api/checkout/cancelorder/${this.state.order.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            this.componentDidMount()
+        }
     }
 
     async UpdateStatus() {
