@@ -6,10 +6,12 @@ using VideoGameStore.Models;
 public class LoyaltyController : ControllerBase
 {
     private readonly VideoGameStoreContext _context;
+    private readonly ILogger<LoyaltyController> _logger;
 
-    public LoyaltyController(VideoGameStoreContext context)
+    public LoyaltyController(VideoGameStoreContext context, ILogger<LoyaltyController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet("GetUserTierDetails/{username}")]
@@ -40,6 +42,28 @@ public class LoyaltyController : ControllerBase
             PointsToNextTier = pointsToNextTier,
             UserProgress = user.loyalty_progress
         });
+    }
+
+    [HttpPost("updateUserLoyaltyPoints")]
+    public IActionResult UpdateUserLoyaltyPoints([FromBody] LoyaltyPointsUpdateModel model)
+    {
+        if (model == null)
+        {
+            _logger.LogWarning("UpdateUserLoyaltyPoints received a null model");
+            return BadRequest("Invalid request.");
+        }
+
+        _logger.LogInformation($"Updating loyalty points for user {model.Username}");
+        _context.UpdateUserLoyaltyProgress(model.Username, model.LoyaltyPoints);
+
+        _logger.LogInformation("User loyalty points updated successfully.");
+        return Ok("User loyalty points updated.");
+    }
+
+    public class LoyaltyPointsUpdateModel
+    {
+        public string Username { get; set; }
+        public double LoyaltyPoints { get; set; }
     }
 
 }

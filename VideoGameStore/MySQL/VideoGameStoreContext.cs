@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Tls;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
@@ -264,6 +265,46 @@ namespace VideoGameStore.Models
             }
         }
 
+        public void CreateNewBuildOrderFromOrderID (int orderID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders (SELECT NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, fk_account, NULL, 1, NULL FROM orders WHERE order_id = @orderID);", connection);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void CreateNewBuildOrderFromUsername(string username)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO orders VALUES (NULL,CURRENT_TIME, CURRENT_TIME, 0, \"Kuriamas\", 0, @user, NULL, 1, NULL);", connection);
+                cmd.Parameters.AddWithValue("@user", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateOrderStatus(int orderID, int statusID)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_status =@newVal WHERE order_id=@orderID;", connection);
+                cmd.Parameters.AddWithValue("@newVal", statusID);
+                cmd.Parameters.AddWithValue("@orderID", orderID);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public List<Order> GetOrdersByUser(string username)
         {
             List<Order> orders = new List<Order>();
@@ -368,6 +409,193 @@ namespace VideoGameStore.Models
 
                 int rowsAffected = cmd.ExecuteNonQuery();
             }
+        }
+
+        public List<int> TopPopularGenres()
+        {
+            List<int> topGenres = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT product_genres.fk_genre,COUNT(product_genres.fk_genre)as countval FROM product_genres GROUP BY product_genres.fk_genre ORDER BY countval DESC LIMIT 5", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGenres.Add(reader.GetInt32("fk_genre"));
+                    }
+                }
+            }
+            return topGenres;
+        }
+
+        public List<int> TopPopularGames()
+        {
+            List<int> topGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT carts.fk_product,SUM(carts.stock)as sumval FROM carts INNER JOIN orders ON carts.fk_order=orders.order_id AND orders.fk_status=6 GROUP BY carts.fk_product ORDER BY sumval DESC LIMIT 10", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGames.Add(reader.GetInt32("fk_product"));
+                    }
+                }
+            }
+            return topGames;
+        }
+
+        List<int> GetLeastPopularGames()
+        {
+            List<int> bottomGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT products.product_id, COUNT(products.product_id) as countval FROM products LEFT JOIN carts ON carts.fk_product=products.product_id GROUP BY products.product_id ORDER BY countval LIMIT 10", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        bottomGames.Add(reader.GetInt32("product_id"));
+                    }
+                }
+            }
+            return bottomGames;
+        }
+
+        public List<int> GetUserGenres(string username)
+        {
+            List<int> topGenres = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT fk_genre FROM user_genres WHERE fk_account= \"" + username + "\"", connection);
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topGenres.Add(reader.GetInt32("fk_genre"));
+                    }
+                }
+            }
+            return topGenres;
+        }
+
+        public List<int> GetPopularGamesFromGenres(List<int> genres)
+        {
+            List<int> topGames = new List<int>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd;
+                foreach (var genre in genres)
+                {
+                    cmd = new MySqlCommand(
+                    "SELECT *,SUM(carts.stock)as sumval FROM product_genres INNER JOIN carts ON carts.fk_product=product_genres.fk_product AND product_genres.fk_genre=\"" + genre + "\" INNER JOIN orders ON carts.fk_order=orders.order_id AND orders.fk_status=6 GROUP BY product_genres.fk_product ORDER BY sumval DESC LIMIT 5", connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            topGames.Add(reader.GetInt32("fk_product"));
+                        }
+                    }
+                }
+            }
+            topGames = topGames.Distinct().ToList();
+            return topGames;
+        }
+
+
+
+        public List<Product> GetRecommendations(string name)
+        {
+            List<Product> products = new List<Product>();
+            List<int> userGenres = GetUserGenres(name);
+            List<int> topGenres = TopPopularGenres();
+            List<int> topPopularGames = TopPopularGames();
+            List<int> popularGameFromGenre = new List<int>();
+            //if uer has no favorite genres
+            if (userGenres.Count == 0) {
+                
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(topGenres));
+            }
+            else
+            {
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(topGenres));
+                popularGameFromGenre.AddRange(GetPopularGamesFromGenres(userGenres));
+            }
+            popularGameFromGenre.AddRange(topPopularGames);
+            List<int> leastPopularGame = GetLeastPopularGames();
+            popularGameFromGenre.AddRange(leastPopularGame);
+            popularGameFromGenre = popularGameFromGenre.Distinct().ToList();
+            //get 5 random games from generated game array (if generated array lenght is less than or equal 5, than return all array
+            List<int> recommendedGameIds = new List<int>();
+            if (popularGameFromGenre.Count > 5)
+            {
+                int i = 5;
+                Random rnd = new Random();
+                while (0 < i)
+                {
+                    int randIndex = rnd.Next(0, popularGameFromGenre.Count);
+                    var item = popularGameFromGenre[randIndex];
+                    popularGameFromGenre.RemoveAt(randIndex);
+                    recommendedGameIds.Add(item);
+                    i--;
+                }
+                products = GetProductsByIds(recommendedGameIds);
+            }
+            else
+            {
+                products = GetProductsByIds(popularGameFromGenre);
+            }
+            return products;
+            
+        }
+
+
+        public List<Product> GetProductsByIds(List<int> ids)
+        {
+            List<Product> product = new List<Product>();
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                MySqlCommand cmd;
+                foreach(var id in ids){
+                    cmd = new MySqlCommand(
+                        "SELECT p.product_id, p.name, p.price, p.stock, p.description, p.release_date, p.being_sold, p.fk_game_type, gt.name AS game_type, p.fk_developer, d.name AS developer, p.fk_account, p.image " +
+                        "FROM products p LEFT JOIN developers d ON  d.developer_id=p.fk_developer LEFT JOIN game_types gt ON  gt.game_type_id=p.fk_game_type WHERE p.product_id=\"" + id + "\"", connection);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            product.Add(new Product()
+                            {
+                                id = reader.GetInt32("product_id"),
+                                name = reader.GetString("name"),
+                                price = reader.GetFloat("price"),
+                                stock = reader.GetInt32("stock"),
+                                description = reader.GetString("description"),
+                                release_date = reader.GetDateTime("release_date"),
+                                being_sold = reader.GetBoolean("being_sold"),
+                                fk_game_type = reader.GetInt32("fk_game_type"),
+                                game_type_name = reader.GetString("game_type"),
+                                fk_developer = reader.GetInt32("fk_developer"),
+                                developer_name = reader.GetString("developer"),
+                                fk_account = reader.GetString("fk_account"),
+                                image = reader.GetString("image")
+                            });
+                        }
+
+                    }
+                }
+            }
+            return product;
         }
 
         public List<Product> GetAllProducts()
@@ -991,7 +1219,7 @@ namespace VideoGameStore.Models
                 connection.Open();
 
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product " +
+                    "SELECT f.feedback_id, f.date, f.text, f.rating, f.rating_count, f.flagged, f.fk_account, f.fk_product, f.replying_to_id " +
                     "FROM feedback f LEFT JOIN products p ON p.product_id=f.fk_product WHERE f.fk_product=@productId", connection);
                 cmd.Parameters.AddWithValue("@productId", productId);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1005,11 +1233,14 @@ namespace VideoGameStore.Models
                             text = reader.GetString("text"),
                             rating = reader.GetFloat("rating"),
                             rating_count = reader.GetInt32("rating_count"),
-                            is_flagged = reader.GetBoolean("flagged"),
+                            is_flagged = reader.GetInt32("flagged"),
                             account_name = reader.IsDBNull(reader.GetOrdinal("fk_account"))
                                          ? (string?)null
                                          : reader.GetString("fk_account"),
-                            fk_product = reader.GetInt32("fk_product")
+                            fk_product = reader.GetInt32("fk_product"),
+                            replying_to_id = reader.IsDBNull(reader.GetOrdinal("replying_to_id"))
+                                         ? null
+                                         : reader.GetInt32("replying_to_id"),
                         });
                     }
                 }
@@ -1025,8 +1256,8 @@ namespace VideoGameStore.Models
 
                 // Prepare the INSERT statement to add new feedback
                 MySqlCommand cmd = new MySqlCommand(
-                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product) " +
-                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId)", connection);
+                    "INSERT INTO feedback (date, text, rating, rating_count, flagged, fk_account, fk_product, replying_to_id) " +
+                    "VALUES (@date, @text, @rating, @ratingCount, @flagged, @accountName, @productId, @replying_to_id)", connection);
 
                 // Set the parameters
                 cmd.Parameters.AddWithValue("@date", feedback.date);
@@ -1036,12 +1267,43 @@ namespace VideoGameStore.Models
                 cmd.Parameters.AddWithValue("@flagged", feedback.is_flagged);
                 cmd.Parameters.AddWithValue("@accountName", username);
                 cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@replying_to_id", feedback.replying_to_id);
+
 
                 // Execute the INSERT statement
                 int rowsAffected = cmd.ExecuteNonQuery();
 
                 // Return true if one row was affected, otherwise false
                 return rowsAffected == 1;
+            }
+        }
+
+        public bool ReportFeedback(int feedbackId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET flagged = flagged + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
+        public bool RateFeedback(int feedbackId, int newRating)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("UPDATE feedback SET rating = ((rating * rating_count + @newRating) / (rating_count + 1)), rating_count = rating_count + 1 WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+                    cmd.Parameters.AddWithValue("@newRating", newRating);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
 
@@ -1466,7 +1728,80 @@ namespace VideoGameStore.Models
                 return rowsAffected > 0;
             }
         }
+<<<<<<< HEAD
        
+=======
+
+        public void UpdateUserLoyaltyProgress(string username, double loyaltyPoints)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                var user = GetUserByUsername(username);
+                var newLoyaltyProgress = user.loyalty_progress + loyaltyPoints;
+                var currentTier = GetUserLoyaltyTier(username);
+
+                // Check if new progress exceeds the current tier's limit
+                if (newLoyaltyProgress >= currentTier.PointsTo)
+                {
+                    newLoyaltyProgress = 0; // Reset progress
+                    var nextTier = GetNextLoyaltyTier(currentTier.TierId);
+                    if (nextTier != null)
+                    {
+                        // Update user's tier to the next one
+                        UpdateUserTier(username, nextTier.TierId);
+                    }
+                }
+
+                // Update user's loyalty progress
+                UpdateUserLoyaltyProgressInDatabase(username, newLoyaltyProgress);
+            }
+        }
+
+        private void UpdateUserLoyaltyProgressInDatabase(string username, double newProgress)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET loyalty_progress = @newProgress WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newProgress", newProgress);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private void UpdateUserTier(string username, int newTierId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+
+                var cmd = new MySqlCommand("UPDATE accounts SET fk_loyalty_tier = @newTierId WHERE username = @username", connection);
+                cmd.Parameters.AddWithValue("@newTierId", newTierId);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public bool ApplyDiscountToOrder(int orderId, int discountId)
+        {
+            using (MySqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                MySqlCommand cmd = new MySqlCommand(
+                    "UPDATE orders SET fk_discount = @discountId WHERE order_id = @orderId", connection);
+                cmd.Parameters.AddWithValue("@discountId", discountId);
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+>>>>>>> origin/master
 
     }
 }

@@ -29,6 +29,7 @@ const context = [
     "/api/products/DeleteProductIfNotInUse",
     "/api/products/GenresProductConnection",
     "/api/products/UpdateGenresProductConnection",
+    "/api/recommendation/get",
     "/api/cart",
     "/api/checkout",
     "/api/feedback",
@@ -40,10 +41,12 @@ const context = [
     "/api/leaderboard/GetTopUsers",
     "/api/leaderboard/GetUserPosition",
     "/api/loyalty/GetUserTierDetails",
+    "/api/loyalty/updateUserLoyaltyPoints",
     "/api/referral/CheckReferralCode",
     "/api/referral/GenerateReferralCode",
     "/api/discount/applyDiscount",
     "/api/discount/userDiscounts",
+    "/api/discount/applyDiscountToOrder",
 ];
 
 module.exports = function(app) {

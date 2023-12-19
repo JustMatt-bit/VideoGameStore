@@ -1,6 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { createSearchParams } from "react-router-dom";
+
 import './NavMenu.css';
 
 export class FetchOrderHistory extends Component {
@@ -82,7 +84,7 @@ export class FetchOrderHistory extends Component {
 
     render() {
         const { isLoggedIn, orderHistory } = this.state;
-
+        const statuses = ["Kuriamas", "Neapmokėtas", "Apmokėtas", "Apdorojamas", "Išsiųstas", "Užbaigtas"]
         // Redirect to /fetch-account if the user is not logged in
         if (!isLoggedIn) {
             window.location.href = '/fetch-account';
