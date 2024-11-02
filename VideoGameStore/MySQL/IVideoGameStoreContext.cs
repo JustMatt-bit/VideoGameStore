@@ -1,4 +1,5 @@
-﻿using VideoGameStore.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using VideoGameStore.Models;
 
 namespace VideoGameStore.Models
 {
