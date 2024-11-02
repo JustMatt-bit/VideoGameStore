@@ -8,9 +8,9 @@ namespace VideoGameStore.Controllers
     public class FeedbackController : ControllerBase
     {
         private readonly ILogger<FeedbackController> _logger;
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
 
-        public FeedbackController(ILogger<FeedbackController> logger, VideoGameStoreContext context)
+        public FeedbackController(ILogger<FeedbackController> logger, IVideoGameStoreContext context)
         {
             _logger = logger;
             _context = context;

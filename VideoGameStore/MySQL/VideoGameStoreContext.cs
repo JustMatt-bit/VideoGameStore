@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace VideoGameStore.Models
 {
-    public class VideoGameStoreContext
+    public class VideoGameStoreContext : IVideoGameStoreContext
     {
         public string ConnectionString { get; set; }
 
@@ -88,7 +88,7 @@ namespace VideoGameStore.Models
                 return null;
             }
         }
-        private string GetStatusById(int statusId)
+        public string GetStatusById(int statusId)
         {
             using (MySqlConnection connection = GetConnection())
             {
@@ -1404,6 +1404,25 @@ namespace VideoGameStore.Models
                 }
             }
         }
+
+        public bool FeedbackExists(int feedbackId)
+        {
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM feedback WHERE feedback_id = @feedbackId", connection))
+                {
+                    cmd.Parameters.AddWithValue("@feedbackId", feedbackId);
+
+                    // Execute the command and get the result
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    // If count is greater than 0, the feedback exists
+                    return count > 0;
+                }
+            }
+        }
+
 
 
         public bool UpdateUser(User updatedUser)
