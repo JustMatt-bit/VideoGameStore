@@ -5,10 +5,10 @@ using VideoGameStore.Models;
 [Route("api/[controller]")]
 public class LoyaltyController : ControllerBase
 {
-    private readonly VideoGameStoreContext _context;
+    private readonly IVideoGameStoreContext _context;
     private readonly ILogger<LoyaltyController> _logger;
 
-    public LoyaltyController(VideoGameStoreContext context, ILogger<LoyaltyController> logger)
+    public LoyaltyController(IVideoGameStoreContext context, ILogger<LoyaltyController> logger)
     {
         _context = context;
         _logger = logger;

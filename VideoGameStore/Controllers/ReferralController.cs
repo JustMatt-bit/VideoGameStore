@@ -7,9 +7,9 @@ namespace VideoGameStore.Controllers
     [Route("api/[controller]")]
     public class ReferralController : ControllerBase
     {
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
 
-        public ReferralController(VideoGameStoreContext context)
+        public ReferralController(IVideoGameStoreContext context)
         {
             _context = context;
         }

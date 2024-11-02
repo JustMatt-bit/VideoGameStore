@@ -22,6 +22,9 @@ namespace VideoGameStore.Tests
             _controller = new FeedbackController(_loggerMock.Object, _contextMock.Object);
         }
 
+        ///    - Verifies that the Get method returns an OkObjectResult with a list of feedback for a given product ID.
+        ///    - Mocks the IVideoGameStoreContext to return a predefined list of feedback.
+        ///    - Asserts that the result is not null, has a status code of 200, and contains the expected feedback list.
         [Fact]
         public void Get_ReturnsOkResult_WithFeedbackList()
         {
@@ -44,6 +47,10 @@ namespace VideoGameStore.Tests
             Assert.Equal(feedbackList, result.Value);
         }
 
+
+        ///    - Verifies that the Get method returns an ObjectResult with a status code of 500 when an exception occurs.
+        ///    - Mocks the IVideoGameStoreContext to throw an exception.
+        ///    - Asserts that the result is not null, has a status code of 500, and contains the expected error message.
         [Fact]
         public void Get_ReturnsInternalServerError_OnException()
         {
@@ -60,6 +67,10 @@ namespace VideoGameStore.Tests
             Assert.Equal("Internal server error", result.Value);
         }
 
+
+        ///    - Verifies that the CreateFeedback method returns an OkResult when feedback is successfully created.
+        ///    - Mocks the IVideoGameStoreContext to return true for feedback creation.
+        ///    - Asserts that the result is not null and has a status code of 200.
         [Fact]
         public void CreateFeedback_ReturnsOkResult_OnSuccess()
         {
@@ -78,6 +89,10 @@ namespace VideoGameStore.Tests
             Assert.Equal(200, result.StatusCode);
         }
 
+
+        ///    - Verifies that the CreateFeedback method returns a BadRequestObjectResult when feedback creation fails.
+        ///    - Mocks the IVideoGameStoreContext to return false for feedback creation.
+        ///    - Asserts that the result is not null, has a status code of 400, and contains the expected error message.
         [Fact]
         public void CreateFeedback_ReturnsBadRequest_OnFailure()
         {
@@ -97,6 +112,10 @@ namespace VideoGameStore.Tests
             Assert.Equal("Failed to save feedback", result.Value);
         }
 
+
+        ///    - Verifies that the ReportFeedback method returns an OkResult when feedback is successfully reported.
+        ///    - Mocks the IVideoGameStoreContext to return true for feedback reporting.
+        ///    - Asserts that the result is not null and has a status code of 200.
         [Fact]
         public void ReportFeedback_ReturnsOkResult_OnSuccess()
         {
@@ -112,6 +131,10 @@ namespace VideoGameStore.Tests
             Assert.Equal(200, result.StatusCode);
         }
 
+
+        ///    - Verifies that the ReportFeedback method returns a BadRequestObjectResult when feedback reporting fails.
+        ///    - Mocks the IVideoGameStoreContext to return false for feedback reporting.
+        ///    - Asserts that the result is not null, has a status code of 400, and contains the expected error message.
         [Fact]
         public void ReportFeedback_ReturnsBadRequest_OnFailure()
         {
@@ -128,6 +151,10 @@ namespace VideoGameStore.Tests
             Assert.Equal("Failed to report feedback", result.Value);
         }
 
+
+        ///    - Verifies that the RateFeedback method returns an OkResult when feedback rating is successfully updated.
+        ///    - Mocks the IVideoGameStoreContext to return true for feedback rating update.
+        ///    - Asserts that the result is not null and has a status code of 200.
         [Fact]
         public void RateFeedback_ReturnsOkResult_OnSuccess()
         {
@@ -144,6 +171,10 @@ namespace VideoGameStore.Tests
             Assert.Equal(200, result.StatusCode);
         }
 
+
+        ///    - Verifies that the RateFeedback method returns a BadRequestObjectResult when feedback rating update fails.
+        ///    - Mocks the IVideoGameStoreContext to return false for feedback rating update.
+        ///    - Asserts that the result is not null, has a status code of 400, and contains the expected error message.
         [Fact]
         public void RateFeedback_ReturnsBadRequest_OnFailure()
         {
