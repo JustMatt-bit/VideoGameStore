@@ -8,10 +8,10 @@ namespace VideoGameStore.Controllers
     [Route("api/[controller]")]
     public class DiscountController : ControllerBase
     {
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
         private readonly ILogger<DiscountController> _logger;
 
-        public DiscountController(VideoGameStoreContext context, ILogger<DiscountController> logger)
+        public DiscountController(IVideoGameStoreContext context, ILogger<DiscountController> logger)
         {
             _context = context;
             _logger = logger;

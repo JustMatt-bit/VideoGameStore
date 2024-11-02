@@ -547,7 +547,7 @@ namespace VideoGameStore.Models
             return topGames;
         }
 
-        List<int> GetLeastPopularGames()
+        public List<int> GetLeastPopularGames()
         {
             List<int> bottomGames = new List<int>();
             using (MySqlConnection connection = GetConnection())

@@ -5,9 +5,9 @@ using VideoGameStore.Models;
 [Route("api/[controller]")]
 public class LeaderboardController : ControllerBase
 {
-    private readonly VideoGameStoreContext _context;
+    private readonly IVideoGameStoreContext _context;
 
-    public LeaderboardController(VideoGameStoreContext context)
+    public LeaderboardController(IVideoGameStoreContext context)
     {
         _context = context;
     }

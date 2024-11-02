@@ -8,11 +8,11 @@ namespace VideoGameStore.Controllers
     [Route("api/[controller]")]
     public class EmailController : ControllerBase
     {
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
         private readonly ILogger<ProductsController> _logger;
         private readonly EmailService _emailService; // Assuming EmailService is the correct class name
 
-        public EmailController(ILogger<ProductsController> logger, VideoGameStoreContext context, EmailService emailService)
+        public EmailController(ILogger<ProductsController> logger, IVideoGameStoreContext context, EmailService emailService)
         {
             _context = context;
             _logger = logger;

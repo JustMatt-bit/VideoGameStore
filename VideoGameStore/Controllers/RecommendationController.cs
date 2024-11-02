@@ -8,8 +8,8 @@ namespace VideoGameStore.Controllers
     public class RecommendationController : Controller
     {
         private readonly ILogger<RecommendationController> _logger;
-        private readonly VideoGameStoreContext _context;
-        public RecommendationController(ILogger<RecommendationController> logger, VideoGameStoreContext context)
+        private readonly IVideoGameStoreContext _context;
+        public RecommendationController(ILogger<RecommendationController> logger, IVideoGameStoreContext context)
         {
             _logger = logger;
             _context = context;

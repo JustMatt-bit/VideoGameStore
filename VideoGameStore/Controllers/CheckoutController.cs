@@ -18,9 +18,9 @@ namespace VideoGameStore.Controllers
     public class CheckoutController : ControllerBase
     {
         private readonly ILogger<CheckoutController> _logger;
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
 
-        public CheckoutController(ILogger<CheckoutController> logger, VideoGameStoreContext context)
+        public CheckoutController(ILogger<CheckoutController> logger, IVideoGameStoreContext context)
         {
             _logger = logger;
             _context = context;

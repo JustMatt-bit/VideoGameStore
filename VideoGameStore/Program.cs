@@ -4,9 +4,11 @@ using SendGrid;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<VideoGameStoreContext>(provider =>
-    new VideoGameStoreContext(builder.Configuration.GetConnectionString("Default")));
-
+builder.Services.AddScoped<IVideoGameStoreContext>(provider =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Default");
+    return new VideoGameStoreContext(connectionString);
+});
 builder.Services.AddSingleton<ISendGridClient>(provider =>
 {
     var apiKey = builder.Configuration.GetSection("SendGrid")["ApiKey"];
@@ -15,6 +17,7 @@ builder.Services.AddSingleton<ISendGridClient>(provider =>
 
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 

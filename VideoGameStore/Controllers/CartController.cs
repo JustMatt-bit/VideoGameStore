@@ -9,9 +9,9 @@ namespace VideoGameStore.Controllers
     public class CartController : ControllerBase
     {
         private readonly ILogger<CartController> _logger;
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
 
-        public CartController(ILogger<CartController> logger, VideoGameStoreContext context)
+        public CartController(ILogger<CartController> logger, IVideoGameStoreContext context)
         {
             _logger = logger;
             _context = context;
