@@ -11,10 +11,10 @@ namespace VideoGameStore.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
         private readonly ILogger<ProductsController> _logger;
 
-        public UserController(ILogger<ProductsController> logger, VideoGameStoreContext context)
+        public UserController(ILogger<ProductsController> logger, IVideoGameStoreContext context)
         {
             _context = context;
             _logger = logger;

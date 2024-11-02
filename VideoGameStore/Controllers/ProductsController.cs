@@ -12,10 +12,10 @@ namespace VideoGameStore.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ILogger<ProductsController> _logger;
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductsController(ILogger<ProductsController> logger, VideoGameStoreContext context, IWebHostEnvironment webHostEnvironment)
+        public ProductsController(ILogger<ProductsController> logger, IVideoGameStoreContext context, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
             _context = context;
