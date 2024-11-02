@@ -7,9 +7,9 @@ namespace VideoGameStore.Controllers
     [Route("api/[controller]")]
     public class ReferralController : ControllerBase
     {
-        private readonly VideoGameStoreContext _context;
+        private readonly IVideoGameStoreContext _context;
 
-        public ReferralController(VideoGameStoreContext context)
+        public ReferralController(IVideoGameStoreContext context)
         {
             _context = context;
         }
@@ -34,12 +34,16 @@ namespace VideoGameStore.Controllers
             }
         }
 
+        public class ReferralCodeResponse
+        {
+            public string ReferralCode { get; set; } = string.Empty;
+        }
+
         [HttpPost("GenerateReferralCode/{userName}")]
         public IActionResult GenerateReferralCode(string userName)
         {
-            var username = userName;
-            var referralCode = _context.GenerateReferralCode(username);
-            return Ok(new { referralCode });
+            var referralCode = _context.GenerateReferralCode(userName);
+            return Ok(new ReferralCodeResponse { ReferralCode = referralCode });
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using VideoGameStore.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using VideoGameStore.Models;
 
 namespace VideoGameStore.Models
 {
@@ -11,6 +12,7 @@ namespace VideoGameStore.Models
         bool ReportFeedback(int feedbackId);
         bool RateFeedback(int feedbackId, int newRating);
         bool FeedbackExists(int feedbackId);
-
+        bool CheckReferralCodeExists(string referralCode);
+        string GenerateReferralCode(string username);
     }
 }

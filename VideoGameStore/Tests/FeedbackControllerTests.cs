@@ -123,7 +123,7 @@ namespace VideoGameStore.Tests
             var result = _controller.ReportFeedback(feedbackId) as BadRequestObjectResult;
 
             // Assert
-            Assert.NotNull(result);
+            Assert.NotNull(result); 
             Assert.Equal(400, result.StatusCode);
             Assert.Equal("Failed to report feedback", result.Value);
         }
