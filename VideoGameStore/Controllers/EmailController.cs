@@ -10,9 +10,9 @@ namespace VideoGameStore.Controllers
     {
         private readonly IVideoGameStoreContext _context;
         private readonly ILogger<ProductsController> _logger;
-        private readonly EmailService _emailService; // Assuming EmailService is the correct class name
+        private readonly IEmailService _emailService;
 
-        public EmailController(ILogger<ProductsController> logger, IVideoGameStoreContext context, EmailService emailService)
+        public EmailController(ILogger<ProductsController> logger, IVideoGameStoreContext context, IEmailService emailService)
         {
             _context = context;
             _logger = logger;
@@ -20,15 +20,27 @@ namespace VideoGameStore.Controllers
         }
 
         [HttpPost("sendWelcomeEmail/{username}")]
-        public IActionResult SendWelcomeEmail(string username)
+        public async Task<IActionResult> SendWelcomeEmail(string username)
         {
-            // Get user details using username, e.g., from the database
             User user = _context.GetUserByUsername(username);
 
-            // Send the welcome email using the instance of EmailService
-            _emailService.SendWelcomeEmail(user).Wait();
+            if (user == null)
+            {
+                return BadRequest(new { message = "User not found." });
+            }
 
-            return Ok(new { message = "Welcome email sent successfully." });
+            var result = await _emailService.SendWelcomeEmail(user);
+
+            if (result.Success)
+            {
+                return Ok(new { message = "Welcome email sent successfully." });
+            }
+            else
+            {
+                return BadRequest(new { message = result.Message });
+            }
         }
+
+
     }
 }
