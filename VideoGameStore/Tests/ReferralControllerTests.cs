@@ -58,6 +58,7 @@ namespace VideoGameStore.Tests
         public void GenerateReferralCode_ReturnsUniqueCodes()
         {
             // Arrange
+            var userName = "user1";
             var codesToReturn = new List<string> { "CODE123", "CODE456", "CODE789" };
             _contextMock.SetupSequence(c => c.GenerateReferralCode(It.IsAny<string>()))
                         .Returns(codesToReturn[0])
@@ -65,9 +66,9 @@ namespace VideoGameStore.Tests
                         .Returns(codesToReturn[2]);
 
             // Act
-            var result1 = _controller.GenerateReferralCode("user1") as OkObjectResult;
-            var result2 = _controller.GenerateReferralCode("user1") as OkObjectResult;
-            var result3 = _controller.GenerateReferralCode("user1") as OkObjectResult;
+            var result1 = _controller.GenerateReferralCode(userName) as OkObjectResult;
+            var result2 = _controller.GenerateReferralCode(userName) as OkObjectResult;
+            var result3 = _controller.GenerateReferralCode(userName) as OkObjectResult;
 
             var returnedCodes = new List<string>();
             if (result1 != null && result1.Value is ReferralCodeResponse response1) returnedCodes.Add(response1.ReferralCode);
